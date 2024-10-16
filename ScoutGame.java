@@ -200,7 +200,7 @@ public class ScoutGame extends JFrame {
         resourceOccupancy = new int[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
-            resourceValues[i] = 90000;
+            resourceValues[i] = 500;
             resourceOccupied[i] = false;
             resourceOccupancy[i] = 0;
         }
