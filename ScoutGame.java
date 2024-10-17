@@ -51,7 +51,7 @@ public class ScoutGame extends JFrame {
             allWorkers.add(blueWorker);
         }
 
-        setTitle("Resources");
+        setTitle("simulacrum");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -74,8 +74,8 @@ public class ScoutGame extends JFrame {
         redBaseX = screenWidth - 200;
         redBaseY = 100;
 
-        blueWorkers = new Worker[4];
-        redWorkers = new Worker[4];
+        blueWorkers = new Worker[10];/////////////////////////////////////////////////////////////blue_workers_count
+        redWorkers = new Worker[10];//////////////////////////////////////////////////////////////red_workers_count
         for (int i = 0; i < blueWorkers.length; i++) {
             blueWorkers[i] = new Worker(
                     blueBaseX + 80 + 30 * i,
@@ -192,13 +192,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Point[8];
+        resources = new Point[21];///////////////////////////////////////////////////////////////////resources_start_count
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
         resourceOccupancy = new int[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
-            resourceValues[i] = 500;
+            resourceValues[i] = 10;/////////////////////////////////////////////////////////////////resources_start_value
             resourceOccupied[i] = false;
             resourceOccupancy[i] = 0;
         }
