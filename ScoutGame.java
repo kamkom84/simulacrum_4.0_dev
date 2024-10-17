@@ -9,8 +9,8 @@ import java.util.Random;
 
 public class ScoutGame extends JFrame {
     private int blueBaseX, blueBaseY, redBaseX, redBaseY;
-    private int blueBaseHealth = 500; // Initial health of the blue base
-    private int redBaseHealth = 500;  // Initial health of the red base
+    private int blueBaseHealth = 500;
+    private int redBaseHealth = 500;
     private final int baseWidth = 75;
     private final int baseHeight = 75;
     private Worker[] blueWorkers;
@@ -26,7 +26,7 @@ public class ScoutGame extends JFrame {
     private List<Worker> workers;
     private List<Worker> allWorkers;
     private long startTime;
-    private final int DEFENDER_SHIELD_RADIUS = (int) (baseWidth * 1.5); // Adjust as necessary
+    private final int DEFENDER_SHIELD_RADIUS = (int) (baseWidth * 1.5);
 
 
     public ScoutGame() {
@@ -36,7 +36,7 @@ public class ScoutGame extends JFrame {
         blueScout = new Scout(blueBaseX, blueBaseY, "blue", this);
         redScout = new Scout(redBaseX, redBaseY, "red", this);
 
-        // Ensure the frame has size and is visible before generating resources
+        //frame has size and is visible before generating resources
         setVisible(true);
 
         initializeResources();
@@ -51,7 +51,7 @@ public class ScoutGame extends JFrame {
             allWorkers.add(blueWorker);
         }
 
-        setTitle("Ant Resources And Wars");
+        setTitle("Resources");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -122,7 +122,7 @@ public class ScoutGame extends JFrame {
                 int shieldRadius = (int) (baseWidth * 2.9);
 
                 drawBasesAndResources(g2d, shieldRadius);
-                drawAnts(g2d);
+                drawWorkers(g2d);
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 int seconds = (int) (elapsedTime / 1000) % 60;
@@ -147,7 +147,7 @@ public class ScoutGame extends JFrame {
         minimizeButton.addActionListener(e -> setState(JFrame.ICONIFIED));
         controlPanel.add(minimizeButton);
 
-        // Fullscreen button
+        //Fullscreen button
         JButton fullscreenButton = new JButton("□");
         fullscreenButton.addActionListener(e -> {
             setUndecorated(!isUndecorated());
@@ -157,7 +157,7 @@ public class ScoutGame extends JFrame {
         });
         controlPanel.add(fullscreenButton);
 
-        // Close button
+        //Close button
         JButton closeButton = new JButton("X");
         closeButton.addActionListener(e -> System.exit(0));
         controlPanel.add(closeButton);
@@ -179,15 +179,13 @@ public class ScoutGame extends JFrame {
             }
 
             // Други операции по време на таймера
-            System.out.println("Calling moveAnts");
+            System.out.println("Calling workers");
             moveDefenders();
-            moveAnts();
+            moveWorkers();
             mainPanel.repaint();
         });
         timer.start();
 
-
-        // Други настройки на конструктора...
         setVisible(true);
 
         setVisible(true);
@@ -269,7 +267,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
     private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
         // Blue base
         g2d.setColor(new Color(0, 100, 200));
@@ -304,25 +301,25 @@ public class ScoutGame extends JFrame {
         }
     }
 
-    private void drawAnts(Graphics2D g2d) {
-        drawAntWithLine(g2d, blueScout);
-        drawAntWithLine(g2d, redScout);
+    private void drawWorkers(Graphics2D g2d) {
+        drawWorkersWithLine(g2d, blueScout);
+        drawWorkersWithLine(g2d, redScout);
 
         for (Worker worker : blueWorkers) {
-            drawAntWithLine(g2d, worker);
+            drawWorkersWithLine(g2d, worker);
         }
         for (Worker worker : redWorkers) {
-            drawAntWithLine(g2d, worker);
+            drawWorkersWithLine(g2d, worker);
         }
         for (Defender defender : blueDefenders) {
-            drawAntWithLine(g2d, defender);
+            drawWorkersWithLine(g2d, defender);
         }
         for (Defender defender : redDefenders) {
-            drawAntWithLine(g2d, defender);
+            drawWorkersWithLine(g2d, defender);
         }
     }
 
-    private void drawAntWithLine(Graphics2D g2d, Character ant) {
+    private void drawWorkersWithLine(Graphics2D g2d, Character ant) {
         if (ant == null) return;
 
         int bodyRadius = 5;
@@ -374,7 +371,7 @@ public class ScoutGame extends JFrame {
         }
     }
 
-    private void moveAnts() {
+    private void moveWorkers() {
         for (Worker worker : blueWorkers) {
             if (worker != null) {
                 System.out.println("Updating cycle for Worker " + worker.getWorkerId());
@@ -391,7 +388,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void checkGameStatus() {
-        // Add logic to check game status
+        // To do: sdd logic to check game status
     }
 
     public static void main(String[] args) {
@@ -401,8 +398,6 @@ public class ScoutGame extends JFrame {
     public List<Worker> getAllWorkers() {
         return allWorkers;
     }
-
-    // In ScoutGame class
 
     // Getter and Setter for blueBaseHealth
     public int getBlueBaseHealth() {
@@ -421,7 +416,6 @@ public class ScoutGame extends JFrame {
     public void setRedBaseHealth(int health) {
         this.redBaseHealth = health;
     }
-
 
     public void addPointsToScoutBase(String team, int points) {
         if (team.equals("blue")) {

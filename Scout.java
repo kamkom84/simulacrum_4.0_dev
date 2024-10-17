@@ -92,7 +92,7 @@ public class Scout extends Character {
     }
 
     private void animateShot(int targetX, int targetY) {
-        // Draw a line between the scout and the target (placeholder for actual animation)
+        // Draw a line between the scout and the target
         Graphics g = scoutGame.getGraphics();
         g.setColor(Color.YELLOW);
         g.drawLine((int)x, (int)y, targetX, targetY);
