@@ -66,7 +66,7 @@ public class ScoutGame extends JFrame {
         generateResources();
 
         blueWorkers = new Worker[60]; /////////////////////////////////////////////////////////////////// Брой на сините работници
-        redWorkers = new Worker[60];  // Брой на червените работници
+        redWorkers = new Worker[60];  //  /////////////////////////////////////////////////////Брой на червените работници
         for (int i = 0; i < blueWorkers.length; i++) {
             blueWorkers[i] = new Worker(
                     blueBaseX + baseWidth / 2,
