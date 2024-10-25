@@ -65,8 +65,8 @@ public class ScoutGame extends JFrame {
         initializeResources();
         generateResources();
 
-        blueWorkers = new Worker[60]; /////////////////////////////////////////////////////////////////// Брой на сините работници
-        redWorkers = new Worker[60];  //  /////////////////////////////////////////////////////Брой на червените работници
+        blueWorkers = new Worker[40]; ///////////////////////////////////////////////////////// Брой на сините работници
+        redWorkers = new Worker[40];  //  ///////////////////////////////////////////////////// Брой на червените работници
         for (int i = 0; i < blueWorkers.length; i++) {
             blueWorkers[i] = new Worker(
                     blueBaseX + baseWidth / 2,
@@ -134,7 +134,7 @@ public class ScoutGame extends JFrame {
                 g2d.drawString(String.valueOf(blueBaseHealth), xPosition, 30);
 
                 // Преместване с 50 пиксела за следващата стойност
-                xPosition += 50;
+                xPosition += 150;
 
                 // Показване на точките за червената база
                 g2d.setColor(Color.RED);
@@ -206,12 +206,12 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Point[120]; ////////////////////////////////////////////////////////////////////// Брой на ресурсите
+        resources = new Point[150]; ////////////////////////////////////////////////////////////////////// Брой на ресурсите
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length]; // Инициализираме масива тук
 
         for (int i = 0; i < resources.length; i++) {
-            resourceValues[i] = 295; ////////////////////////////////////////////////////////////////////// Начална стойност на ресурсите
+            resourceValues[i] = 100; ////////////////////////////////////////////////////////////////////// Начална стойност на ресурсите
             resourceOccupied[i] = false;
         }
     }
@@ -407,6 +407,7 @@ public class ScoutGame extends JFrame {
                 }
             }
         }
+
         for (Worker worker : redWorkers) {
             if (worker != null) {
                 worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout);
