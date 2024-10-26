@@ -188,12 +188,12 @@ public class ScoutGame extends JFrame {
 
     // **Метод initializeResources()**
     private void initializeResources() {
-        resources = new Point[360]; /////////////////////////////////////////////////// Брой на ресурсите
+        resources = new Point[75]; /////////////////////////////////////////////////// Брой на ресурсите
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
-            resourceValues[i] = 2000; ////////////////////////////////////////////////////// Начална стойност на ресурсите
+            resourceValues[i] = 100; ////////////////////////////////////////////////////// Начална стойност на ресурсите
             resourceOccupied[i] = false;
         }
     }
@@ -239,7 +239,7 @@ public class ScoutGame extends JFrame {
 
     // **Метод initializeWorkers()**
     private void initializeWorkers() {
-        int totalWorkers = 150; /////////////////////////////////////////////////////// Общо работници на отбор
+        int totalWorkers = 25; /////////////////////////////////////////////////////// Общо работници на отбор
         int workersPerColumn = 10; /////////////////////////////////////////////////// Брой работници в колона
 
         blueWorkers = new Worker[totalWorkers];
