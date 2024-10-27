@@ -168,13 +168,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[75];
+        resources = new Resource[5];////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
             resources[i] = new Resource(0, 0, 100);
-            resourceValues[i] = 100;
+            resourceValues[i] = 10;///////////////////////////////////////////////////////////////
             resourceOccupied[i] = false;
         }
     }
@@ -209,7 +209,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 100);
+            resources[i] = new Resource(x, y, 10);/////////////////////////////////////////////////////
         }
     }
 
@@ -224,7 +224,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 25;
+        int totalWorkers = 2;/////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -237,11 +237,12 @@ public class ScoutGame extends JFrame {
             int columnIndex = i / workersPerColumn;
             int rowIndex = i % workersPerColumn;
 
+            // Пример за инициализиране на сините работници с директно подаване на Resource[]
             blueWorkers[i] = new Worker(
                     blueBaseX + baseWidth / 2 + columnIndex * columnSpacing,
                     blueBaseY + baseHeight + 100 + rowIndex * rowSpacing,
                     "blue",
-                    convertResourcesToPoints(resources),
+                    resources, // Подаване на Resource[] директно вместо Point[]
                     resourceValues,
                     resourceOccupied,
                     baseWidth,
@@ -249,13 +250,13 @@ public class ScoutGame extends JFrame {
                     this,
                     i + 1
             );
-            blueWorkers[i].angle = 0;
 
+// И същото за червените работници
             redWorkers[i] = new Worker(
                     redBaseX + baseWidth / 2 - columnIndex * columnSpacing,
                     redBaseY + baseHeight + 100 + rowIndex * rowSpacing,
                     "red",
-                    convertResourcesToPoints(resources),
+                    resources, // Подаване на Resource[] директно вместо Point[]
                     resourceValues,
                     resourceOccupied,
                     baseWidth,
@@ -263,6 +264,8 @@ public class ScoutGame extends JFrame {
                     this,
                     i + 1
             );
+
+
             redWorkers[i].angle = 180;
 
             allWorkers.add(blueWorkers[i]);
@@ -442,7 +445,7 @@ public class ScoutGame extends JFrame {
 
         for (Worker worker : blueWorkers) {
             if (worker != null) {
-                worker.updateWorkerCycle(convertResourcesToPoints(resources), blueBaseX, blueBaseY, redScout);
+                worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout); // подаваме resources директно
                 if (worker.isActive()) {
                     anyActiveWorkers = true;
                 }
@@ -451,12 +454,13 @@ public class ScoutGame extends JFrame {
 
         for (Worker worker : redWorkers) {
             if (worker != null) {
-                worker.updateWorkerCycle(convertResourcesToPoints(resources), redBaseX, redBaseY, blueScout);
+                worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout); // подаваме resources директно
                 if (worker.isActive()) {
                     anyActiveWorkers = true;
                 }
             }
         }
+
 
         if (!anyActiveWorkers && allWorkersStarted() && allResourcesDepleted() && !gameOver) {
             gameOver = true;
@@ -498,6 +502,7 @@ public class ScoutGame extends JFrame {
         gameOver = true;
         System.out.println("Играта приключи. " + winner);
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ScoutGame::new);

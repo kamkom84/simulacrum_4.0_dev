@@ -9,26 +9,26 @@ public class Worker extends Character {
     private boolean isActive = false;
     private boolean hasStarted = false;
     private boolean hasResource = false;
-    private Point targetResource = null;
+    private Resource targetResource = null;
     private int targetResourceIndex = -1;
     private boolean returningToBase = false;
     private boolean waitingOutsideBase = false;
     private boolean waitingInBase = false;
     private long resourceAcquisitionTime = 0;
     private long baseStayStartTime = 0;
-    private Point startPosition; // Начална позиция
+    private Point startPosition; // Начална позиция на работника
     private Random random = new Random();
     private int[] resourceValues;
     private static boolean[] resourceOccupied;
     private int baseWidth;
     private int baseHeight;
     private ScoutGame scoutGame;
-    private Point[] resources;
+    private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
     private int health = 100; // Начално здраве на работника
 
-    public Worker(int startX, int startY, String team, Point[] resources, int[] resourceValues,
+    public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int workerId) {
         super(startX, startY, team, "worker");
         this.scoutGame = game;
@@ -36,9 +36,9 @@ public class Worker extends Character {
         Worker.resourceOccupied = resourceOccupied;
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
-        this.resources = resources;
+        this.resources = resources; // Използване на Resource[] директно
         this.workerId = workerId;
-        this.startPosition = new Point(startX, startY); // Запазваме началната позиция
+        this.startPosition = new Point(startX, startY); // Задаване на началната позиция
     }
 
     public void activate() {
@@ -50,7 +50,7 @@ public class Worker extends Character {
         this.waitingOutsideBase = false;
     }
 
-    public void updateWorkerCycle(Point[] resources, int baseX, int baseY, Scout enemyScout) {
+    public void updateWorkerCycle(Resource[] resources, int baseX, int baseY, Scout enemyScout) {
         if (!isActive) return;
 
         if (waitingOutsideBase) {
@@ -62,7 +62,7 @@ public class Worker extends Character {
         } else if (hasResource) {
             gatherResource();
         } else {
-            if (targetResource == null || resourceValues[targetResourceIndex] < RESOURCE_POINTS) {
+            if (targetResource == null || resourceValues[targetResourceIndex] < 5) {
                 if (targetResourceIndex >= 0) {
                     resourceOccupied[targetResourceIndex] = false;
                 }
@@ -81,14 +81,14 @@ public class Worker extends Character {
         }
     }
 
-    private Point findNearestAvailableResource(Point[] resources) {
-        Point nearest = null;
+    private Resource findNearestAvailableResource(Resource[] resources) {
+        Resource nearest = null;
         double minDistance = Double.MAX_VALUE;
         int closestResourceIndex = -1;
 
         for (int i = 0; i < resources.length; i++) {
-            if (!resourceOccupied[i] && resourceValues[i] >= RESOURCE_POINTS) {
-                double distance = distance(resources[i].x, resources[i].y, this.x, this.y);
+            if (!resourceOccupied[i] && resources[i].getValue() >= 5) {
+                double distance = distance(resources[i].getX(), resources[i].getY(), this.x, this.y);
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearest = resources[i];
@@ -107,17 +107,17 @@ public class Worker extends Character {
     private void moveToResource() {
         if (targetResource == null) return;
 
-        double distance = distance(targetResource.x, targetResource.y, x, y);
+        double distance = distance(targetResource.getX(), targetResource.getY(), x, y);
         double moveSpeed = 5.0;
         int resourceRadius = 20;
         int workerRadius = 6;
 
         if (distance > (resourceRadius + workerRadius)) {
-            double moveX = ((targetResource.x - x) / distance) * moveSpeed;
-            double moveY = ((targetResource.y - y) / distance) * moveSpeed;
+            double moveX = ((targetResource.getX() - x) / distance) * moveSpeed;
+            double moveY = ((targetResource.getY() - y) / distance) * moveSpeed;
             x += moveX;
             y += moveY;
-            angle = Math.toDegrees(Math.atan2(targetResource.y - y, targetResource.x - x));
+            angle = Math.toDegrees(Math.atan2(targetResource.getY() - y, targetResource.getX() - x));
         } else {
             hasResource = true;
             resourceAcquisitionTime = System.currentTimeMillis();
@@ -127,35 +127,26 @@ public class Worker extends Character {
     private void gatherResource() {
         long currentTime = System.currentTimeMillis();
 
-        // Уверяваме се, че работникът стои 1 минута преди да събере ресурса
-        if (currentTime - resourceAcquisitionTime >= 60000) { // 60000 ms = 1 минута
-            int resourceIndex = targetResourceIndex;
-
-            // Проверка дали ресурсът все още има достатъчно точки
-            if (resourceIndex >= 0 && resourceValues[resourceIndex] >= RESOURCE_POINTS) {
-                resourceValues[resourceIndex] -= RESOURCE_POINTS; // Намаляване на точките на ресурса
+        if (currentTime - resourceAcquisitionTime >= 60000) {
+            if (targetResource != null && targetResource.getValue() >= RESOURCE_POINTS) {
+                System.out.println("Намаляване на точки на ресурс");
+                targetResource.reducePoints(RESOURCE_POINTS); // Намалява точките на ресурса директно
                 hasResource = false;
                 returningToBase = true;
-                System.out.println("Worker " + workerId + " събра ресурс и се връща в базата.");
 
-                // Проверка дали ресурсът е изчерпан
-                if (resourceValues[resourceIndex] < 5) {
-                    System.out.println("Resource " + resourceIndex + " is depleted or below minimum value.");
-                    resourceOccupied[resourceIndex] = false; // Освобождаване на ресурса
+                if (targetResource.getValue() < 5) {
+                    System.out.println("Ресурсът е изчерпан.");
+                    resourceOccupied[targetResourceIndex] = false;
                 }
             } else {
-                // Ресурсът е изчерпан по време на събирането
+                System.out.println("Ресурсът е изчерпан или не е наличен.");
                 hasResource = false;
-                resourceOccupied[resourceIndex] = false;
+                resourceOccupied[targetResourceIndex] = false;
                 targetResource = null;
                 targetResourceIndex = -1;
-                System.out.println("Resource " + resourceIndex + " became unavailable during gathering.");
             }
-        } else {
-            System.out.println("Worker " + workerId + " is still gathering resources. Time elapsed: " + (currentTime - resourceAcquisitionTime));
         }
     }
-
 
     private void returnToBase(int baseX, int baseY) {
         int targetX = baseX + baseWidth / 2;
@@ -224,7 +215,6 @@ public class Worker extends Character {
     public void takeDamage(int damage) {
         this.health -= damage;
         if (this.health <= 0) {
-            // Работникът е елиминиран, обработка при елиминация
             deactivateWorker();
         }
     }
@@ -235,6 +225,4 @@ public class Worker extends Character {
         this.y = -1000;
         System.out.println("Работникът на " + team + " е деактивиран!");
     }
-
-
 }
