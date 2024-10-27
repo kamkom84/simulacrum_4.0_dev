@@ -560,16 +560,30 @@ public class ScoutGame extends JFrame {
         double closestDistance = maxRange;
 
         for (Worker worker : enemyWorkers) {
-            if (!worker.isActive()) continue; // Пропускаме неактивните работници
+            if (!worker.isActive()) {
+                System.out.println("Skipping inactive worker at (" + worker.getX() + ", " + worker.getY() + ")");
+                continue; // Пропускаме неактивните работници
+            }
+
             double distance = scout.distanceTo(worker);
+            System.out.println("Worker at (" + worker.getX() + ", " + worker.getY() + ") is at distance: " + distance);
+
             if (distance < closestDistance) {
                 closestDistance = distance;
                 closestWorker = worker;
+                System.out.println("New closest worker found at (" + worker.getX() + ", " + worker.getY() + ") with distance: " + closestDistance);
             }
+        }
+
+        if (closestWorker != null) {
+            System.out.println("Closest worker to scout is at (" + closestWorker.getX() + ", " + closestWorker.getY() + ") with distance: " + closestDistance);
+        } else {
+            System.out.println("No workers found within range.");
         }
 
         return closestWorker;
     }
+
 
     // **Съществуващ метод findClosestEnemyWorker()**
     public Worker findClosestEnemyWorker(Scout scout, String scoutTeam) {

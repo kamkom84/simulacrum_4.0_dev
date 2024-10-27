@@ -74,7 +74,7 @@ public class Scout extends Character {
 
 
     // **Метод update()**
-    public void update(Point baseCenter) {
+    public void update(Point baseCenter, Resource[] resources) {
         if (!isActive) return; // Ако скаутът не е активен, не правим нищо
 
         long currentTime = System.currentTimeMillis();
@@ -114,12 +114,19 @@ public class Scout extends Character {
             // Търсене на най-близкия вражески работник в определен радиус
             double detectionRange = 100; // Радиус на откриване
             Worker targetWorker = scoutGame.findClosestEnemyWorkerWithinRange(this, team, detectionRange);
-            if (targetWorker != null) {
-                // Движение към работника
+
+            if (targetWorker != null && !isNearResource(resources, 20)) {
+                // Движение към работника, ако няма ресурс в пътя
                 moveTo(targetWorker.getX(), targetWorker.getY(), 1);
+                System.out.println("Scout moving towards target worker at: (" + targetWorker.getX() + ", " + targetWorker.getY() + ")");
+            } else if (isNearResource(resources, 20)) {
+                // Ако има ресурс наблизо, променяме посоката на случайна
+                System.out.println("Scout near resource, moving randomly.");
+                moveRandomly();
             } else {
                 // Ако няма работник в радиуса, се движим плавно
                 moveRandomly();
+                System.out.println("Scout moving randomly.");
             }
 
             // Обновяване на ъгъла на скаута
@@ -139,7 +146,18 @@ public class Scout extends Character {
         this.prevY = this.y;
     }
 
-    // **Метод moveTo()**
+    // **Метод за проверка на близост до ресурс**
+    private boolean isNearResource(Resource[] resources, double minDistance) {
+        for (Resource resource : resources) {
+            double distance = distanceTo(resource);
+            if (distance < minDistance) {
+                return true; // Скаутът е твърде близо до ресурс
+            }
+        }
+        return false;
+    }
+
+
     private void moveTo(int targetX, int targetY, int speed) {
         double dx = targetX - this.x;
         double dy = targetY - this.y;
@@ -147,35 +165,37 @@ public class Scout extends Character {
         if (distance > 0) {
             x += speed * dx / distance;
             y += speed * dy / distance;
-
-            // Обновяване на ъгъла на скаута
-            this.angle = Math.toDegrees(Math.atan2(dy, dx));
         }
+
+        // Обновяване на ъгъла на скаута
+        this.angle = Math.toDegrees(Math.atan2(dy, dx));
+        System.out.println("Scout moving towards target at: (" + targetX + ", " + targetY + ")");
+        System.out.println("Current position of scout: (" + x + ", " + y + ")");
     }
 
-    // **Метод moveRandomly()**
+
     private void moveRandomly() {
         // Плавна промяна на текущия ъгъл
         double angleChange = (Math.random() - 0.5) * 10; // Промяна от -5 до +5 градуса
         currentAngle += angleChange;
-        // Поддържане на ъгъла в диапазона 0-360 градуса
         if (currentAngle < 0) currentAngle += 360;
         if (currentAngle >= 360) currentAngle -= 360;
 
-        // Движение в текущата посока
         double angleRad = Math.toRadians(currentAngle);
-        double speed = 1; // Скорост на движение
+        double speed = 1;
         x += speed * Math.cos(angleRad);
         y += speed * Math.sin(angleRad);
+        System.out.println("Scout at: " + x + ", " + y);
     }
 
-    // **Метод keepWithinBounds()**
+
     private void keepWithinBounds(int panelWidth, int panelHeight) {
         if (x < 0) x = 0;
         if (y < 0) y = 0;
-        if (x > panelWidth - 10) x = panelWidth - 10; // 10 е размера на скаута
+        if (x > panelWidth - 10) x = panelWidth - 10;
         if (y > panelHeight - 10) y = panelHeight - 10;
     }
+
 
     private void shootEnemyWorker() {
         Worker targetWorker = scoutGame.findClosestEnemyWorker(this, team);
