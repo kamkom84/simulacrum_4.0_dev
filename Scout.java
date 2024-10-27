@@ -5,6 +5,10 @@ import java.awt.*;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
+    private long shootAnimationStartTime = 0;
+    private static final int SHOOT_ANIMATION_DURATION = 200; // Продължителност на анимацията в милисекунди
+    private Worker currentTargetWorker = null; // Съхранява текущата цел за анимация
+
     private int points = 2000;
     private static final int MAX_POINTS = 2000;
     private static final int MIN_POINTS = 50;
@@ -53,7 +57,21 @@ public class Scout extends Character {
         // Показване на точките над скаута
         g.setColor(Color.WHITE);
         g.drawString("Points: " + points, (int) x - 10, (int) y - 10);
+
+        // Рисуване на анимацията на стрелбата, ако е активна
+        if (System.currentTimeMillis() - shootAnimationStartTime < SHOOT_ANIMATION_DURATION && currentTargetWorker != null) {
+            g.setColor(Color.YELLOW);
+            int targetX = (int) currentTargetWorker.getX();
+            int targetY = (int) currentTargetWorker.getY();
+            g.drawLine((int) x + bodyRadius, (int) y + bodyRadius, targetX, targetY);
+        }
+
+        // Проверка за край на анимацията
+        if (System.currentTimeMillis() - shootAnimationStartTime >= SHOOT_ANIMATION_DURATION) {
+            currentTargetWorker = null; // Край на анимацията
+        }
     }
+
 
     // **Метод update()**
     public void update(Point baseCenter) {
@@ -159,14 +177,20 @@ public class Scout extends Character {
         if (y > panelHeight - 10) y = panelHeight - 10;
     }
 
-    // **Метод shootEnemyWorker()**
     private void shootEnemyWorker() {
         Worker targetWorker = scoutGame.findClosestEnemyWorker(this, team);
         if (targetWorker != null) {
             targetWorker.takeDamage(1);
-            // Анимация може да се добави тук, ако е необходимо
+            System.out.println("Скаутът стреля по противников работник!");
+
+            // Стартиране на анимацията на стрелбата
+            shootAnimationStartTime = System.currentTimeMillis();
+            currentTargetWorker = targetWorker; // Запазваме целта за анимация
+        } else {
+            System.out.println("Няма противников работник в обсега.");
         }
     }
+
 
     // **Метод distanceTo()**
     public double distanceTo(Character other) {
