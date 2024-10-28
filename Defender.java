@@ -1,7 +1,5 @@
 package classesSeparated;
 
-
-
 public class Defender extends Character {
     public int stamina = 200;
     private double speed = 0.02;

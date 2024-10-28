@@ -1,4 +1,5 @@
 package classesSeparated;
+
 public abstract class Character {
     protected int x, y;
     protected double angle = 0;
@@ -26,7 +27,6 @@ public abstract class Character {
 
     public double distanceToAnt(Character otherAnt) {
         if (otherAnt == null) {
-            // Връща стойност (например -1), за да означи, че няма валиден обект за сравнение
             return -1;
         }
 

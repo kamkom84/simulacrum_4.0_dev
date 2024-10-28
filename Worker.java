@@ -16,7 +16,7 @@ public class Worker extends Character {
     private boolean waitingInBase = false;
     private long resourceAcquisitionTime = 0;
     private long baseStayStartTime = 0;
-    private Point startPosition; // Начална позиция на работника
+    private Point startPosition;
     private Random random = new Random();
     private int[] resourceValues;
     private static boolean[] resourceOccupied;
@@ -26,7 +26,7 @@ public class Worker extends Character {
     private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 100; // Начално здраве на работника
+    private int health = 100;
 
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int workerId) {
@@ -36,9 +36,9 @@ public class Worker extends Character {
         Worker.resourceOccupied = resourceOccupied;
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
-        this.resources = resources; // Използване на Resource[] директно
+        this.resources = resources;
         this.workerId = workerId;
-        this.startPosition = new Point(startX, startY); // Задаване на началната позиция
+        this.startPosition = new Point(startX, startY);
     }
 
     public void activate() {
@@ -81,29 +81,6 @@ public class Worker extends Character {
         }
     }
 
-//    private Resource findNearestAvailableResource(Resource[] resources) {
-//        Resource nearest = null;
-//        double minDistance = Double.MAX_VALUE;
-//        int closestResourceIndex = -1;
-//
-//        for (int i = 0; i < resources.length; i++) {
-//            if (!resourceOccupied[i] && resources[i].getValue() >= 5) {
-//                double distance = distance(resources[i].getX(), resources[i].getY(), this.x, this.y);
-//                if (distance < minDistance) {
-//                    minDistance = distance;
-//                    nearest = resources[i];
-//                    closestResourceIndex = i;
-//                }
-//            }
-//        }
-//
-//        if (closestResourceIndex != -1) {
-//            targetResourceIndex = closestResourceIndex;
-//        }
-//
-//        return nearest;
-//    }
-
     private Resource findNearestAvailableResource(Resource[] resources) {
         Resource nearest = null;
         double minDistance = Double.MAX_VALUE;
@@ -130,7 +107,6 @@ public class Worker extends Character {
 
         return nearest;
     }
-
 
     private void moveToResource() {
         if (targetResource == null) return;
@@ -249,7 +225,7 @@ public class Worker extends Character {
 
     public void deactivateWorker() {
         this.isActive = false;
-        this.x = -1000; // Преместване на работника извън екрана или зоната на играта
+        this.x = -1000;
         this.y = -1000;
         System.out.println("Работникът на " + team + " е деактивиран!");
     }

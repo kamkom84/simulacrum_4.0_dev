@@ -51,7 +51,6 @@ public class Scout extends Character {
         keepWithinBounds(scoutGame.getWidth(), scoutGame.getHeight());
     }
 
-    // В класа Scout
     public double distanceTo(Worker worker) {
         double dx = this.x - worker.getX();
         double dy = this.y - worker.getY();

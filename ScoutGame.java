@@ -53,7 +53,7 @@ public class ScoutGame extends JFrame {
         blueScout.activate();
 
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this);
-        redScout.angle = 180;  // Задаваме ъгъла на червения скаут наляво (180 градуса)
+        redScout.angle = 180;
         redScout.activate();
 
         initializeResources();
@@ -179,13 +179,7 @@ public class ScoutGame extends JFrame {
         }
     }
 
-    public Point[] convertResourcesToPoints(Resource[] resources) {
-        Point[] points = new Point[resources.length];
-        for (int i = 0; i < resources.length; i++) {
-            points[i] = new Point((int) resources[i].getX(), (int) resources[i].getY());
-        }
-        return points;
-    }
+
 
     private void generateResources() {
         Random random = new Random();
@@ -237,7 +231,6 @@ public class ScoutGame extends JFrame {
             int columnIndex = i / workersPerColumn;
             int rowIndex = i % workersPerColumn;
 
-            // Пример за инициализиране на сините работници с директно подаване на Resource[]
             blueWorkers[i] = new Worker(
                     blueBaseX + baseWidth / 2 + columnIndex * columnSpacing,
                     blueBaseY + baseHeight + 100 + rowIndex * rowSpacing,
@@ -251,7 +244,6 @@ public class ScoutGame extends JFrame {
                     i + 1
             );
 
-// И същото за червените работници
             redWorkers[i] = new Worker(
                     redBaseX + baseWidth / 2 - columnIndex * columnSpacing,
                     redBaseY + baseHeight + 100 + rowIndex * rowSpacing,
@@ -368,49 +360,38 @@ public class ScoutGame extends JFrame {
     private void drawWorkersWithLine(Graphics2D g2d, Character ant) {
         if (ant == null) return;
 
-        int bodyRadius = 5;  // Стандартен радиус за работници и скаути
+        int bodyRadius = 5;
         int lineLength;
 
-        // Определяме типа на обекта и променяме радиуса и цвета съответно
         if (ant instanceof Scout) {
-            lineLength = bodyRadius * 2;  // За скаутите дължината на чертичката е диаметърът
-            g2d.setColor(ant.team.equals("blue") ? Color.BLUE : Color.RED);  // Скаутите са сини или червени, в зависимост от отбора
+            lineLength = bodyRadius * 2;
+            g2d.setColor(ant.team.equals("blue") ? Color.BLUE : Color.RED);
         } else if (ant instanceof Worker) {
-            lineLength = bodyRadius;  // За работниците чертичката е колкото радиуса
-            g2d.setColor(ant.team.equals("blue") ? new Color(0, 100, 255) : new Color(200, 50, 50));  // Работниците съответстват на синия или червения цвят на базата си
+            lineLength = bodyRadius;
+            g2d.setColor(ant.team.equals("blue") ? new Color(0, 100, 255) : new Color(200, 50, 50));
         } else if (ant instanceof Defender) {
-            bodyRadius *= 1.5;  // Охранителите са два пъти по-големи
-            lineLength = bodyRadius;  // Чертичката на охранителите е колкото радиуса им
-            g2d.setColor(ant.team.equals("blue") ? new Color(0, 0, 180) : new Color(180, 0, 0));  // Охранителите са тъмно сини или тъмно червени
+            bodyRadius *= 1.5;
+            lineLength = bodyRadius;
+            g2d.setColor(ant.team.equals("blue") ? new Color(0, 0, 180) : new Color(180, 0, 0));
         } else {
-            return;  // Ако обектът не е от разпознат тип, не го рисуваме
+            return;
         }
 
-        // Рисуване на тялото на обекта
         g2d.fillOval(ant.getX() - bodyRadius, ant.getY() - bodyRadius, bodyRadius * 2, bodyRadius * 2);
 
-        // Начална точка за чертичката (центърът на обекта)
         int x1 = ant.getX();
         int y1 = ant.getY();
 
-        // Изчисляване на крайна точка на чертичката на база на текущия ъгъл
         int x2 = x1 + (int) (lineLength * Math.cos(Math.toRadians(ant.angle)));
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(ant.angle)));
 
-        // Рисуване на чертичката - жълта за работници и охранители, зелена за скаути
         if (ant instanceof Scout) {
             g2d.setColor(Color.GREEN);
         } else {
-            g2d.setColor(Color.YELLOW);  // Жълта чертичка за работници и охранители
+            g2d.setColor(Color.YELLOW);
         }
         g2d.drawLine(x1, y1, x2, y2);
     }
-
-
-
-
-
-
 
     private void scheduleWorkerStarts() {
         int initialDelay = 30000;
@@ -445,7 +426,7 @@ public class ScoutGame extends JFrame {
 
         for (Worker worker : blueWorkers) {
             if (worker != null) {
-                worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout); // подаваме resources директно
+                worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout);
                 if (worker.isActive()) {
                     anyActiveWorkers = true;
                 }
@@ -454,7 +435,7 @@ public class ScoutGame extends JFrame {
 
         for (Worker worker : redWorkers) {
             if (worker != null) {
-                worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout); // подаваме resources директно
+                worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout);
                 if (worker.isActive()) {
                     anyActiveWorkers = true;
                 }
@@ -565,25 +546,5 @@ public class ScoutGame extends JFrame {
 
         return closestWorker;
     }
-
-//    public Worker findClosestEnemyWorker(Scout scout, String scoutTeam) {
-//        Worker[] enemyWorkers = scoutTeam.equals("blue") ? redWorkers : blueWorkers;
-//        Worker closestWorker = null;
-//        double closestDistance = Double.MAX_VALUE;
-//
-//        for (Worker worker : enemyWorkers) {
-//            if (!worker.isActive()) continue;
-//            double distance = scout.distanceTo(worker);
-//            if (distance < closestDistance) {
-//                closestDistance = distance;
-//                closestWorker = worker;
-//            }
-//        }
-//
-//        return closestWorker;
-//    }
-
-
-
 
 }
