@@ -81,6 +81,29 @@ public class Worker extends Character {
         }
     }
 
+//    private Resource findNearestAvailableResource(Resource[] resources) {
+//        Resource nearest = null;
+//        double minDistance = Double.MAX_VALUE;
+//        int closestResourceIndex = -1;
+//
+//        for (int i = 0; i < resources.length; i++) {
+//            if (!resourceOccupied[i] && resources[i].getValue() >= 5) {
+//                double distance = distance(resources[i].getX(), resources[i].getY(), this.x, this.y);
+//                if (distance < minDistance) {
+//                    minDistance = distance;
+//                    nearest = resources[i];
+//                    closestResourceIndex = i;
+//                }
+//            }
+//        }
+//
+//        if (closestResourceIndex != -1) {
+//            targetResourceIndex = closestResourceIndex;
+//        }
+//
+//        return nearest;
+//    }
+
     private Resource findNearestAvailableResource(Resource[] resources) {
         Resource nearest = null;
         double minDistance = Double.MAX_VALUE;
@@ -99,10 +122,15 @@ public class Worker extends Character {
 
         if (closestResourceIndex != -1) {
             targetResourceIndex = closestResourceIndex;
+            resourceOccupied[targetResourceIndex] = true;  // Маркираме ресурса като зает
+            System.out.println("Worker " + workerId + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
+        } else {
+            System.out.println("Worker " + workerId + " could not find available resource.");
         }
 
         return nearest;
     }
+
 
     private void moveToResource() {
         if (targetResource == null) return;
