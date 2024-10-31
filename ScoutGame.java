@@ -179,8 +179,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
-
     private void generateResources() {
         Random random = new Random();
         int panelWidth = Math.max(getContentPane().getWidth(), 800);
@@ -235,7 +233,7 @@ public class ScoutGame extends JFrame {
                     blueBaseX + baseWidth / 2 + columnIndex * columnSpacing,
                     blueBaseY + baseHeight + 100 + rowIndex * rowSpacing,
                     "blue",
-                    resources, // Подаване на Resource[] директно вместо Point[]
+                    resources,
                     resourceValues,
                     resourceOccupied,
                     baseWidth,
@@ -248,7 +246,7 @@ public class ScoutGame extends JFrame {
                     redBaseX + baseWidth / 2 - columnIndex * columnSpacing,
                     redBaseY + baseHeight + 100 + rowIndex * rowSpacing,
                     "red",
-                    resources, // Подаване на Resource[] директно вместо Point[]
+                    resources,
                     resourceValues,
                     resourceOccupied,
                     baseWidth,
@@ -474,14 +472,14 @@ public class ScoutGame extends JFrame {
 
     private void determineWinner() {
         if (blueBaseHealth > redBaseHealth) {
-            winner = "Синият отбор печели!";
+            winner = "Blue team wins!";
         } else if (redBaseHealth > blueBaseHealth) {
-            winner = "Червеният отбор печели!";
+            winner = "Red team wins!";
         } else {
-            winner = "Равенство!";
+            winner = "No Winner!";
         }
         gameOver = true;
-        System.out.println("Играта приключи. " + winner);
+        System.out.println("Game Over. " + winner);
     }
 
 
