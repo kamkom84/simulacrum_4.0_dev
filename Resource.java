@@ -1,6 +1,7 @@
 package classesSeparated;
 
 public class Resource {
+
     private double x;
     private double y;
     private int value;
@@ -26,5 +27,6 @@ public class Resource {
     public void reducePoints(int amount) {
         value = Math.max(0, value - amount); // Уверяваме се, че стойността не пада под 0
     }
+
 }
 

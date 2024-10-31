@@ -29,7 +29,8 @@ public class Worker extends Character {
     private int health = 100;
 
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
-                  boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int workerId) {
+                  boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game,
+                  int workerId) {
         super(startX, startY, team, "worker");
         this.scoutGame = game;
         this.resourceValues = resourceValues;
@@ -229,4 +230,5 @@ public class Worker extends Character {
         this.y = -1000;
         System.out.println("Работникът на " + team + " е деактивиран!");
     }
+
 }

@@ -1,7 +1,7 @@
 package classesSeparated;
 
 public class Defender extends Character {
-    public int stamina = 200;
+
     private double speed = 0.02;
     private double angleOffset;
 
@@ -21,5 +21,6 @@ public class Defender extends Character {
         this.y = baseCenterY + (int) (shieldRadius * Math.sin(angleOffset)) - 5;
         this.angle = Math.toDegrees(angleOffset);
     }
+
 }
 

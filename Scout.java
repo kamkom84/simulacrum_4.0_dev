@@ -57,7 +57,6 @@ public class Scout extends Character {
         return Math.hypot(dx, dy);
     }
 
-
     private void moveToBase(Point baseCenter, long currentTime) {
         moveDirectlyTo(baseCenter.x, baseCenter.y);
         if (distance(baseCenter.x, baseCenter.y, x, y) < 5) {
