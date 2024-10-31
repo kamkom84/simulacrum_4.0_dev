@@ -482,7 +482,6 @@ public class ScoutGame extends JFrame {
         System.out.println("Game Over. " + winner);
     }
 
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ScoutGame::new);
     }
