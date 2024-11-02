@@ -422,7 +422,7 @@ public class ScoutGame extends JFrame {
         if (ant instanceof Worker) {
             Worker worker = (Worker) ant;
             if (worker.shouldDisplayPoints()) {
-                g2d.setColor(Color.WHITE);
+                g2d.setColor(Color.RED);
                 g2d.setFont(new Font("Arial", Font.BOLD, 12));
                 g2d.drawString(String.valueOf(worker.getHealth()), x1 - 10, y1 - 10);
             }
