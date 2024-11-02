@@ -198,7 +198,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[121];/////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[141];/////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
