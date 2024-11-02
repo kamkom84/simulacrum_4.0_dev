@@ -2,7 +2,6 @@ package classesSeparated;
 
 import java.awt.*;
 import java.util.Random;
-
 import static java.awt.geom.Point2D.distance;
 
 public class Worker extends Character {
@@ -27,6 +26,9 @@ public class Worker extends Character {
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
     private int health = 100;
+    private boolean underAttack = false;
+    private long lastDamageTime = 0;
+    private static final int ATTACK_DISPLAY_DURATION = 1000; // Време за показване на точките в ms
 
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game,
@@ -80,6 +82,9 @@ public class Worker extends Character {
                 moveToResource();
             }
         }
+
+        // Актуализация за показване на точки
+        update();
     }
 
     private Resource findNearestAvailableResource(Resource[] resources) {
@@ -100,7 +105,7 @@ public class Worker extends Character {
 
         if (closestResourceIndex != -1) {
             targetResourceIndex = closestResourceIndex;
-            resourceOccupied[targetResourceIndex] = true;  // Маркираме ресурса като зает
+            resourceOccupied[targetResourceIndex] = true;
             System.out.println("Worker " + workerId + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
         } else {
             System.out.println("Worker " + workerId + " could not find available resource.");
@@ -122,7 +127,7 @@ public class Worker extends Character {
             double moveY = ((targetResource.getY() - y) / distance) * moveSpeed;
             x += moveX;
             y += moveY;
-            angle = Math.toDegrees(Math.atan2(targetResource.getY() - y, targetResource.getX() - x));
+            setAngle(Math.toDegrees(Math.atan2(targetResource.getY() - y, targetResource.getX() - x)));
         } else {
             hasResource = true;
             resourceAcquisitionTime = System.currentTimeMillis();
@@ -134,17 +139,14 @@ public class Worker extends Character {
 
         if (currentTime - resourceAcquisitionTime >= 60000) {
             if (targetResource != null && targetResource.getValue() >= RESOURCE_POINTS) {
-                System.out.println("Намаляване на точки на ресурс");
-                targetResource.reducePoints(RESOURCE_POINTS); // Намалява точките на ресурса директно
+                targetResource.reducePoints(RESOURCE_POINTS);
                 hasResource = false;
                 returningToBase = true;
 
                 if (targetResource.getValue() < 5) {
-                    System.out.println("Ресурсът е изчерпан.");
                     resourceOccupied[targetResourceIndex] = false;
                 }
             } else {
-                System.out.println("Ресурсът е изчерпан или не е наличен.");
                 hasResource = false;
                 resourceOccupied[targetResourceIndex] = false;
                 targetResource = null;
@@ -162,7 +164,7 @@ public class Worker extends Character {
         if (distance > 5) {
             x += (targetX - x) / distance * moveSpeed;
             y += (targetY - y) / distance * moveSpeed;
-            angle = Math.toDegrees(Math.atan2(targetY - y, targetX - x));
+            setAngle(Math.toDegrees(Math.atan2(targetY - y, targetX - x)));
         } else {
             long currentTime = System.currentTimeMillis();
             if (!waitingInBase) {
@@ -186,7 +188,7 @@ public class Worker extends Character {
         if (distance > 5) {
             x += (waitX - x) / distance * moveSpeed;
             y += (waitY - y) / distance * moveSpeed;
-            angle = Math.toDegrees(Math.atan2(waitY - y, waitX - x));
+            setAngle(Math.toDegrees(Math.atan2(waitY - y, waitX - x)));
         } else {
             waitingOutsideBase = true;
         }
@@ -205,8 +207,7 @@ public class Worker extends Character {
     }
 
     private void addPointsToBase() {
-        int pointsToAdd = RESOURCE_POINTS;
-        scoutGame.addPointsToScoutBase(team, pointsToAdd);
+        scoutGame.addPointsToScoutBase(team, RESOURCE_POINTS);
     }
 
     public boolean isActive() {
@@ -218,17 +219,72 @@ public class Worker extends Character {
     }
 
     public void takeDamage(int damage) {
-        this.health -= damage;
-        if (this.health <= 0) {
-            deactivateWorker();
+        health -= damage;
+        if (health <= 0) {
+            deactivate();
+        } else {
+            underAttack = true;
+            lastDamageTime = System.currentTimeMillis();
         }
     }
 
-    public void deactivateWorker() {
-        this.isActive = false;
-        this.x = -1000;
-        this.y = -1000;
+    public boolean shouldDisplayPoints() {
+        long currentTime = System.currentTimeMillis();
+        return underAttack && (currentTime - lastDamageTime < ATTACK_DISPLAY_DURATION);
+    }
+
+    private void update() {
+        if (underAttack && System.currentTimeMillis() - lastDamageTime > 2000) {
+            underAttack = false;
+        }
+    }
+
+    public void draw(Graphics2D g2d) {
+        int bodyRadius = 5;
+        g2d.setColor(team.equals("blue") ? new Color(0, 100, 255) : new Color(200, 50, 50));
+        g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
+
+        if (shouldDisplayPoints()) {
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 12));
+            g2d.drawString("Health: " + health, (int) x - 10, (int) y - 10);
+        }
+    }
+
+    public void deactivate() {
+        isActive = false;
+        hasStarted = false;
+        targetResource = null;
+        x = -1000;
+        y = -1000;
         System.out.println("Работникът на " + team + " е деактивиран!");
+    }
+
+    public String getTeam() {
+        return this.team;
+    }
+
+    public boolean isWorkingOn(Resource resource) {
+        return this.targetResource != null && this.targetResource.equals(resource);
+    }
+
+    public void setAngle(double angle) {
+        this.currentAngle = angle;
+    }
+
+    public boolean isUnderAttack() {
+        long currentTime = System.currentTimeMillis();
+        return underAttack && (currentTime - lastDamageTime <= ATTACK_DISPLAY_DURATION);
+    }
+
+    // Метод за получаване на текущото здраве на работника
+    public int getHealth() {
+        return health;
+    }
+
+    // В класа Worker
+    public int getBodyRadius() {
+        return 5; // Примерна стойност за радиуса на работника
     }
 
 }

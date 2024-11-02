@@ -2,9 +2,11 @@ package classesSeparated;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import static java.awt.geom.Point2D.distance;
 
 public class ScoutGame extends JFrame {
     private int blueBaseX, blueBaseY, redBaseX, redBaseY;
@@ -26,6 +28,12 @@ public class ScoutGame extends JFrame {
     private String winner = "";
     private int[] resourceValues;
     private boolean[] resourceOccupied;
+
+    private int bulletStartX = -1;
+    private int bulletStartY = -1;
+    private int bulletEndX = -1;
+    private int bulletEndY = -1;
+
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -53,7 +61,6 @@ public class ScoutGame extends JFrame {
         blueScout.activate();
 
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this);
-        redScout.angle = 180;
         redScout.activate();
 
         initializeResources();
@@ -74,11 +81,13 @@ public class ScoutGame extends JFrame {
                 Graphics2D g2d = (Graphics2D) g;
                 int shieldRadius = (int) (baseWidth * 2.9);
 
-                // Draw bases and resources
+                // Рисуване на базите и ресурсите
                 drawBasesAndResources(g2d, shieldRadius);
+
+                // Рисуване на работниците и скаутите
                 drawWorkers(g2d);
 
-                // Display time
+                // Показване на времето
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 int seconds = (int) (elapsedTime / 1000) % 60;
                 int minutes = (int) (elapsedTime / (1000 * 60)) % 60;
@@ -92,8 +101,30 @@ public class ScoutGame extends JFrame {
                 FontMetrics fm = g2d.getFontMetrics();
                 int xPosition = 10 + fm.stringWidth(timeText) + 50;
 
-                displayScores(g2d, fm, xPosition);
+                // Показване на резултатите за базите
+                g2d.setColor(Color.BLUE);
+                g2d.drawString("Base: " + blueBaseHealth, xPosition, 30);
+                xPosition += fm.stringWidth("Base: " + blueBaseHealth) + 50;
 
+                g2d.setColor(Color.RED);
+                g2d.drawString("Base: " + redBaseHealth, xPosition, 30);
+                xPosition += fm.stringWidth("Base: " + redBaseHealth) + 50;
+
+                // Показване на резултатите за точките и убийствата на скаутите
+                g2d.setColor(Color.BLUE);
+                g2d.drawString("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills(), xPosition, 30);
+                xPosition += fm.stringWidth("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills()) + 50;
+
+                g2d.setColor(Color.RED);
+                g2d.drawString("Scout: " + redScout.getPoints() + "-" + redScout.getKills(), xPosition, 30);
+
+                // Рисуване на патрона, ако е активен
+                if (bulletStartX != -1 && bulletStartY != -1) {
+                    g2d.setColor(Color.GREEN);  // Зеленият цвят за патрона
+                    g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
+                }
+
+                // Показване на съобщението за победа, ако играта е приключила
                 if (ScoutGame.this.gameOver) {
                     g2d.setFont(new Font("Arial", Font.BOLD, 36));
                     g2d.setColor(Color.YELLOW);
@@ -104,22 +135,21 @@ public class ScoutGame extends JFrame {
                 }
             }
 
+
+
+
             private void displayScores(Graphics2D g2d, FontMetrics fm, int xPosition) {
                 g2d.setColor(Color.BLUE);
-                g2d.drawString("" + blueBaseHealth, xPosition, 30);
-                xPosition += fm.stringWidth("" + blueBaseHealth) + 50;
+                String blueScoreText = blueScout.getPoints() + "- " + blueScout.getKills();
+                g2d.drawString(blueScoreText, xPosition, 30);
+                xPosition += fm.stringWidth(blueScoreText) + 50;
 
                 g2d.setColor(Color.RED);
-                g2d.drawString("" + redBaseHealth, xPosition, 30);
-                xPosition += fm.stringWidth("" + redBaseHealth) + 50;
-
-                g2d.setColor(Color.BLUE);
-                g2d.drawString("" + blueScout.getPoints(), xPosition, 30);
-                xPosition += fm.stringWidth("" + blueScout.getPoints()) + 50;
-
-                g2d.setColor(Color.RED);
-                g2d.drawString("" + redScout.getPoints(), xPosition, 30);
+                String redScoreText = redScout.getPoints() + "- " + redScout.getKills();
+                g2d.drawString(redScoreText, xPosition, 30);
+                xPosition += fm.stringWidth(redScoreText) + 50;
             }
+
         };
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(Color.BLACK);
@@ -168,13 +198,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[301];////////////////////////////////////////////////////////
+        resources = new Resource[121];/////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
             resources[i] = new Resource(0, 0, 100);
-            resourceValues[i] = 10;
+            resourceValues[i] = 5000;//////////////////////////////////////////////////////////////////////////////////
             resourceOccupied[i] = false;
         }
     }
@@ -184,12 +214,12 @@ public class ScoutGame extends JFrame {
         int panelWidth = Math.max(getContentPane().getWidth(), 800);
         int panelHeight = Math.max(getContentPane().getHeight(), 600);
 
-        List<Point> workerPositions = new ArrayList<>();
+        List<Point2D.Double> workerPositions = new ArrayList<>();
         for (Worker worker : blueWorkers) {
-            workerPositions.add(new Point(worker.getX(), worker.getY()));
+            workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
         for (Worker worker : redWorkers) {
-            workerPositions.add(new Point(worker.getX(), worker.getY()));
+            workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
 
         for (int i = 0; i < resources.length; i++) {
@@ -201,13 +231,13 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10000);/////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 100);
         }
     }
 
-    private boolean isNearWorkers(int x, int y, List<Point> workerPositions) {
+    private boolean isNearWorkers(double x, double y, List<Point2D.Double> workerPositions) {
         int minDistance = 50;
-        for (Point workerPos : workerPositions) {
+        for (Point2D.Double workerPos : workerPositions) {
             if (distance(x, y, workerPos.x, workerPos.y) < minDistance) {
                 return true;
             }
@@ -216,7 +246,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 100;/////////////////////////////////////////////////////////////////////
+        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -255,9 +285,7 @@ public class ScoutGame extends JFrame {
                     i + 1
             );
 
-
-            redWorkers[i].angle = 180;
-
+            redWorkers[i].setAngle(180);
             allWorkers.add(blueWorkers[i]);
             allWorkers.add(redWorkers[i]);
         }
@@ -274,10 +302,6 @@ public class ScoutGame extends JFrame {
                 distance(x, y, redBaseCenterX, redBaseCenterY) < minDistance;
     }
 
-    private double distance(int x1, int y1, int x2, int y2) {
-        return Math.hypot(x1 - x2, y1 - y2);
-    }
-
     private void initializeDefenders() {
         for (int i = 0; i < 3; i++) {
             blueDefenders[i] = new Defender(
@@ -292,7 +316,7 @@ public class ScoutGame extends JFrame {
                     redBaseY + baseHeight / 2,
                     "red",
                     "defender",
-                    i * Math.PI / 4
+                    Math.PI + i * Math.PI / 4
             );
         }
     }
@@ -375,20 +399,34 @@ public class ScoutGame extends JFrame {
             return;
         }
 
-        g2d.fillOval(ant.getX() - bodyRadius, ant.getY() - bodyRadius, bodyRadius * 2, bodyRadius * 2);
+        g2d.fillOval((int) (ant.getX() - bodyRadius), (int) (ant.getY() - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        int x1 = ant.getX();
-        int y1 = ant.getY();
+        double angle = ant.getCurrentAngle();
+        if (ant instanceof Defender && ant.team.equals("red") && angle == 0) {
+            angle = 180;
+        }
 
-        int x2 = x1 + (int) (lineLength * Math.cos(Math.toRadians(ant.angle)));
-        int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(ant.angle)));
+        int x1 = (int) ant.getX();
+        int y1 = (int) ant.getY();
+        int x2 = x1 + (int) (lineLength * Math.cos(Math.toRadians(angle)));
+        int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(angle)));
 
         if (ant instanceof Scout) {
             g2d.setColor(Color.GREEN);
         } else {
             g2d.setColor(Color.YELLOW);
         }
+
         g2d.drawLine(x1, y1, x2, y2);
+
+        if (ant instanceof Worker) {
+            Worker worker = (Worker) ant;
+            if (worker.shouldDisplayPoints()) {
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, 12));
+                g2d.drawString(String.valueOf(worker.getHealth()), x1 - 10, y1 - 10);
+            }
+        }
     }
 
     private void scheduleWorkerStarts() {
@@ -401,7 +439,6 @@ public class ScoutGame extends JFrame {
 
             Timer blueWorkerTimer = new Timer(delay, e -> {
                 blueWorkers[workerIndex].activate();
-                System.out.println("Activated blue worker " + (workerIndex + 1) + " after " + delay / 1000 + " seconds.");
                 ((Timer) e.getSource()).stop();
             });
             blueWorkerTimer.setRepeats(false);
@@ -409,7 +446,6 @@ public class ScoutGame extends JFrame {
 
             Timer redWorkerTimer = new Timer(delay, e -> {
                 redWorkers[workerIndex].activate();
-                System.out.println("Activated red worker " + (workerIndex + 1) + " after " + delay / 1000 + " seconds.");
                 ((Timer) e.getSource()).stop();
             });
             redWorkerTimer.setRepeats(false);
@@ -439,7 +475,6 @@ public class ScoutGame extends JFrame {
                 }
             }
         }
-
 
         if (!anyActiveWorkers && allWorkersStarted() && allResourcesDepleted() && !gameOver) {
             gameOver = true;
@@ -521,27 +556,45 @@ public class ScoutGame extends JFrame {
 
         for (Worker worker : enemyWorkers) {
             if (!worker.isActive()) {
-                System.out.println("Skipping inactive worker at (" + worker.getX() + ", " + worker.getY() + ")");
                 continue;
             }
 
             double distance = scout.distanceTo(worker);
-            System.out.println("Worker at (" + worker.getX() + ", " + worker.getY() + ") is at distance: " + distance);
-
             if (distance < closestDistance) {
                 closestDistance = distance;
                 closestWorker = worker;
-                System.out.println("New closest worker found at (" + worker.getX() + ", " + worker.getY() + ") with distance: " + closestDistance);
             }
-        }
-
-        if (closestWorker != null) {
-            System.out.println("Closest worker to scout is at (" + closestWorker.getX() + ", " + closestWorker.getY() + ") with distance: " + closestDistance);
-        } else {
-            System.out.println("No workers found within range.");
         }
 
         return closestWorker;
     }
 
+    public List<Worker> getWorkersOnResource(Resource resource) {
+        List<Worker> workersOnResource = new ArrayList<>();
+        for (Worker worker : allWorkers) {
+            if (worker.isWorkingOn(resource)) {
+                workersOnResource.add(worker);
+            }
+        }
+        return workersOnResource;
+    }
+
+    public void drawShot(int startX, int startY, int endX, int endY) {
+        this.bulletStartX = startX;
+        this.bulletStartY = startY;
+        this.bulletEndX = endX;
+        this.bulletEndY = endY;
+        repaint(); // Извиква `paintComponent`, за да се нарисува патронът
+
+        // Изчистване на патрона след кратко време
+        Timer timer = new Timer(50, e -> {
+            bulletStartX = bulletStartY = bulletEndX = bulletEndY = -1;
+            repaint(); // Принуждава екрана да се опресни, за да се премахне патрона
+            ((Timer) e.getSource()).stop();
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
+
 }
+
