@@ -28,7 +28,9 @@ public class Worker extends Character {
     private int health = 100;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
-    private static final int ATTACK_DISPLAY_DURATION = 1000; // Време за показване на точките в ms
+    private static final int ATTACK_DISPLAY_DURATION = 1000; // Display duration in milliseconds
+    private Color color;  // Color property for the worker
+
 
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game,
@@ -83,7 +85,7 @@ public class Worker extends Character {
             }
         }
 
-        // Актуализация за показване на точки
+        // Update for displaying points
         update();
     }
 
@@ -221,7 +223,7 @@ public class Worker extends Character {
     public void takeDamage(int damage) {
         health -= damage;
         if (health <= 0) {
-            deactivate();
+            setInactive();
         } else {
             underAttack = true;
             lastDamageTime = System.currentTimeMillis();
@@ -251,13 +253,18 @@ public class Worker extends Character {
         }
     }
 
-    public void deactivate() {
-        isActive = false;
-        hasStarted = false;
-        targetResource = null;
-        x = -1000;
-        y = -1000;
-        System.out.println("Работникът на " + team + " е деактивиран!");
+    public void setInactive() {
+        this.isActive = false;
+        this.hasStarted = false;
+        this.targetResource = null;
+        this.targetResourceIndex = -1;
+        this.returningToBase = false;
+        this.hasResource = false;
+        this.waitingOutsideBase = false;
+        this.waitingInBase = false;
+        this.x = -1000;  // Moves the worker off-screen
+        this.y = -1000;
+        System.out.println("Worker " + workerId + " of team " + team + " is now inactive.");
     }
 
     public String getTeam() {
@@ -277,14 +284,15 @@ public class Worker extends Character {
         return underAttack && (currentTime - lastDamageTime <= ATTACK_DISPLAY_DURATION);
     }
 
-    // Метод за получаване на текущото здраве на работника
     public int getHealth() {
         return health;
     }
 
-    // В класа Worker
     public int getBodyRadius() {
-        return 5; // Примерна стойност за радиуса на работника
+        return 5; // Example radius value for the worker
     }
 
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }

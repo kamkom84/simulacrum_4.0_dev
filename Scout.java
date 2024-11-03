@@ -2,6 +2,8 @@ package classesSeparated;
 
 import javax.swing.Timer;
 import java.awt.*;
+import java.util.List;
+import java.util.stream.Collectors;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
@@ -25,6 +27,11 @@ public class Scout extends Character {
     private Resource currentTargetResource = null;
     private int resourceIndex = 0;
 
+    private boolean isExploding = false;
+    private long explosionStartTime = 0;
+    private static final int EXPLOSION_DURATION = 5000; // 5 seconds
+    private static final int EXPLOSION_RADIUS = 40;
+
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
         this.scoutGame = game;
@@ -37,6 +44,15 @@ public class Scout extends Character {
         long currentTime = System.currentTimeMillis();
         managePointsReduction(currentTime);
 
+        if (isExploding && currentTime - explosionStartTime > EXPLOSION_DURATION) {
+            isExploding = false;
+        }
+
+        List<Worker> nearbyWorkers = scoutGame.getEnemyWorkersInRange(this, team, EXPLOSION_RADIUS);
+        if (nearbyWorkers.size() >= 3 && !isExploding) {
+            triggerExplosion(nearbyWorkers);
+        }
+
         if (points <= MIN_POINTS && !returningToBase && !recharging) {
             returningToBase = true;
         }
@@ -45,26 +61,45 @@ public class Scout extends Character {
             moveToBase(baseCenter, currentTime, resources);
         } else if (recharging) {
             handleRecharging(currentTime);
-        } else {
+        } else if (!isExploding) {
             Worker targetWorker = scoutGame.findClosestEnemyWorkerWithinRange(this, team, 100);
-
             if (targetWorker != null) {
-                double dx = targetWorker.getX() - x;
-                double dy = targetWorker.getY() - y;
-                this.currentAngle = Math.toDegrees(Math.atan2(dy, dx));
-
-                double distanceToTarget = distanceTo(targetWorker);
-                if (distanceToTarget > 60) {
-                    moveDirectlyToAvoidingResources((int) targetWorker.getX(), (int) targetWorker.getY(), resources);
-                } else {
-                    handleShooting(targetWorker, currentTime);
-                }
+                handleTargetWorker(targetWorker, currentTime, resources);
             } else {
                 patrolResources(resources);
             }
         }
 
         keepWithinBounds(scoutGame.getWidth(), scoutGame.getHeight());
+    }
+
+    private void handleTargetWorker(Worker targetWorker, long currentTime, Resource[] resources) {
+        double dx = targetWorker.getX() - this.x;
+        double dy = targetWorker.getY() - this.y;
+        this.currentAngle = Math.toDegrees(Math.atan2(dy, dx));
+
+        double distanceToTarget = distanceTo(targetWorker);
+        if (distanceToTarget > 60) {
+            // Move towards the worker if out of shooting range
+            moveDirectlyToAvoidingResources((int) targetWorker.getX(), (int) targetWorker.getY(), resources);
+        } else {
+            // If within range, shoot the worker
+            handleShooting(targetWorker, currentTime);
+        }
+    }
+
+
+    private void triggerExplosion(List<Worker> workers) {
+        isExploding = true;
+        explosionStartTime = System.currentTimeMillis();
+
+        for (Worker worker : workers) {
+            worker.setInactive();
+            worker.setColor(Color.GRAY);
+            incrementKills();
+        }
+
+        scoutGame.addExplosionEffect(this.x, this.y, EXPLOSION_RADIUS, Color.RED, EXPLOSION_DURATION);
     }
 
     public double distanceTo(Worker worker) {
@@ -172,35 +207,41 @@ public class Scout extends Character {
             final double[] travelledDistance = {0};
 
             Timer timer = new Timer(50, e -> {
+                // Calculate the new end position of the bullet
                 int currentEndX = (int) (bulletX[0] + Math.cos(angleToTarget) * 10);
                 int currentEndY = (int) (bulletY[0] + Math.sin(angleToTarget) * 10);
 
+                // Draw the bullet's movement
                 scoutGame.drawShot(bulletX[0], bulletY[0], currentEndX, currentEndY);
 
+                // Update bullet position
                 bulletX[0] += Math.cos(angleToTarget) * 5;
                 bulletY[0] += Math.sin(angleToTarget) * 5;
                 travelledDistance[0] += 5;
 
-                // Проверка за попадение в работника
+                // Check for collision with the target
                 if (distance(bulletX[0], bulletY[0], targetX, targetY) <= targetWorker.getBodyRadius()) {
                     targetWorker.takeDamage(1);
 
-                    // Проверка дали здравето на работника е намаляло до 0
+                    // Increment kill count if the target worker's health reaches zero
                     if (targetWorker.getHealth() <= 0) {
-                        incrementKills();  // Увеличаване на броя на убийствата само ако работникът е елиминиран
+                        incrementKills();
                     }
 
+                    // Stop the timer since the bullet hit the target
                     ((Timer) e.getSource()).stop();
                 }
 
-                // Проверка за максимално разстояние на патрона
+                // Stop the timer if the bullet travels beyond the maximum distance
                 if (travelledDistance[0] >= MAX_BULLET_DISTANCE) {
                     ((Timer) e.getSource()).stop();
                 }
             });
+
             timer.setRepeats(true);
             timer.start();
 
+            // Update the last shoot time
             lastShootTime = currentTime;
         }
     }
@@ -210,10 +251,7 @@ public class Scout extends Character {
         g2d.setFont(new Font("Arial", Font.BOLD, 12));
         g2d.setColor(team.equals("blue") ? Color.RED : Color.BLUE);
 
-        // Форматиране на текст с "точки - убийства"
         String scoreText = points + " - " + kills;
-
-        // Изчертаване на текста на съответната позиция
         g2d.drawString(scoreText, xPosition, yPosition);
     }
 

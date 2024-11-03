@@ -33,7 +33,7 @@ public class ScoutGame extends JFrame {
     private int bulletStartY = -1;
     private int bulletEndX = -1;
     private int bulletEndY = -1;
-
+    private List<ExplosionEffect> explosionEffects = new ArrayList<>();
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -81,13 +81,10 @@ public class ScoutGame extends JFrame {
                 Graphics2D g2d = (Graphics2D) g;
                 int shieldRadius = (int) (baseWidth * 2.9);
 
-                // Рисуване на базите и ресурсите
                 drawBasesAndResources(g2d, shieldRadius);
-
-                // Рисуване на работниците и скаутите
                 drawWorkers(g2d);
+                drawExplosions(g2d);
 
-                // Показване на времето
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 int seconds = (int) (elapsedTime / 1000) % 60;
                 int minutes = (int) (elapsedTime / (1000 * 60)) % 60;
@@ -101,7 +98,6 @@ public class ScoutGame extends JFrame {
                 FontMetrics fm = g2d.getFontMetrics();
                 int xPosition = 10 + fm.stringWidth(timeText) + 50;
 
-                // Показване на резултатите за базите
                 g2d.setColor(Color.BLUE);
                 g2d.drawString("Base: " + blueBaseHealth, xPosition, 30);
                 xPosition += fm.stringWidth("Base: " + blueBaseHealth) + 50;
@@ -110,7 +106,6 @@ public class ScoutGame extends JFrame {
                 g2d.drawString("Base: " + redBaseHealth, xPosition, 30);
                 xPosition += fm.stringWidth("Base: " + redBaseHealth) + 50;
 
-                // Показване на резултатите за точките и убийствата на скаутите
                 g2d.setColor(Color.BLUE);
                 g2d.drawString("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills(), xPosition, 30);
                 xPosition += fm.stringWidth("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills()) + 50;
@@ -118,13 +113,11 @@ public class ScoutGame extends JFrame {
                 g2d.setColor(Color.RED);
                 g2d.drawString("Scout: " + redScout.getPoints() + "-" + redScout.getKills(), xPosition, 30);
 
-                // Рисуване на патрона, ако е активен
                 if (bulletStartX != -1 && bulletStartY != -1) {
-                    g2d.setColor(Color.GREEN);  // Зеленият цвят за патрона
+                    g2d.setColor(Color.GREEN);
                     g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
                 }
 
-                // Показване на съобщението за победа, ако играта е приключила
                 if (ScoutGame.this.gameOver) {
                     g2d.setFont(new Font("Arial", Font.BOLD, 36));
                     g2d.setColor(Color.YELLOW);
@@ -135,21 +128,13 @@ public class ScoutGame extends JFrame {
                 }
             }
 
-
-
-
-            private void displayScores(Graphics2D g2d, FontMetrics fm, int xPosition) {
-                g2d.setColor(Color.BLUE);
-                String blueScoreText = blueScout.getPoints() + "- " + blueScout.getKills();
-                g2d.drawString(blueScoreText, xPosition, 30);
-                xPosition += fm.stringWidth(blueScoreText) + 50;
-
-                g2d.setColor(Color.RED);
-                String redScoreText = redScout.getPoints() + "- " + redScout.getKills();
-                g2d.drawString(redScoreText, xPosition, 30);
-                xPosition += fm.stringWidth(redScoreText) + 50;
+            private void drawExplosions(Graphics2D g2d) {
+                long currentTime = System.currentTimeMillis();
+                explosionEffects.removeIf(effect -> effect.isExpired(currentTime));
+                for (ExplosionEffect effect : explosionEffects) {
+                    effect.draw(g2d);
+                }
             }
-
         };
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(Color.BLACK);
@@ -198,13 +183,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[141];/////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[141];
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
             resources[i] = new Resource(0, 0, 5000);
-            resourceValues[i] = 5000;//////////////////////////////////////////////////////////////////////////////////
+            resourceValues[i] = 5000;
             resourceOccupied[i] = false;
         }
     }
@@ -246,7 +231,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 50;
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -569,14 +554,20 @@ public class ScoutGame extends JFrame {
         return closestWorker;
     }
 
-    public List<Worker> getWorkersOnResource(Resource resource) {
-        List<Worker> workersOnResource = new ArrayList<>();
-        for (Worker worker : allWorkers) {
-            if (worker.isWorkingOn(resource)) {
-                workersOnResource.add(worker);
+    public List<Worker> getEnemyWorkersInRange(Scout scout, String scoutTeam, double range) {
+        Worker[] enemyWorkers = scoutTeam.equals("blue") ? redWorkers : blueWorkers;
+        List<Worker> nearbyWorkers = new ArrayList<>();
+
+        for (Worker worker : enemyWorkers) {
+            if (worker.isActive() && scout.distanceTo(worker) <= range) {
+                nearbyWorkers.add(worker);
             }
         }
-        return workersOnResource;
+        return nearbyWorkers;
+    }
+
+    public void addExplosionEffect(double x, double y, int radius, Color color, int duration) {
+        explosionEffects.add(new ExplosionEffect(x, y, radius, color, duration));
     }
 
     public void drawShot(int startX, int startY, int endX, int endY) {
@@ -584,17 +575,38 @@ public class ScoutGame extends JFrame {
         this.bulletStartY = startY;
         this.bulletEndX = endX;
         this.bulletEndY = endY;
-        repaint(); // Извиква `paintComponent`, за да се нарисува патронът
+        repaint();
 
-        // Изчистване на патрона след кратко време
         Timer timer = new Timer(50, e -> {
             bulletStartX = bulletStartY = bulletEndX = bulletEndY = -1;
-            repaint(); // Принуждава екрана да се опресни, за да се премахне патрона
+            repaint();
             ((Timer) e.getSource()).stop();
         });
         timer.setRepeats(false);
         timer.start();
     }
-
 }
 
+class ExplosionEffect {
+    private final double x, y;
+    private final int radius;
+    private final Color color;
+    private final long endTime;
+
+    public ExplosionEffect(double x, double y, int radius, Color color, int duration) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.endTime = System.currentTimeMillis() + duration;
+    }
+
+    public void draw(Graphics2D g2d) {
+        g2d.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 128));
+        g2d.fillOval((int) (x - radius), (int) (y - radius), radius * 2, radius * 2);
+    }
+
+    public boolean isExpired(long currentTime) {
+        return currentTime > endTime;
+    }
+}
