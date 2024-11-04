@@ -2,7 +2,7 @@ package classesSeparated;
 
 public class Defender extends Character {
 
-    private double speed = 0.02;
+    private double speed = 0.01;
     private double angleOffset;
 
     public Defender(int startX, int startY, String team, String role, double initialAngle) {
