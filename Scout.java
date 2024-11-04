@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
-    private int points = 60;
-    private static final int MAX_POINTS = 60;
+    private int points = 20;
+    private static final int MAX_POINTS = 20;
     private static final int MIN_POINTS = 10;
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
