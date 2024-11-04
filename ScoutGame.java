@@ -38,7 +38,7 @@ public class ScoutGame extends JFrame {
     public ScoutGame() {
         allWorkers = new ArrayList<>();
 
-        setTitle("simulacrum");
+        setTitle("simulacrum wars");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
