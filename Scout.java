@@ -13,8 +13,8 @@ public class Scout extends Character {
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
     private static final int POINT_REDUCTION_INTERVAL = 60 * 1000;
-    private static final int SHOOT_INTERVAL = 2000;
-    private static final int MAX_BULLET_DISTANCE = 200;  // Максимално разстояние за патрона
+    private static final int SHOOT_INTERVAL = 1001;
+    private static final int MAX_BULLET_DISTANCE = 80;  // Максимално разстояние за патрона
     private int kills = 0;  // Брояч за убитите работници
     private ScoutGame scoutGame;
     private boolean returningToBase = false;
