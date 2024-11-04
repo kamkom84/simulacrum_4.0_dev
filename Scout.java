@@ -3,7 +3,6 @@ package classesSeparated;
 import javax.swing.Timer;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
