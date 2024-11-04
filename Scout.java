@@ -29,8 +29,8 @@ public class Scout extends Character {
 
     private boolean isExploding = false;
     private long explosionStartTime = 0;
-    private static final int EXPLOSION_DURATION = 5000; // 5 seconds
-    private static final int EXPLOSION_RADIUS = 40;
+    private static final int EXPLOSION_DURATION = 3000;
+    private static final int EXPLOSION_RADIUS = 30;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
@@ -79,11 +79,9 @@ public class Scout extends Character {
         this.currentAngle = Math.toDegrees(Math.atan2(dy, dx));
 
         double distanceToTarget = distanceTo(targetWorker);
-        if (distanceToTarget > 60) {
-            // Move towards the worker if out of shooting range
+        if (distanceToTarget > 50) {
             moveDirectlyToAvoidingResources((int) targetWorker.getX(), (int) targetWorker.getY(), resources);
         } else {
-            // If within range, shoot the worker
             handleShooting(targetWorker, currentTime);
         }
     }
@@ -95,7 +93,7 @@ public class Scout extends Character {
 
         for (Worker worker : workers) {
             worker.setInactive();
-            worker.setColor(Color.GRAY);
+            worker.setColor(Color.GRAY);  // не работи коригирай
             incrementKills();
         }
 
