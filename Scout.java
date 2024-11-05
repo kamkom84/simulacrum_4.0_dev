@@ -8,12 +8,12 @@ import static java.awt.geom.Point2D.distance;
 public class Scout extends Character {
     private int points = 60;
     private static final int MAX_POINTS = 60;
-    private static final int MIN_POINTS = 50;
+    private static final int MIN_POINTS = 30;
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
     private static final int POINT_REDUCTION_INTERVAL = 60 * 1000;
     private static final int SHOOT_INTERVAL = 1000;
-    private static final int MAX_BULLET_DISTANCE = 80;
+    private static final int MAX_BULLET_DISTANCE = 60;
     private int kills = 0;
     private ScoutGame scoutGame;
     private boolean returningToBase = false;
@@ -28,7 +28,7 @@ public class Scout extends Character {
 
     private boolean isExploding = false;
     private long explosionStartTime = 0;
-    private static final int EXPLOSION_DURATION = 5000;
+    private static final int EXPLOSION_DURATION = 10000;
     private static final int EXPLOSION_RADIUS = 30;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
