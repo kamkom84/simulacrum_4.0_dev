@@ -25,11 +25,11 @@ public class Worker extends Character {
     private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 10000;
+    private int health = 1000;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
-    private static final int ATTACK_DISPLAY_DURATION = 500; // Display duration in milliseconds
-    private Color color;  // Color property for the worker
+    private static final int ATTACK_DISPLAY_DURATION = 500;
+    private Color color;
 
 
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
