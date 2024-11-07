@@ -288,6 +288,8 @@ public class Scout extends Character {
         points -= amount;
         if (points < 0) points = 0;
         System.out.println("Scout's points decreased to: " + points);
+        reverseDirection();
+        updatePosition();
     }
 
     private void moveRandomly() {

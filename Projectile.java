@@ -7,9 +7,9 @@ public class Projectile {
     private int targetX, targetY;
     private int speed = 10;
     private boolean active;
-    private final int maxDistance = 250; // Максимално разстояние от 220 пиксела
+    private final int maxDistance = 250;
     private int traveledDistance = 0;
-    private Color color = Color.GREEN; // Зададен цвят за патроните
+    private Color color = Color.GREEN;
 
     public Projectile(int startX, int startY, int targetX, int targetY) {
         this.x = startX;
@@ -44,10 +44,10 @@ public class Projectile {
         if (active) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setColor(color);
-            g2d.setStroke(new BasicStroke(1)); // Дебелина на линията на патрона
+            g2d.setStroke(new BasicStroke(1));
 
             double angle = Math.atan2(targetY - y, targetX - x);
-            int endX = (int) (x + 10 * Math.cos(angle)); // Дължина на патрона (10 пиксела)
+            int endX = (int) (x + 10 * Math.cos(angle));
             int endY = (int) (y + 10 * Math.sin(angle));
 
             g2d.drawLine(x, y, endX, endY);
@@ -59,10 +59,8 @@ public class Projectile {
         if (distanceToTarget <= target.getBodyRadius()) {
             if (target instanceof Scout) {
                 Scout scout = (Scout) target;
-                scout.decreasePoints(1); // Намаляване на точките на скаута с 1 при попадение
-                scout.reverseDirection(); // Обръщане на посоката при попадение
-
-                //scout.getGame().addExplosionEffect(scout.getX(), scout.getY(), 10, Color.RED, 500);
+                scout.decreasePoints(1);
+                scout.reverseDirection();
             }
             return true;
         }
