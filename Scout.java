@@ -25,16 +25,18 @@ public class Scout extends Character {
     private Worker currentTargetWorker = null;
     private Resource currentTargetResource = null;
     private int resourceIndex = 0;
-
     private boolean isExploding = false;
     private long explosionStartTime = 0;
     private static final int EXPLOSION_DURATION = 10000;
     private static final int EXPLOSION_RADIUS = 30;
+    private int bodyRadius = 10;
+    private ScoutGame game;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
+        this.game = game;
     }
 
     public void update(Point baseCenter, Resource[] resources) {
@@ -85,14 +87,13 @@ public class Scout extends Character {
         }
     }
 
-
     private void triggerExplosion(List<Worker> workers) {
         isExploding = true;
         explosionStartTime = System.currentTimeMillis();
 
         for (Worker worker : workers) {
             worker.setInactive();
-            worker.setColor(Color.GRAY);  // не работи коригирай
+            worker.setColor(Color.GRAY);
             incrementKills();
         }
 
@@ -204,32 +205,25 @@ public class Scout extends Character {
             final double[] travelledDistance = {0};
 
             Timer timer = new Timer(50, e -> {
-                // Calculate the new end position of the bullet
                 int currentEndX = (int) (bulletX[0] + Math.cos(angleToTarget) * 10);
                 int currentEndY = (int) (bulletY[0] + Math.sin(angleToTarget) * 10);
 
-                // Draw the bullet's movement
                 scoutGame.drawShot(bulletX[0], bulletY[0], currentEndX, currentEndY);
 
-                // Update bullet position
                 bulletX[0] += Math.cos(angleToTarget) * 5;
                 bulletY[0] += Math.sin(angleToTarget) * 5;
                 travelledDistance[0] += 5;
 
-                // Check for collision with the target
                 if (distance(bulletX[0], bulletY[0], targetX, targetY) <= targetWorker.getBodyRadius()) {
                     targetWorker.takeDamage(1);
 
-                    // Increment kill count if the target worker's health reaches zero
                     if (targetWorker.getHealth() <= 0) {
                         incrementKills();
                     }
 
-                    // Stop the timer since the bullet hit the target
                     ((Timer) e.getSource()).stop();
                 }
 
-                // Stop the timer if the bullet travels beyond the maximum distance
                 if (travelledDistance[0] >= MAX_BULLET_DISTANCE) {
                     ((Timer) e.getSource()).stop();
                 }
@@ -238,11 +232,9 @@ public class Scout extends Character {
             timer.setRepeats(true);
             timer.start();
 
-            // Update the last shoot time
             lastShootTime = currentTime;
         }
     }
-
 
     public void drawKills(Graphics2D g2d, int xPosition, int yPosition) {
         g2d.setFont(new Font("Arial", Font.BOLD, 12));
@@ -279,6 +271,25 @@ public class Scout extends Character {
         return 5;
     }
 
+    public void reverseDirection() {
+        currentAngle += 180; // Обръщане на ъгъла на движение
+        if (currentAngle >= 360) {
+            currentAngle -= 360; // Ограничаване до 360 градуса
+        }
+    }
+
+    public void updatePosition() {
+        double radians = Math.toRadians(currentAngle);
+        x += (int) (1 * Math.cos(radians));
+        y += (int) (1 * Math.sin(radians));
+    }
+
+    public void decreasePoints(int amount) {
+        points -= amount;
+        if (points < 0) points = 0;
+        System.out.println("Scout's points decreased to: " + points);
+    }
+
     private void moveRandomly() {
         double angleChange = (Math.random() - 0.5) * 20;
         currentAngle += angleChange;
@@ -290,4 +301,21 @@ public class Scout extends Character {
         x += speed * Math.cos(Math.toRadians(currentAngle));
         y += speed * Math.sin(Math.toRadians(currentAngle));
     }
+
+    public void decreaseHealth(int amount) {
+        health -= amount;
+        if (health < 0) {
+            health = 0;
+        }
+        System.out.println("Scout health: " + health);
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public ScoutGame getGame() {
+        return game;
+    }
+
 }
