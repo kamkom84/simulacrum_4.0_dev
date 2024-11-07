@@ -612,6 +612,7 @@ public class ScoutGame extends JFrame {
 
 class ExplosionEffect {
     private final double x, y;
+
     private final int radius;
     private final Color color;
     private final long endTime;
