@@ -199,13 +199,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[301];
+        resources = new Resource[300];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
             resources[i] = new Resource(0, 0, 5000);
-            resourceValues[i] = 2500;
+            resourceValues[i] = 10;
             resourceOccupied[i] = false;
         }
     }
@@ -232,7 +232,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 2500);
+            resources[i] = new Resource(x, y, 250);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -247,7 +247,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 150;
+        int totalWorkers = 150;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -513,15 +513,29 @@ public class ScoutGame extends JFrame {
     }
 
     private void determineWinner() {
-        if (blueBaseHealth > redBaseHealth) {
+        int blueWorkersAlive = countAliveWorkers(blueWorkers);
+        int redWorkersAlive = countAliveWorkers(redWorkers);
+
+        if (blueWorkersAlive > redWorkersAlive) {
             winner = "Blue team wins!";
-        } else if (redBaseHealth > blueBaseHealth) {
+        } else if (redWorkersAlive > blueWorkersAlive) {
             winner = "Red team wins!";
         } else {
             winner = "No Winner!";
         }
+
         gameOver = true;
         System.out.println("Game Over. " + winner);
+    }
+
+    private int countAliveWorkers(Worker[] workers) {
+        int count = 0;
+        for (Worker worker : workers) {
+            if (worker != null && worker.isActive()) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static void main(String[] args) {
