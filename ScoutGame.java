@@ -10,7 +10,7 @@ import static java.awt.geom.Point2D.distance;
 
 public class ScoutGame extends JFrame {
     private int blueBaseX, blueBaseY, redBaseX, redBaseY;
-    private int blueBaseHealth = 0;  //
+    private int blueBaseHealth = 0;
     private int redBaseHealth = 0;
     private final int baseWidth = 75;
     private final int baseHeight = 75;
