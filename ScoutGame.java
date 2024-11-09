@@ -17,7 +17,7 @@ public class ScoutGame extends JFrame {
     private Worker[] blueWorkers;
     private Worker[] redWorkers;
     private Resource[] resources;
-    private Defender[] blueDefenders;  //
+    private Defender[] blueDefenders;  //mm
     private Defender[] redDefenders;
     private Scout blueScout;
     private Scout redScout;
