@@ -1,7 +1,7 @@
 package classesSeparated;
 
 import java.awt.*;
-import java.util.Random;
+import javax.swing.Timer;
 import static java.awt.geom.Point2D.distance;
 
 public class Worker extends Character {
@@ -16,7 +16,7 @@ public class Worker extends Character {
     private long resourceAcquisitionTime = 0;
     private long baseStayStartTime = 0;
     private Point startPosition;
-    private Random random = new Random();
+//    private Random random = new Random();
     private int[] resourceValues;
     private static boolean[] resourceOccupied;
     private int baseWidth;
@@ -25,16 +25,16 @@ public class Worker extends Character {
     private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 1000;
+    private int health = 1500;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;
+//    private Color flashingColor = null;
+    private int id;
     private Color color;
 
-
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
-                  boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game,
-                  int workerId) {
+                  boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int id) {
         super(startX, startY, team, "worker");
         this.scoutGame = game;
         this.resourceValues = resourceValues;
@@ -42,7 +42,7 @@ public class Worker extends Character {
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
         this.resources = resources;
-        this.workerId = workerId;
+        this.id = id; // Запазваме идентификатора
         this.startPosition = new Point(startX, startY);
     }
 
@@ -85,8 +85,11 @@ public class Worker extends Character {
             }
         }
 
-        // Update for displaying points
         update();
+    }
+
+    public int getId() {
+        return id;
     }
 
     private Resource findNearestAvailableResource(Resource[] resources) {
@@ -227,6 +230,15 @@ public class Worker extends Character {
         } else {
             underAttack = true;
             lastDamageTime = System.currentTimeMillis();
+
+            Color originalColor = this.color;
+            this.color = Color.YELLOW;
+
+            new Timer(ATTACK_DISPLAY_DURATION, e -> {
+                this.color = originalColor;
+                underAttack = false;
+                ((Timer) e.getSource()).stop();
+            }).start();
         }
     }
 
@@ -243,14 +255,28 @@ public class Worker extends Character {
 
     public void draw(Graphics2D g2d) {
         int bodyRadius = 5;
-        g2d.setColor(team.equals("blue") ? new Color(0, 100, 255) : new Color(200, 50, 50));
+        g2d.setColor(getCurrentColor());
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
+        int lineLength = 10;
+        int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
+        int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
+        g2d.setColor(Color.YELLOW);
+        g2d.drawLine((int) x, (int) y, x2, y2);
+
         if (shouldDisplayPoints()) {
-            g2d.setColor(Color.WHITE);
+            g2d.setColor(Color.RED);
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
-            g2d.drawString("Health: " + health, (int) x - 10, (int) y - 10);
+            g2d.drawString("" + health, (int) x - 10, (int) y - 10);
         }
+    }
+
+    public Color getCurrentColor() {
+        if (isUnderAttack()) {
+            return Color.YELLOW;
+        }
+
+        return team.equals("blue") ? new Color(0, 100, 255) : new Color(200, 50, 50);
     }
 
     public void setInactive() {
@@ -262,7 +288,7 @@ public class Worker extends Character {
         this.hasResource = false;
         this.waitingOutsideBase = false;
         this.waitingInBase = false;
-        this.x = -1000;  // Moves the worker off-screen
+        this.x = -1000;
         this.y = -1000;
         System.out.println("Worker " + workerId + " of team " + team + " is now inactive.");
     }
@@ -289,10 +315,11 @@ public class Worker extends Character {
     }
 
     public int getBodyRadius() {
-        return 5; // Example radius value for the worker
+        return 5;
     }
 
     public void setColor(Color color) {
         this.color = color;
     }
+
 }

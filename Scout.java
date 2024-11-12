@@ -6,9 +6,9 @@ import java.util.List;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
-    private int points = 1000;
-    private static final int MAX_POINTS = 1000;
-    private static final int MIN_POINTS = 200;
+    private int points = 50;
+    private static final int MAX_POINTS = 50;
+    private static final int MIN_POINTS = 30;
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
     private static final int POINT_REDUCTION_INTERVAL = 60 * 1000;
@@ -22,15 +22,16 @@ public class Scout extends Character {
     private long rechargeStartTime = 0;
     private static final int RECHARGE_DURATION = 10 * 1000;
     private double currentAngle;
-    private Worker currentTargetWorker = null;
+//    private Worker currentTargetWorker = null;
     private Resource currentTargetResource = null;
     private int resourceIndex = 0;
     private boolean isExploding = false;
     private long explosionStartTime = 0;
-    private static final int EXPLOSION_DURATION = 10000;
-    private static final int EXPLOSION_RADIUS = 30;
-    private int bodyRadius = 10;
+    private static final int EXPLOSION_DURATION = 5000;
+    private static final int EXPLOSION_RADIUS = 25;
+//    private int bodyRadius = 10;
     private ScoutGame game;
+    private static final int BACK_STEP_DISTANCE = 200;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
@@ -98,6 +99,13 @@ public class Scout extends Character {
         }
 
         scoutGame.addExplosionEffect(this.x, this.y, EXPLOSION_RADIUS, Color.RED, EXPLOSION_DURATION);
+    }
+
+    public void moveBackFrom(int defenderX, int defenderY) {
+        double angleAwayFromDefender = Math.atan2(this.y - defenderY, this.x - defenderX);
+
+        this.x += BACK_STEP_DISTANCE * Math.cos(angleAwayFromDefender);
+        this.y += BACK_STEP_DISTANCE * Math.sin(angleAwayFromDefender);
     }
 
     public double distanceTo(Worker worker) {
@@ -272,9 +280,9 @@ public class Scout extends Character {
     }
 
     public void reverseDirection() {
-        currentAngle += 180; // Обръщане на ъгъла на движение
+        currentAngle += 180;
         if (currentAngle >= 360) {
-            currentAngle -= 360; // Ограничаване до 360 градуса
+            currentAngle -= 360;
         }
     }
 

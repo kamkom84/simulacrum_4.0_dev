@@ -21,9 +21,9 @@ public class Defender extends Character {
         this.game = game;
 
         if ("red".equalsIgnoreCase(team)) {
-            this.currentAngle = Math.toRadians(180); // Червените гледат наляво по подразбиране
+            this.currentAngle = Math.toRadians(180);
         } else if ("blue".equalsIgnoreCase(team)) {
-            this.currentAngle = Math.toRadians(0); // Сините гледат надясно по подразбиране
+            this.currentAngle = Math.toRadians(0);
         }
     }
 
@@ -68,7 +68,8 @@ public class Defender extends Character {
             if (projectile.hasHit(scout)) {
                 System.out.println("Hit! Scout loses 1 point.");
                 scout.decreaseHealth(1);
-                game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500); // Добавяне на експлозия
+                game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
+                scout.moveBackFrom((int) this.x, (int) this.y);
 
                 iterator.remove();
             } else if (!projectile.isActive()) {
@@ -111,4 +112,5 @@ public class Defender extends Character {
 
         g2d.drawLine((int) this.x, (int) this.y, endX, endY);
     }
+
 }
