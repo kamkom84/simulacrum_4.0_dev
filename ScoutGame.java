@@ -2,6 +2,7 @@ package classesSeparated;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,6 +201,7 @@ public class ScoutGame extends JFrame {
             }
 
             moveDefenders();
+            checkForAvailableResources();
             moveWorkers();
             mainPanel.repaint();
         });
@@ -208,8 +210,18 @@ public class ScoutGame extends JFrame {
         setVisible(true);
     }
 
+    private void checkForAvailableResources() {
+        for (Worker worker : allWorkers) {
+            if (worker.hasStarted() && !worker.isActive()) {
+                worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, null);
+            }
+        }
+    }
+
+
+
     private void initializeResources() {
-        resources = new Resource[3];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[15];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -242,7 +254,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -257,7 +269,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -464,28 +476,40 @@ public class ScoutGame extends JFrame {
     }
 
     private void scheduleWorkerStarts() {
-        int initialDelay = 30000;
-        int interval = 30000;
+        int initialDelay = 30000; // Забавяне за стартиране на първия работник (30 секунди)
+        int interval = 30000; // Интервал между стартирането на работниците (30 секунди)
 
-        for (int i = 0; i < blueWorkers.length; i++) {
-            int delay = initialDelay + (i * interval);
-            final int workerIndex = i;
+        Timer timer = new Timer(interval, new AbstractAction() {
+            int index = 0; // Индекс за текущия работник
 
-            Timer blueWorkerTimer = new Timer(delay, e -> {
-                blueWorkers[workerIndex].activate();
-                ((Timer) e.getSource()).stop();
-            });
-            blueWorkerTimer.setRepeats(false);
-            blueWorkerTimer.start();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Активиране на работник от синия отбор
+                if (index < blueWorkers.length && blueWorkers[index] != null) {
+                    blueWorkers[index].activate();
+                    System.out.println("Blue worker " + (index + 1) + " activated.");
+                }
 
-            Timer redWorkerTimer = new Timer(delay, e -> {
-                redWorkers[workerIndex].activate();
-                ((Timer) e.getSource()).stop();
-            });
-            redWorkerTimer.setRepeats(false);
-            redWorkerTimer.start();
-        }
+                // Активиране на работник от червения отбор
+                if (index < redWorkers.length && redWorkers[index] != null) {
+                    redWorkers[index].activate();
+                    System.out.println("Red worker " + (index + 1) + " activated.");
+                }
+
+                index++; // Преминаване към следващия работник
+
+                // Спиране на таймера, когато всички работници са активирани
+                if (index >= Math.max(blueWorkers.length, redWorkers.length)) {
+                    ((Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        timer.setInitialDelay(initialDelay); // Забавяне за първия работник
+        timer.start();
     }
+
+
 
     private void moveWorkers() {
         if (gameOver) return;

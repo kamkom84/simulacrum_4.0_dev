@@ -16,7 +16,6 @@ public class Worker extends Character {
     private long resourceAcquisitionTime = 0;
     private long baseStayStartTime = 0;
     private Point startPosition;
-//    private Random random = new Random();
     private int[] resourceValues;
     private static boolean[] resourceOccupied;
     private int baseWidth;
@@ -25,11 +24,10 @@ public class Worker extends Character {
     private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 500;
+    private int health = 10;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;
-//    private Color flashingColor = null;
     private int id;
     private Color color;
 
@@ -56,7 +54,13 @@ public class Worker extends Character {
     }
 
     public void updateWorkerCycle(Resource[] resources, int baseX, int baseY, Scout enemyScout) {
-        if (!isActive) return;
+        if (health <= 0) { // Ако работникът е убит, не правим нищо
+            return;
+        }
+
+        if (!isActive) {
+            return; // Ако работникът е неактивен, не го реактивираме автоматично
+        }
 
         if (waitingOutsideBase) {
             return;
@@ -67,7 +71,7 @@ public class Worker extends Character {
         } else if (hasResource) {
             gatherResource();
         } else {
-            if (targetResource == null || resourceValues[targetResourceIndex] < 5) {
+            if (targetResource == null || (targetResourceIndex >= 0 && resourceValues[targetResourceIndex] < 5)) {
                 if (targetResourceIndex >= 0) {
                     resourceOccupied[targetResourceIndex] = false;
                 }
@@ -88,6 +92,11 @@ public class Worker extends Character {
         update();
     }
 
+
+
+
+
+
     public int getId() {
         return id;
     }
@@ -98,7 +107,7 @@ public class Worker extends Character {
         int closestResourceIndex = -1;
 
         for (int i = 0; i < resources.length; i++) {
-            if (!resourceOccupied[i] && resources[i].getValue() >= 5) {
+            if (!resourceOccupied[i] && resources[i].getValue() > 0) { // Проверяваме само наличните ресурси
                 double distance = distance(resources[i].getX(), resources[i].getY(), this.x, this.y);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -110,14 +119,13 @@ public class Worker extends Character {
 
         if (closestResourceIndex != -1) {
             targetResourceIndex = closestResourceIndex;
-            resourceOccupied[targetResourceIndex] = true;
-            System.out.println("Worker " + workerId + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
-        } else {
-            System.out.println("Worker " + workerId + " could not find available resource.");
+            resourceOccupied[targetResourceIndex] = true; // Запазваме ресурса
+            System.out.println("Worker " + id + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
         }
 
         return nearest;
     }
+
 
     private void moveToResource() {
         if (targetResource == null) return;
@@ -281,17 +289,26 @@ public class Worker extends Character {
 
     public void setInactive() {
         this.isActive = false;
-        this.hasStarted = false;
+        this.hasStarted = true; // Убедете се, че е маркиран като стартиран
+        this.health = 0; // Установете здравето на 0, за да отбележите, че работникът е мъртъв
+
+        // Освобождаване на ресурс, ако работникът е бил зает с такъв
+        if (targetResourceIndex >= 0 && resourceOccupied[targetResourceIndex]) {
+            resourceOccupied[targetResourceIndex] = false;
+        }
+
         this.targetResource = null;
         this.targetResourceIndex = -1;
         this.returningToBase = false;
         this.hasResource = false;
         this.waitingOutsideBase = false;
         this.waitingInBase = false;
+
         this.x = -1000;
         this.y = -1000;
-        System.out.println("Worker " + workerId + " of team " + team + " is now inactive.");
+        System.out.println("Worker " + id + " of team " + team + " is now inactive.");
     }
+
 
     public String getTeam() {
         return this.team;
@@ -321,5 +338,4 @@ public class Worker extends Character {
     public void setColor(Color color) {
         this.color = color;
     }
-
 }
