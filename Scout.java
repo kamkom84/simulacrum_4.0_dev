@@ -31,7 +31,7 @@ public class Scout extends Character {
     private static final int EXPLOSION_RADIUS = 25;
 //    private int bodyRadius = 10;
     private ScoutGame game;
-    private static final int BACK_STEP_DISTANCE = 200;
+    private static final int BACK_STEP_DISTANCE = 100;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
@@ -326,6 +326,20 @@ public class Scout extends Character {
 
     public ScoutGame getGame() {
         return game;
+    }
+
+    @Override
+    public String getType() {
+        return "Scout";
+    }
+
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 
 }

@@ -55,7 +55,7 @@ public class Defender extends Character {
         double hitChance = 0.7;
         if (Math.random() < hitChance) {
             scout.decreaseHealth(1);
-            game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
+            //game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
         }
     }
 
@@ -68,7 +68,7 @@ public class Defender extends Character {
             if (projectile.hasHit(scout)) {
                 System.out.println("Hit! Scout loses 1 point.");
                 scout.decreaseHealth(1);
-                game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
+                //game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
                 scout.moveBackFrom((int) this.x, (int) this.y);
 
                 iterator.remove();
@@ -112,5 +112,11 @@ public class Defender extends Character {
 
         g2d.drawLine((int) this.x, (int) this.y, endX, endY);
     }
+
+    @Override
+    public String getType() {
+        return "defender";
+    }
+
 
 }

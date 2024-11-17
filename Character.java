@@ -1,5 +1,8 @@
 package classesSeparated;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public abstract class Character {
     protected double x;
     protected double y;
@@ -9,6 +12,11 @@ public abstract class Character {
     protected double currentAngle;
     protected int health;
     private int bodyRadius = 10;
+    private boolean active = true;
+    private boolean showHealth = false; // Флаг за показване на здравето
+    private String type;
+
+
 
     public Character(double startX, double startY, String team, String role) {
         this.x = startX;
@@ -16,6 +24,7 @@ public abstract class Character {
         this.team = team;
         this.role = role.toLowerCase();
         this.health = 10;
+        this.type = type;
     }
 
     public double getX() {
@@ -62,5 +71,34 @@ public abstract class Character {
     public int getBodyRadius() {
         return bodyRadius;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void takeDamage(int damage) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.health = 0;
+            this.setActive(false);
+        }
+    }
+
+    public void showHealthTemporarily() {
+        this.showHealth = true;
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                showHealth = false;
+            }
+        }, 500);
+    }
+
+    public abstract String getType();
+
 
 }

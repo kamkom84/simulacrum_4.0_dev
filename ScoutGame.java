@@ -1,3 +1,20 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package classesSeparated;
 
 import javax.swing.*;
@@ -34,6 +51,8 @@ public class ScoutGame extends JFrame {
     private int bulletEndX = -1;
     private int bulletEndY = -1;
     private List<ExplosionEffect> explosionEffects = new ArrayList<>();
+    private Soldier[] blueSoldiers;
+    private Soldier[] redSoldiers;
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -70,6 +89,9 @@ public class ScoutGame extends JFrame {
         blueDefenders = new Defender[3];
         redDefenders = new Defender[3];
         initializeDefenders();
+
+        initializeSoldiers("blue", blueBaseX, blueBaseY, blueBaseHealth);
+        initializeSoldiers("red", redBaseX, redBaseY, redBaseHealth);
 
         scheduleWorkerStarts();
         startTime = System.currentTimeMillis();
@@ -138,6 +160,23 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
+                if (blueSoldiers != null) {
+                    for (Soldier soldier : blueSoldiers) {
+                        if (soldier != null) {
+                            soldier.draw(g2d);
+                        }
+                    }
+                }
+
+                if (redSoldiers != null) {
+                    for (Soldier soldier : redSoldiers) {
+                        if (soldier != null) {
+                            soldier.draw(g2d);
+                        }
+                    }
+                }
+
+
                 if (bulletStartX != -1 && bulletStartY != -1) {
                     g2d.setColor(Color.GREEN);
                     g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
@@ -152,6 +191,7 @@ public class ScoutGame extends JFrame {
                     g2d.drawString(winnerText, winnerX, winnerY);
                 }
             }
+
 
             private void drawExplosions(Graphics2D g2d) {
                 long currentTime = System.currentTimeMillis();
@@ -200,15 +240,49 @@ public class ScoutGame extends JFrame {
                 redScout.updatePosition();
             }
 
+            // Обновяване на сините войници
+            if (blueSoldiers != null) {
+                for (Soldier soldier : blueSoldiers) {
+                    if (soldier != null) {
+                        // Логика за движение или стрелба
+                        updateSoldier(soldier, redWorkers); // Примерна функция за актуализация
+                    }
+                }
+            }
+
+            // Обновяване на червените войници
+            if (redSoldiers != null) {
+                for (Soldier soldier : redSoldiers) {
+                    if (soldier != null) {
+                        // Логика за движение или стрелба
+                        updateSoldier(soldier, blueWorkers); // Примерна функция за актуализация
+                    }
+                }
+            }
+
             moveDefenders();
             checkForAvailableResources();
             moveWorkers();
             mainPanel.repaint();
         });
+
         timer.start();
 
         setVisible(true);
     }
+
+    private void updateSoldier(Soldier soldier, Worker[] enemyWorkers) {
+        // Проверка за врагове в обсега
+        for (Worker enemy : enemyWorkers) {
+            if (enemy != null && enemy.isActive() && distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= 150) {
+                soldier.shoot(enemy); // Ако врагът е в обсега, стреля
+            }
+        }
+
+        // Пример за движение на войника (по ваша логика)
+        // soldier.move(); // Ако има движение, добавете подходящ метод
+    }
+
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
@@ -221,7 +295,7 @@ public class ScoutGame extends JFrame {
 
 
     private void initializeResources() {
-        resources = new Resource[15];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[6];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -254,7 +328,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -269,7 +343,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 5;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 3;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -512,10 +586,8 @@ public class ScoutGame extends JFrame {
 
 
     private void moveWorkers() {
-        if (gameOver) return;
-
+        // Обновяване на работния цикъл за сините работници
         boolean anyActiveWorkers = false;
-
         for (Worker worker : blueWorkers) {
             if (worker != null) {
                 worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout);
@@ -525,6 +597,7 @@ public class ScoutGame extends JFrame {
             }
         }
 
+        // Обновяване на работния цикъл за червените работници
         for (Worker worker : redWorkers) {
             if (worker != null) {
                 worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout);
@@ -534,16 +607,102 @@ public class ScoutGame extends JFrame {
             }
         }
 
-        if (!anyActiveWorkers && allWorkersStarted() && allResourcesDepleted() && !gameOver) {
-            gameOver = true;
-            determineWinner();
+        // Проверка дали всички ресурси са изчерпани и всички работници са на стартовите си позиции
+        boolean allBlueWorkersAtBase = allWorkersAtBase(blueWorkers, blueBaseX, blueBaseY);
+        boolean allRedWorkersAtBase = allWorkersAtBase(redWorkers, redBaseX, redBaseY);
+
+        if (!anyActiveWorkers && allWorkersStarted() && allResourcesDepleted() && allBlueWorkersAtBase && allRedWorkersAtBase) {
+            // Връщане на скаутите
+            moveScoutsToStartPosition();
+
+            // Край на играта (може да се запази, за да се блокират други механики, свързани с победата)
+            if (!gameOver) {
+                gameOver = true;
+                determineWinner();
+            }
         }
     }
+
+    private void moveScoutsToStartPosition() {
+        int screenWidth = getWidth();
+        int screenHeight = getHeight();
+
+        // Син скаут
+        blueScout.setX(blueBaseX + baseWidth / 2);
+        blueScout.setY(blueBaseY - 100); // 100 пиксела над базата
+        blueScout.setCurrentAngle(Math.toDegrees(Math.atan2(screenHeight / 2 - blueScout.getY(), screenWidth / 2 - blueScout.getX())));
+
+        // Червен скаут
+        redScout.setX(redBaseX + baseWidth / 2);
+        redScout.setY(redBaseY - 100); // 100 пиксела над базата
+        redScout.setCurrentAngle(Math.toDegrees(Math.atan2(screenHeight / 2 - redScout.getY(), screenWidth / 2 - redScout.getX())));
+    }
+
+
+
+    private void initializeSoldiers(String team, int baseX, int baseY, int basePoints) {
+        final int soldierHealthCost = 20; // Точки здраве за един войник
+        final int maxRowsPerColumn = 20; // Максимум 20 войници на колона
+        final int columnSpacing = 30; // Разстояние между колоните
+        final int rowSpacing = 30; // Разстояние между редовете
+
+        // Проверка дали има достатъчно точки за поне един войник
+        if (basePoints < soldierHealthCost) {
+            System.out.println("Not enough base points to create soldiers for team " + team);
+            return;
+        }
+
+        // Изчисляване на максималния брой войници
+        final int maxSoldiers = basePoints / soldierHealthCost;
+        Soldier[] soldiers = new Soldier[maxSoldiers];
+
+        // Начални координати спрямо базата
+        final int startX = baseX + (team.equals("blue") ? 200 : -200);
+        final int startY = baseY;
+
+        // Позициониране на войниците
+        for (int i = 0; i < maxSoldiers; i++) {
+            int columnIndex = i / maxRowsPerColumn; // Колона
+            int rowIndex = i % maxRowsPerColumn; // Ред
+
+            int x = startX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
+            int y = startY + rowIndex * rowSpacing;
+
+            soldiers[i] = new Soldier(x, y, team, baseX, baseY, this);
+        }
+
+        // Присвояване на войниците към отбора
+        if (team.equals("blue")) {
+            blueSoldiers = soldiers;
+            blueBaseHealth -= maxSoldiers * soldierHealthCost;
+        } else {
+            redSoldiers = soldiers;
+            redBaseHealth -= maxSoldiers * soldierHealthCost;
+        }
+
+        // Логове за дебъг
+        System.out.println("Initialized " + maxSoldiers + " soldiers for team " + team);
+        System.out.println("Remaining base points for team " + team + ": " + (team.equals("blue") ? blueBaseHealth : redBaseHealth));
+    }
+
+
 
     public boolean allResourcesDepleted() {
         for (Resource resource : resources) {
             if (resource.getValue() > 0) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean allWorkersAtBase(Worker[] workers, int baseX, int baseY) {
+        for (Worker worker : workers) {
+            if (worker != null && worker.isActive()) {
+                // Проверка дали работникът е върху стартовата си позиция
+                if (distance(worker.getX(), worker.getY(), baseX + baseWidth / 2, baseY + baseHeight + 100) > 5) {
+                    return false;
+                }
             }
         }
         return true;
@@ -698,5 +857,8 @@ class ExplosionEffect {
     public boolean isExpired(long currentTime) {
         return currentTime > endTime;
     }
+
+
+
 
 }

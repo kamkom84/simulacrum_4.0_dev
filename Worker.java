@@ -24,7 +24,7 @@ public class Worker extends Character {
     private Resource[] resources;
     private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 10;
+    private int health = 200;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;
@@ -338,4 +338,11 @@ public class Worker extends Character {
     public void setColor(Color color) {
         this.color = color;
     }
+
+    @Override
+    public String getType() {
+        return "worker";
+    }
+
+
 }
