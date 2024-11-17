@@ -22,58 +22,89 @@ public class Scout extends Character {
     private long rechargeStartTime = 0;
     private static final int RECHARGE_DURATION = 10 * 1000;
     private double currentAngle;
-//    private Worker currentTargetWorker = null;
+    private Worker currentTargetWorker = null;
     private Resource currentTargetResource = null;
     private int resourceIndex = 0;
     private boolean isExploding = false;
     private long explosionStartTime = 0;
     private static final int EXPLOSION_DURATION = 5000;
     private static final int EXPLOSION_RADIUS = 25;
-//    private int bodyRadius = 10;
+    private int bodyRadius = 10;
     private ScoutGame game;
     private static final int BACK_STEP_DISTANCE = 100;
+    private double speed;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
         super(startX, startY, team, "scout");
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
+        this.speed = 1.0;
     }
 
     public void update(Point baseCenter, Resource[] resources) {
-        if (!isActive) return;
+        if (!isActive) return; // Ако скаутът не е активен, прекратяваме изпълнението
 
-        long currentTime = System.currentTimeMillis();
-        managePointsReduction(currentTime);
+        long currentTime = System.currentTimeMillis(); // Текущо време
+        managePointsReduction(currentTime); // Управление на намаляването на точки
 
+        // Проверка за изтичане на времето на експлозията
         if (isExploding && currentTime - explosionStartTime > EXPLOSION_DURATION) {
             isExploding = false;
         }
 
+        // Проверка за врагове в обсега за експлозия
         List<Worker> nearbyWorkers = scoutGame.getEnemyWorkersInRange(this, team, EXPLOSION_RADIUS);
         if (nearbyWorkers.size() >= 3 && !isExploding) {
             triggerExplosion(nearbyWorkers);
         }
 
+        // Ако точките на скаута са под минимума, скаутът се връща към базата
         if (points <= MIN_POINTS && !returningToBase && !recharging) {
             returningToBase = true;
         }
 
         if (returningToBase) {
-            moveToBase(baseCenter, currentTime, resources);
+            // Проверка дали всички работници са в базата и ресурсите са изчерпани
+            if (scoutGame.allWorkersAtBase(scoutGame.getAllWorkers().toArray(new Worker[0]),
+                    (int) baseCenter.getX(), (int) baseCenter.getY()) &&
+                    scoutGame.allResourcesDepleted()) {
+
+                // Връщане на скаута към стартова позиция
+                moveToStartPosition(baseCenter);
+                returningToBase = false; // Скаутът вече не се връща
+                isActive = false; // Деактивиране на скаута
+            } else {
+                // Скаутът продължава да се връща към базата
+                moveToBase(baseCenter, currentTime, resources);
+            }
         } else if (recharging) {
+            // Управление на логиката за презареждане
             handleRecharging(currentTime);
         } else if (!isExploding) {
+            // Търсене на цел (работник) в обсега
             Worker targetWorker = scoutGame.findClosestEnemyWorkerWithinRange(this, team, 100);
             if (targetWorker != null) {
                 handleTargetWorker(targetWorker, currentTime, resources);
             } else {
+                // Ако няма цел, патрулиране около ресурсите
                 patrolResources(resources);
             }
         }
 
+        // Уверяване, че скаутът остава в границите на екрана
         keepWithinBounds(scoutGame.getWidth(), scoutGame.getHeight());
     }
+
+
+
+    public void moveToStartPosition(Point baseCenter) {
+        this.x = baseCenter.x;
+        this.y = baseCenter.y - 100; // Позиция 100 пиксела над базата
+        this.setCurrentAngle(90);    // Гледа надолу към центъра
+    }
+
+
 
     private void handleTargetWorker(Worker targetWorker, long currentTime, Resource[] resources) {
         double dx = targetWorker.getX() - this.x;
@@ -286,11 +317,8 @@ public class Scout extends Character {
         }
     }
 
-    public void updatePosition() {
-        double radians = Math.toRadians(currentAngle);
-        x += (int) (1 * Math.cos(radians));
-        y += (int) (1 * Math.sin(radians));
-    }
+
+
 
     public void decreasePoints(int amount) {
         points -= amount;
@@ -299,6 +327,34 @@ public class Scout extends Character {
         reverseDirection();
         updatePosition();
     }
+
+    public void updatePosition() {
+        // Примерно движение по права линия
+        double deltaX = Math.cos(Math.toRadians(currentAngle));
+        double deltaY = Math.sin(Math.toRadians(currentAngle));
+        x += deltaX * speed;
+        y += deltaY * speed;
+
+        // Логика за оставане в рамките на игралното поле
+        if (x < 0) {
+            x = 0;
+            reverseDirection();
+        } else if (x > scoutGame.getWidth()) {
+            x = scoutGame.getWidth();
+            reverseDirection();
+        }
+
+        if (y < 0) {
+            y = 0;
+            reverseDirection();
+        } else if (y > scoutGame.getHeight()) {
+            y = scoutGame.getHeight();
+            reverseDirection();
+        }
+
+        System.out.println("Scout's position updated: (" + x + ", " + y + ")");
+    }
+
 
     private void moveRandomly() {
         double angleChange = (Math.random() - 0.5) * 20;
@@ -334,12 +390,18 @@ public class Scout extends Character {
     }
 
 
-    public void setX(double x) {
+    public void setX(int x) {
         this.x = x;
     }
 
-    public void setY(double y) {
+    public void setY(int y) {
         this.y = y;
     }
+
+    public void setCurrentAngle(double angle) {
+        this.currentAngle = angle;
+    }
+
+
 
 }

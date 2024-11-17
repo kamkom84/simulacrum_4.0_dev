@@ -1,6 +1,7 @@
 package classesSeparated;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import javax.swing.Timer;
 import static java.awt.geom.Point2D.distance;
 
@@ -31,6 +32,7 @@ public class Worker extends Character {
     private int id;
     private Color color;
 
+
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int id) {
         super(startX, startY, team, "worker");
@@ -42,6 +44,7 @@ public class Worker extends Character {
         this.resources = resources;
         this.id = id; // Запазваме идентификатора
         this.startPosition = new Point(startX, startY);
+
     }
 
     public void activate() {
@@ -344,5 +347,39 @@ public class Worker extends Character {
         return "worker";
     }
 
+
+    public boolean isAtBase(int baseX, int baseY) {
+        int tolerance = 10; // Толеранс в пиксели
+        return Math.abs(this.x - baseX) <= tolerance && Math.abs(this.y - baseY) <= tolerance;
+    }
+
+
+    public void moveToBase(int baseX, int baseY) {
+        // Местене на работника към координатите на базата
+        this.x = baseX; // Или базовото X
+        this.y = baseY; // Или базовото Y
+
+        // Ако имате нужда от плавно движение, използвайте допълнителна логика.
+        System.out.println("Worker " + this.getId() + " moved to base (" + baseX + ", " + baseY + ").");
+    }
+
+    public boolean isAtStartPosition(int baseX, int baseY) {
+        int startX = baseX + (team.equals("blue") ? 50 : -50);
+        int startY = baseY + (id * 30); // Изчислява се уникалната стартова позиция по ред
+
+        return Math.abs(x - startX) <= 5 && Math.abs(y - startY) <= 5; // Допустима грешка от 5 пиксела
+    }
+
+    public void moveToStartPosition(int baseX, int baseY) {
+        int startX = baseX + (team.equals("blue") ? 50 : -50);
+        int startY = baseY + (id * 30); // Изчислява се уникалната стартова позиция по ред
+
+        if (Math.abs(x - startX) > 5) {
+            x += (startX - x) / Math.abs(startX - x); // Преместване по X
+        }
+        if (Math.abs(y - startY) > 5) {
+            y += (startY - y) / Math.abs(startY - y); // Преместване по Y
+        }
+    }
 
 }
