@@ -1,7 +1,6 @@
 package classesSeparated;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.Timer;
 import static java.awt.geom.Point2D.distance;
 
@@ -32,7 +31,6 @@ public class Worker extends Character {
     private int id;
     private Color color;
 
-
     public Worker(int startX, int startY, String team, Resource[] resources, int[] resourceValues,
                   boolean[] resourceOccupied, int baseWidth, int baseHeight, ScoutGame game, int id) {
         super(startX, startY, team, "worker");
@@ -42,7 +40,7 @@ public class Worker extends Character {
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
         this.resources = resources;
-        this.id = id; // Запазваме идентификатора
+        this.id = id;
         this.startPosition = new Point(startX, startY);
 
     }
@@ -57,12 +55,12 @@ public class Worker extends Character {
     }
 
     public void updateWorkerCycle(Resource[] resources, int baseX, int baseY, Scout enemyScout) {
-        if (health <= 0) { // Ако работникът е убит, не правим нищо
+        if (health <= 0) {
             return;
         }
 
         if (!isActive) {
-            return; // Ако работникът е неактивен, не го реактивираме автоматично
+            return;
         }
 
         if (waitingOutsideBase) {
@@ -95,11 +93,6 @@ public class Worker extends Character {
         update();
     }
 
-
-
-
-
-
     public int getId() {
         return id;
     }
@@ -110,7 +103,7 @@ public class Worker extends Character {
         int closestResourceIndex = -1;
 
         for (int i = 0; i < resources.length; i++) {
-            if (!resourceOccupied[i] && resources[i].getValue() > 0) { // Проверяваме само наличните ресурси
+            if (!resourceOccupied[i] && resources[i].getValue() > 0) {
                 double distance = distance(resources[i].getX(), resources[i].getY(), this.x, this.y);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -128,7 +121,6 @@ public class Worker extends Character {
 
         return nearest;
     }
-
 
     private void moveToResource() {
         if (targetResource == null) return;
@@ -292,10 +284,9 @@ public class Worker extends Character {
 
     public void setInactive() {
         this.isActive = false;
-        this.hasStarted = true; // Убедете се, че е маркиран като стартиран
-        this.health = 0; // Установете здравето на 0, за да отбележите, че работникът е мъртъв
+        this.hasStarted = true;
+        this.health = 0;
 
-        // Освобождаване на ресурс, ако работникът е бил зает с такъв
         if (targetResourceIndex >= 0 && resourceOccupied[targetResourceIndex]) {
             resourceOccupied[targetResourceIndex] = false;
         }
@@ -311,7 +302,6 @@ public class Worker extends Character {
         this.y = -1000;
         System.out.println("Worker " + id + " of team " + team + " is now inactive.");
     }
-
 
     public String getTeam() {
         return this.team;
@@ -347,38 +337,34 @@ public class Worker extends Character {
         return "worker";
     }
 
-
     public boolean isAtBase(int baseX, int baseY) {
-        int tolerance = 10; // Толеранс в пиксели
+        int tolerance = 10;
         return Math.abs(this.x - baseX) <= tolerance && Math.abs(this.y - baseY) <= tolerance;
     }
 
-
     public void moveToBase(int baseX, int baseY) {
-        // Местене на работника към координатите на базата
-        this.x = baseX; // Или базовото X
-        this.y = baseY; // Или базовото Y
+        this.x = baseX;
+        this.y = baseY;
 
-        // Ако имате нужда от плавно движение, използвайте допълнителна логика.
         System.out.println("Worker " + this.getId() + " moved to base (" + baseX + ", " + baseY + ").");
     }
 
     public boolean isAtStartPosition(int baseX, int baseY) {
         int startX = baseX + (team.equals("blue") ? 50 : -50);
-        int startY = baseY + (id * 30); // Изчислява се уникалната стартова позиция по ред
+        int startY = baseY + (id * 30);
 
-        return Math.abs(x - startX) <= 5 && Math.abs(y - startY) <= 5; // Допустима грешка от 5 пиксела
+        return Math.abs(x - startX) <= 5 && Math.abs(y - startY) <= 5;
     }
 
     public void moveToStartPosition(int baseX, int baseY) {
         int startX = baseX + (team.equals("blue") ? 50 : -50);
-        int startY = baseY + (id * 30); // Изчислява се уникалната стартова позиция по ред
+        int startY = baseY + (id * 30);
 
         if (Math.abs(x - startX) > 5) {
-            x += (startX - x) / Math.abs(startX - x); // Преместване по X
+            x += (startX - x) / Math.abs(startX - x);
         }
         if (Math.abs(y - startY) > 5) {
-            y += (startY - y) / Math.abs(startY - y); // Преместване по Y
+            y += (startY - y) / Math.abs(startY - y);
         }
     }
 

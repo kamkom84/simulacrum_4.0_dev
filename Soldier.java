@@ -19,7 +19,7 @@ public class Soldier extends Character {
         super(x, y, team, "soldier"); // Добавяме "soldier" като role
         this.health = 20;
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
-        this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x)); // Гледа към средата на екрана
+        this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
         this.id = id;
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;

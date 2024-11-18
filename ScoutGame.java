@@ -1,4 +1,3 @@
-
 package classesSeparated;
 
 import javax.swing.*;
@@ -190,6 +189,7 @@ public class ScoutGame extends JFrame {
                 }
             }
         };
+
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(Color.BLACK);
 
@@ -202,15 +202,18 @@ public class ScoutGame extends JFrame {
         controlPanel.add(minimizeButton);
 
         JButton fullscreenButton = new JButton("□");
+
         fullscreenButton.addActionListener(e -> {
             setUndecorated(!isUndecorated());
             setVisible(true);
             GraphicsDevice gdDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             gdDevice.setFullScreenWindow(isUndecorated() ? this : null);
         });
+
         controlPanel.add(fullscreenButton);
 
         JButton closeButton = new JButton("X");
+
         closeButton.addActionListener(e -> System.exit(0));
         controlPanel.add(closeButton);
 
@@ -261,14 +264,11 @@ public class ScoutGame extends JFrame {
     }
 
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers) {
-        // Проверка за врагове в обсега
         for (Worker enemy : enemyWorkers) {
             if (enemy != null && enemy.isActive() && distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= 150) {
                 soldier.shoot(enemy); // Ако врагът е в обсега, стреля
             }
         }
-
-        // Пример за движение на войника (по ваша логика)
         // soldier.move(); // Ако има движение, добавете подходящ метод
     }
 
@@ -281,16 +281,14 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
-
     private void initializeResources() {
-        resources = new Resource[151];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[11];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
         for (int i = 0; i < resources.length; i++) {
             resources[i] = new Resource(0, 0, 5000);
-            resourceValues[i] = 10;
+            resourceValues[i] = 100;
             resourceOccupied[i] = false;
         }
     }
@@ -317,7 +315,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 500);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 100);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -332,7 +330,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 70;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -477,7 +475,6 @@ public class ScoutGame extends JFrame {
         int bodyRadius = 5;
         int lineLength;
 
-        // Проверка за типа на обекта и задаване на цвят
         if (ant instanceof Scout) {
             lineLength = bodyRadius * 2;
             g2d.setColor(ant.team.equals("blue") ? Color.BLUE : Color.RED); // Скаутите са сини или червени
@@ -539,29 +536,26 @@ public class ScoutGame extends JFrame {
     }
 
     private void scheduleWorkerStarts() {
-        int initialDelay = 30000; // Забавяне за стартиране на първия работник (30 секунди)
-        int interval = 30000; // Интервал между стартирането на работниците (30 секунди)
+        int initialDelay = 30000;
+        int interval = 30000;
 
         Timer timer = new Timer(interval, new AbstractAction() {
-            int index = 0; // Индекс за текущия работник
+            int index = 0;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Активиране на работник от синия отбор
                 if (index < blueWorkers.length && blueWorkers[index] != null) {
                     blueWorkers[index].activate();
                     System.out.println("Blue worker " + (index + 1) + " activated.");
                 }
 
-                // Активиране на работник от червения отбор
                 if (index < redWorkers.length && redWorkers[index] != null) {
                     redWorkers[index].activate();
                     System.out.println("Red worker " + (index + 1) + " activated.");
                 }
 
-                index++; // Преминаване към следващия работник
+                index++;
 
-                // Спиране на таймера, когато всички работници са активирани
                 if (index >= Math.max(blueWorkers.length, redWorkers.length)) {
                     ((Timer) e.getSource()).stop();
                 }
@@ -571,9 +565,6 @@ public class ScoutGame extends JFrame {
         timer.setInitialDelay(initialDelay); // Забавяне за първия работник
         timer.start();
     }
-
-
-
 
     private void moveWorkers() {
         boolean anyActiveWorkers = false;
@@ -617,11 +608,9 @@ public class ScoutGame extends JFrame {
             System.out.println("No active workers remaining.");
         }
 
-        // Условия за създаване на войници
         if (resourcesDepleted && allBlueWorkersAtStart && allRedWorkersAtStart) {
             System.out.println("Resources depleted and workers returned. Creating soldiers...");
 
-            // Създаване на войници, ако има достатъчно точки
             boolean soldiersCreated = false;
 
             if (blueBaseHealth >= 5) {
@@ -638,7 +627,6 @@ public class ScoutGame extends JFrame {
                 System.out.println("Not enough points to create soldiers for team red.");
             }
 
-            // Премахване на работниците, след като войниците са създадени
             if (soldiersCreated) {
                 removeWorkers(blueWorkers);
                 removeWorkers(redWorkers);
@@ -656,10 +644,8 @@ public class ScoutGame extends JFrame {
         return true;
     }
 
-
-
     private Soldier[] addSoldierToArray(Soldier[] array, Soldier soldier) {
-        if (array == null) { // Проверка за null и инициализация
+        if (array == null) {
             array = new Soldier[0];
         }
         Soldier[] newArray = new Soldier[array.length + 1];
@@ -668,15 +654,9 @@ public class ScoutGame extends JFrame {
         return newArray;
     }
 
-
-
-
-
-
     private void moveScoutsToStartPosition() {
         System.out.println("Moving scouts to start positions...");
 
-        // Промяна на позицията на синия скаут
         blueScout.setX(blueBaseX + baseWidth / 2);
         blueScout.setY(blueBaseY - 100); // 100 пиксела над базата
         blueScout.setCurrentAngle(0); // С лице към центъра
@@ -689,17 +669,13 @@ public class ScoutGame extends JFrame {
         System.out.println("Red Scout moved to: " + redScout.getX() + ", " + redScout.getY());
     }
 
-
-
-
     private void initializeSoldiers(String team, int baseX, int baseY, int baseHealth) {
-        final int soldierHealthCost = 5; // Точки здраве за един войник
-        final int maxRowsPerColumn = 20; // Максимум 20 войници на колона
-        final int columnSpacing = 30; // Разстояние между колоните
-        final int rowSpacing = 30; // Разстояние между редовете
-        final int targetY = baseY - 200; // 200 пиксела пред базата
+        final int soldierHealthCost = 5;
+        final int maxRowsPerColumn = 20;
+        final int columnSpacing = 30;
+        final int rowSpacing = 30;
+        final int targetY = baseY - 200;
 
-        // Изчисляване на максималния брой войници, които могат да бъдат създадени
         int maxSoldiers = baseHealth / soldierHealthCost;
         if (maxSoldiers <= 0) {
             System.out.println("Not enough points to create soldiers for team " + team);
@@ -709,16 +685,14 @@ public class ScoutGame extends JFrame {
         Soldier[] soldiers = new Soldier[maxSoldiers];
 
         for (int i = 0; i < maxSoldiers; i++) {
-            int columnIndex = i / maxRowsPerColumn; // Определяне на колоната
-            int rowIndex = i % maxRowsPerColumn; // Определяне на реда
-
+            int columnIndex = i / maxRowsPerColumn;
+            int rowIndex = i % maxRowsPerColumn;
             int x = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
             int y = targetY + rowIndex * rowSpacing;
 
             soldiers[i] = new Soldier(x, y, team, baseX, baseY, this, i + 1); // Добавяне на войник
         }
 
-        // Намаляване на точките на базата след създаване на войници
         int pointsUsed = maxSoldiers * soldierHealthCost;
         if (team.equals("blue")) {
             blueSoldiers = soldiers;
@@ -731,38 +705,33 @@ public class ScoutGame extends JFrame {
         System.out.println("Created " + maxSoldiers + " soldiers for team " + team);
     }
 
-
     private void startSoldierCreation(String team, int baseX, int baseY) {
         Timer timer = new Timer(1000, new AbstractAction() {
-            int soldiersCreated = 0; // Брояч на създадените войници
-            final int soldierHealthCost = 5; // Точки за създаване на войник
-            final int maxRowsPerColumn = 20; // Максимален брой войници в колона
-            final int columnSpacing = 30; // Разстояние между колоните
-            final int rowSpacing = 30; // Разстояние между редовете
-            final int targetY = baseY - 200; // 200 пиксела пред базата
+            int soldiersCreated = 0;
+            final int soldierHealthCost = 5;
+            final int maxRowsPerColumn = 20;
+            final int columnSpacing = 30;
+            final int rowSpacing = 30;
+            final int targetY = baseY - 200;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
 
-                // Проверка дали базата има достатъчно точки за създаване на още войници
                 if (baseHealth < soldierHealthCost) {
                     ((Timer) e.getSource()).stop();
                     System.out.println("No more points to create soldiers for " + team + " team.");
                     return;
                 }
 
-                // Изчисляване на позицията за войника
                 int columnIndex = soldiersCreated / maxRowsPerColumn;
                 int rowIndex = soldiersCreated % maxRowsPerColumn;
 
                 int x = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
                 int y = targetY + rowIndex * rowSpacing;
 
-                // Създаване на войник
                 Soldier soldier = new Soldier(x, y, team, baseX, baseY, ScoutGame.this, soldiersCreated + 1);
 
-                // Добавяне на войника към масива и намаляване на точките
                 if (team.equals("blue")) {
                     blueSoldiers = addSoldierToArray(blueSoldiers, soldier);
                     blueBaseHealth -= soldierHealthCost;
@@ -772,9 +741,8 @@ public class ScoutGame extends JFrame {
                 }
 
                 soldiersCreated++;
-                repaint(); // Обновяване на визуализацията
+                repaint();
 
-                // Спиране, ако точките са недостатъчни
                 if ((team.equals("blue") && blueBaseHealth < soldierHealthCost) ||
                         (team.equals("red") && redBaseHealth < soldierHealthCost)) {
                     ((Timer) e.getSource()).stop();
@@ -786,7 +754,6 @@ public class ScoutGame extends JFrame {
         timer.start();
     }
 
-
     public boolean allResourcesDepleted() {
         for (Resource resource : resources) {
             System.out.println("Resource value: " + resource.getValue());
@@ -796,8 +763,6 @@ public class ScoutGame extends JFrame {
         }
         return true;
     }
-
-
 
     public boolean allWorkersAtBase(Worker[] workers, int baseX, int baseY) {
         for (Worker worker : workers) {
@@ -813,19 +778,6 @@ public class ScoutGame extends JFrame {
         System.out.println("All workers are at base.");
         return true;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ScoutGame::new);
@@ -870,7 +822,7 @@ public class ScoutGame extends JFrame {
         }
 
         for (Worker worker : enemyWorkers) {
-            if (worker == null || !worker.isActive()) { // Добавете проверка за null и активност
+            if (worker == null || !worker.isActive()) {
                 continue;
             }
 
@@ -882,7 +834,6 @@ public class ScoutGame extends JFrame {
         }
         return closestWorker;
     }
-
 
     public List<Worker> getEnemyWorkersInRange(Scout scout, String scoutTeam, double range) {
         Worker[] enemyWorkers = scoutTeam.equals("blue") ? redWorkers : blueWorkers;
@@ -903,7 +854,6 @@ public class ScoutGame extends JFrame {
         }
         return nearbyWorkers;
     }
-
 
     public void addExplosionEffect(double x, double y, int radius, Color color, int duration) {
         explosionEffects.add(new ExplosionEffect(x, y, radius, color, duration));
@@ -927,10 +877,9 @@ public class ScoutGame extends JFrame {
 
     private void removeWorkers(Worker[] workers) {
         for (int i = 0; i < workers.length; i++) {
-            workers[i] = null; // Освобождаване на референцията
+            workers[i] = null;
         }
         System.out.println("All workers removed.");
     }
-
 
 }
