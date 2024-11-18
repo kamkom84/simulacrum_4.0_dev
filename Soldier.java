@@ -3,15 +3,14 @@ package classesSeparated;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 150; // Дължина на оръжието
-    private final int maxBulletDistance = 200; // Максимална дистанция на патрона
-    private final int healthBarDuration = 500; // Продължителност на показване на здравето (в ms)
-    private boolean showHealth = false; // Дали да показваме здравето
-    private int damageDealt = 0; // Нанесена щета от войника
+    private final int weaponLength = 150;
+    private final int maxBulletDistance = 200;
+    private final int healthBarDuration = 500;
+    private boolean showHealth = false;
+    private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
@@ -26,17 +25,13 @@ public class Soldier extends Character {
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
     }
 
-
-
     public void draw(Graphics2D g2d) {
-        int bodyRadius = 6; // Радиус на тялото
-        int lineLength = 15; // Дължина на жълтата линия (оръжието)
+        int bodyRadius = 5;/////////////////////////////////////////////////////////////////
+        int lineLength = 15;
 
-        // Рисуване на тялото
-        g2d.setColor(teamColor); // Цветът на тялото зависи от отбора
+        g2d.setColor(teamColor);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // Рисуване на жълтата линия (оръжието)
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
@@ -44,16 +39,10 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
-        // Рисуване на номера на войника над тялото (винаги се показва)
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Consolas", Font.BOLD, 8));
         g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
     }
-
-
-
-
-
 
     public void shoot(Character target) {
         if (target == null || !target.isActive()) return;
@@ -100,7 +89,6 @@ public class Soldier extends Character {
     public String getType() {
         return "Soldier";
     }
-
 
 }
 
