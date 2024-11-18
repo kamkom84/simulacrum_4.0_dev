@@ -31,7 +31,7 @@ public class Scout extends Character {
     private static final int EXPLOSION_RADIUS = 25;
 //    private int bodyRadius = 10;
     private ScoutGame game;
-    private static final int BACK_STEP_DISTANCE = 100;
+    private static final int BACK_STEP_DISTANCE = 150;
     private double speed;
 
     public Scout(double startX, double startY, String team, ScoutGame game) {
@@ -39,7 +39,7 @@ public class Scout extends Character {
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
-        this.speed = 0.5;///////////////////////////////////////////////////////////////////////////
+        this.speed = 0.3;///////////////////////////////////////////////////////////////////////////
     }
 
     public void update(Point baseCenter, Resource[] resources) {

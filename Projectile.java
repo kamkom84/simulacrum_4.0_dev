@@ -7,7 +7,7 @@ public class Projectile {
     private int targetX, targetY;
     private int speed = 10;
     private boolean active;
-    private final int maxDistance = 400;
+    private final int maxDistance = 500;
     private int traveledDistance = 0;
     private Color color = Color.GREEN;
 
