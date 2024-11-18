@@ -5,7 +5,7 @@ import java.awt.*;
 public class Projectile {
     private int x, y;
     private int targetX, targetY;
-    private int speed = 10;
+    private int speed = 12;
     private boolean active;
     private final int maxDistance = 500;
     private int traveledDistance = 0;
