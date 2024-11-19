@@ -39,7 +39,7 @@ public class Scout extends Character {
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
-        this.speed = 0.3;///////////////////////////////////////////////////////////////////////////
+        this.speed = 0.2;///////////////////////////////////////////////////////////////////////////
     }
 
     public void update(Point baseCenter, Resource[] resources) {
