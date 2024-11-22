@@ -15,6 +15,7 @@ public abstract class Character {
     private boolean active = true;
     private boolean showHealth = false; // Флаг за показване на здравето
     private String type;
+//    protected String team;
 
 
 
@@ -101,4 +102,7 @@ public abstract class Character {
     public abstract String getType();
 
 
+    public String getTeam() {
+        return team;
+    }
 }

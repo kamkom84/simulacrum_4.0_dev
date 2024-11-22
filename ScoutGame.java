@@ -40,6 +40,7 @@ public class ScoutGame extends JFrame {
     private boolean redSoldiersInitialized = false;
     private boolean soldiersCreated = false;
 
+
     public ScoutGame() {
         allWorkers = new ArrayList<>();
 
@@ -282,7 +283,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[202];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -315,7 +316,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 1000);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -330,7 +331,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 100;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -690,7 +691,18 @@ public class ScoutGame extends JFrame {
             int x = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
             int y = targetY + rowIndex * rowSpacing;
 
-            soldiers[i] = new Soldier(x, y, team, baseX, baseY, this, i + 1); // Добавяне на войник
+            soldiers[i] = new Soldier(
+                    x,
+                    y,
+                    team,
+                    baseX,
+                    baseY,
+                    team.equals("blue") ? redBaseX : blueBaseX,
+                    team.equals("blue") ? redBaseY : blueBaseY,
+                    this,
+                    i + 1
+            );
+
         }
 
         int pointsUsed = maxSoldiers * soldierHealthCost;
@@ -706,53 +718,60 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        Timer timer = new Timer(1000, new AbstractAction() {
-            int soldiersCreated = 0;
-            final int soldierHealthCost = 5;
-            final int maxRowsPerColumn = 20;
-            final int columnSpacing = 30;
-            final int rowSpacing = 30;
-            final int targetY = baseY - 200;
+        final int soldierHealthCost = 5; // Цената за създаване на войник
+        final int maxRowsPerColumn = 20;
+        final int columnSpacing = 30;
+        final int rowSpacing = 30;
+        final int targetY = baseY - 200;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
+        // Изчисляване на максималния брой войници
+        int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
+        int maxSoldiers = baseHealth / soldierHealthCost;
 
-                if (baseHealth < soldierHealthCost) {
-                    ((Timer) e.getSource()).stop();
-                    System.out.println("No more points to create soldiers for " + team + " team.");
-                    return;
-                }
+        if (maxSoldiers <= 0) {
+            System.out.println("Not enough points to create soldiers for " + team + " team.");
+            return;
+        }
 
-                int columnIndex = soldiersCreated / maxRowsPerColumn;
-                int rowIndex = soldiersCreated % maxRowsPerColumn;
+        for (int soldiersCreated = 0; soldiersCreated < maxSoldiers; soldiersCreated++) {
+            int columnIndex = soldiersCreated / maxRowsPerColumn;
+            int rowIndex = soldiersCreated % maxRowsPerColumn;
 
-                int x = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
-                int y = targetY + rowIndex * rowSpacing;
+            int x = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
+            int y = targetY + rowIndex * rowSpacing;
 
-                Soldier soldier = new Soldier(x, y, team, baseX, baseY, ScoutGame.this, soldiersCreated + 1);
+            // Определяне на координатите на противниковата база
+            int enemyBaseX = team.equals("blue") ? redBaseX : blueBaseX;
+            int enemyBaseY = team.equals("blue") ? redBaseY : blueBaseY;
 
-                if (team.equals("blue")) {
-                    blueSoldiers = addSoldierToArray(blueSoldiers, soldier);
-                    blueBaseHealth -= soldierHealthCost;
-                } else {
-                    redSoldiers = addSoldierToArray(redSoldiers, soldier);
-                    redBaseHealth -= soldierHealthCost;
-                }
+            // Създаване на войник
+            Soldier soldier = new Soldier(
+                    x,
+                    y,
+                    team,
+                    baseX,
+                    baseY,
+                    enemyBaseX,
+                    enemyBaseY,
+                    ScoutGame.this,
+                    soldiersCreated + 1
+            );
 
-                soldiersCreated++;
-                repaint();
-
-                if ((team.equals("blue") && blueBaseHealth < soldierHealthCost) ||
-                        (team.equals("red") && redBaseHealth < soldierHealthCost)) {
-                    ((Timer) e.getSource()).stop();
-                    System.out.println("Soldier creation complete for " + team + " team.");
-                }
+            // Добавяне на войника към съответния отбор
+            if (team.equals("blue")) {
+                blueSoldiers = addSoldierToArray(blueSoldiers, soldier);
+                blueBaseHealth -= soldierHealthCost;
+            } else {
+                redSoldiers = addSoldierToArray(redSoldiers, soldier);
+                redBaseHealth -= soldierHealthCost;
             }
-        });
+        }
 
-        timer.start();
+        System.out.println("Created " + maxSoldiers + " soldiers for team " + team);
     }
+
+
+
 
     public boolean allResourcesDepleted() {
         for (Resource resource : resources) {
@@ -880,6 +899,65 @@ public class ScoutGame extends JFrame {
             workers[i] = null;
         }
         System.out.println("All workers removed.");
+    }
+
+    public List<Character> getCharacters() {
+        List<Character> characters = new ArrayList<>();
+
+        // Добавяне на всички активни сини войници
+        if (blueSoldiers != null) {
+            for (Soldier soldier : blueSoldiers) {
+                if (soldier != null) {
+                    characters.add(soldier);
+                }
+            }
+        }
+
+        // Добавяне на всички активни червени войници
+        if (redSoldiers != null) {
+            for (Soldier soldier : redSoldiers) {
+                if (soldier != null) {
+                    characters.add(soldier);
+                }
+            }
+        }
+
+        // Добавяне на всички активни работници
+        for (Worker worker : blueWorkers) {
+            if (worker != null) {
+                characters.add(worker);
+            }
+        }
+
+        for (Worker worker : redWorkers) {
+            if (worker != null) {
+                characters.add(worker);
+            }
+        }
+
+        // Добавяне на защитниците
+        for (Defender defender : blueDefenders) {
+            if (defender != null) {
+                characters.add(defender);
+            }
+        }
+
+        for (Defender defender : redDefenders) {
+            if (defender != null) {
+                characters.add(defender);
+            }
+        }
+
+        // Добавяне на скаутите
+        if (blueScout != null) {
+            characters.add(blueScout);
+        }
+
+        if (redScout != null) {
+            characters.add(redScout);
+        }
+
+        return characters; // Връщаме списък с всички персонажи
     }
 
 }

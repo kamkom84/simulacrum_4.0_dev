@@ -15,15 +15,22 @@ public class Soldier extends Character {
     private ScoutGame game;
     private int id;
 
-    public Soldier(int x, int y, String team, int baseX, int baseY, ScoutGame game, int id) {
-        super(x, y, team, "soldier"); // Добавяме "soldier" като role
+    // Добавени координати на противниковата база
+    private int enemyBaseX;
+    private int enemyBaseY;
+
+    public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
+        super(x, y, team, "soldier");
         this.health = 20;
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
         this.id = id;
-        this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
+        this.enemyBaseX = enemyBaseX;
+        this.enemyBaseY = enemyBaseY;
     }
+
+
 
     public void draw(Graphics2D g2d) {
         int bodyRadius = 5;/////////////////////////////////////////////////////////////////
@@ -85,10 +92,47 @@ public class Soldier extends Character {
         }, healthBarDuration);
     }
 
+    // Метод за движение към противниковата база
+    public void moveTowardsEnemyBase() {
+        double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
+        double speed = 1.5; // Скорост на движение
+
+        // Променяме текущата позиция на войника
+        this.x += speed * Math.cos(Math.toRadians(angleToBase));
+        this.y += speed * Math.sin(Math.toRadians(angleToBase));
+
+        // Обновяваме текущия ъгъл
+        this.currentAngle = angleToBase;
+    }
+
+    // Търсене на цел
+    public Character findTarget() {
+        for (Character character : game.getCharacters()) {
+            if (character.getTeam().equals(this.team)) continue; // Пропускаме съотборниците
+            if (!character.isActive()) continue; // Пропускаме неактивни врагове
+
+            double distanceToCharacter = distance(this.x, this.y, character.getX(), character.getY());
+            if (distanceToCharacter <= weaponLength) {
+                return character; // Връщаме първия открит враг в обхват
+            }
+        }
+        return null; // Няма врагове в обхват
+    }
+
+
+    // Основен метод за актуализация
+    public void update() {
+        Character target = findTarget();
+
+        if (target != null) {
+            shoot(target); // Ако има цел, стреля по нея
+        } else {
+            moveTowardsEnemyBase(); // Ако няма цел, се движи към базата на противника
+        }
+    }
+
     @Override
     public String getType() {
         return "Soldier";
     }
-
 }
-
