@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import static java.awt.geom.Point2D.distance;
@@ -41,8 +42,12 @@ public class ScoutGame extends JFrame {
     private boolean soldiersCreated = false;
 
 
+
     public ScoutGame() {
         allWorkers = new ArrayList<>();
+
+        redSoldiers = new Soldier[0];
+        blueSoldiers = new Soldier[0];
 
         setTitle("simulacrum drone wars");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -328,7 +333,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -361,7 +366,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 50);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -376,7 +381,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -456,19 +461,50 @@ public class ScoutGame extends JFrame {
     private void moveDefenders() {
         for (Defender defender : blueDefenders) {
             if (defender != null) {
+                // Движение около базата
                 defender.patrolAroundBase(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
+
+                // Проверка и стрелба по скаута
                 defender.checkAndShootIfScoutInRange(redScout);
-                defender.updateProjectiles(redScout); // Обновяване на патроните
+
+                // Проверка и стрелба по войниците
+                if (redSoldiers != null) {
+                    defender.checkAndShootIfSoldiersInRange(new ArrayList<>(Arrays.asList(redSoldiers)));
+                }
+
+                // Актуализиране на куршуми
+                defender.updateProjectiles(redScout);
+                for (Soldier soldier : redSoldiers) {
+                    defender.updateProjectilesForSoldier(soldier);
+                }
             }
         }
+
         for (Defender defender : redDefenders) {
             if (defender != null) {
+                // Движение около базата
                 defender.patrolAroundBase(redBaseX + baseWidth / 2, redBaseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
+
+                // Проверка и стрелба по скаута
                 defender.checkAndShootIfScoutInRange(blueScout);
-                defender.updateProjectiles(blueScout); // Обновяване на патроните
+
+                // Проверка и стрелба по войниците
+                if (blueSoldiers != null) {
+                    defender.checkAndShootIfSoldiersInRange(new ArrayList<>(Arrays.asList(blueSoldiers)));
+                }
+
+                // Актуализиране на куршуми
+                defender.updateProjectiles(blueScout);
+                for (Soldier soldier : blueSoldiers) {
+                    defender.updateProjectilesForSoldier(soldier);
+                }
             }
         }
     }
+
+
+
+
 
     private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
         g2d.setColor(new Color(0, 100, 200));
@@ -744,6 +780,8 @@ public class ScoutGame extends JFrame {
         System.out.println("Red Scout moved to: " + redScout.getX() + ", " + redScout.getY());
     }
 
+
+
     private void initializeSoldiers(String team, int baseX, int baseY, int baseHealth) {
         final int soldierHealthCost = 5;
         final int maxRowsPerColumn = 20;
@@ -792,7 +830,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierHealthCost = 100; /////////////////////////////////////////////////////////////////////////////
+        final int soldierHealthCost = 10; /////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 20;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -842,8 +880,8 @@ public class ScoutGame extends JFrame {
 
         System.out.println("Created " + maxSoldiers + " soldiers for team " + team);
 
-        // Придвижване на скаутите до позицията пред войниците
-        moveScoutsToSoldierPositions();
+
+
     }
 
 

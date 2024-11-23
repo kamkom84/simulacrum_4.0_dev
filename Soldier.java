@@ -148,4 +148,16 @@ public class Soldier extends Character {
         return weaponLength; // weaponLength вече е дефинирано като 150
     }
 
+    public void moveBackFrom(int defenderX, int defenderY) {
+        // Изчисляване на ъгъла за отместване от защитника
+        double angleAwayFromDefender = Math.atan2(this.y - defenderY, this.x - defenderX);
+
+        // Разстояние за отместване назад (определете или наследете стойност)
+        final int BACK_STEP_DISTANCE = 300;
+
+        // Актуализиране на координатите на войника
+        this.x += BACK_STEP_DISTANCE * Math.cos(angleAwayFromDefender);
+        this.y += BACK_STEP_DISTANCE * Math.sin(angleAwayFromDefender);
+    }
+
 }
