@@ -328,7 +328,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[100];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -361,7 +361,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 100);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 50);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -376,7 +376,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 50;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -792,13 +792,12 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierHealthCost = 200; /////////////////////////////////////////////////////////////////////////////
+        final int soldierHealthCost = 100; /////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 20;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
         final int targetY = baseY - 200;
 
-        // Изчисляване на максималния брой войници
         int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
         int maxSoldiers = baseHealth / soldierHealthCost;
 
