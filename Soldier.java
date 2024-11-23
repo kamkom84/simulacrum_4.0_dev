@@ -7,8 +7,8 @@ import java.util.TimerTask;
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 150; // Обхват на оръжието
-    private final int maxBulletDistance = 200; // Максимална дистанция на куршумите
+    private final int weaponLength = 75; // Обхват на оръжието
+    private final int maxBulletDistance = 50; // Максимална дистанция на куршумите
     private final int healthBarDuration = 500; // Време за показване на здравето
     private boolean showHealth = false;
     private int damageDealt = 0;
@@ -55,7 +55,7 @@ public class Soldier extends Character {
         // Показване на здравето временно
         if (showHealth) {
             g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            g2d.setFont(new Font("Consolas", Font.BOLD, 8));
             g2d.drawString("HP: " + health, (int) x - 10, (int) y - bodyRadius - 20);
         }
     }
