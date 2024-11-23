@@ -112,7 +112,7 @@ public class Soldier extends Character {
 
     public void moveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.5; // Movement speed
+        double speed = 1.0; // Movement speed
 
         // Update the soldier's position
         this.x += speed * Math.cos(Math.toRadians(angleToBase));
