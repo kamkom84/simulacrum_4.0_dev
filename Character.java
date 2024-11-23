@@ -13,7 +13,7 @@ public abstract class Character {
     protected int health;
     private int bodyRadius = 10;
     private boolean active = true;
-    private boolean showHealth = false; // Флаг за показване на здравето
+    private boolean showHealth = false;
     private String type;
 //    protected String team;
 

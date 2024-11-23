@@ -9,7 +9,7 @@ public class Projectile {
     private boolean active;
     private final int maxDistance = 500;
     private int traveledDistance = 0;
-    private Color color = Color.GREEN;
+    private Color color = Color.RED;
 
     public Projectile(int startX, int startY, int targetX, int targetY) {
         this.x = startX;
