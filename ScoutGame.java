@@ -99,6 +99,7 @@ public class ScoutGame extends JFrame {
                 drawWorkers(g2d);
                 drawExplosions(g2d);
 
+                // Display elapsed game time
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 int seconds = (int) (elapsedTime / 1000) % 60;
                 int minutes = (int) (elapsedTime / (1000 * 60)) % 60;
@@ -109,6 +110,7 @@ public class ScoutGame extends JFrame {
                 g2d.setColor(Color.WHITE);
                 g2d.drawString(timeText, 10, 30);
 
+                // Display game statistics
                 FontMetrics fm = g2d.getFontMetrics();
                 int xPosition = 10 + fm.stringWidth(timeText) + 50;
 
@@ -120,14 +122,20 @@ public class ScoutGame extends JFrame {
                 g2d.drawString("Base: " + redBaseHealth, xPosition, 30);
                 xPosition += fm.stringWidth("Base: " + redBaseHealth) + 50;
 
-                g2d.setColor(Color.BLUE);
-                g2d.drawString("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills(), xPosition, 30);
-                xPosition += fm.stringWidth("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills()) + 50;
+                // Blue scout stats
+                if (blueScout != null) {
+                    g2d.setColor(Color.BLUE);
+                    g2d.drawString("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills(), xPosition, 30);
+                    xPosition += fm.stringWidth("Scout: " + blueScout.getPoints() + "-" + blueScout.getKills()) + 50;
+                }
 
-                g2d.setColor(Color.RED);
-                g2d.drawString("Scout: " + redScout.getPoints() + "-" + redScout.getKills(), xPosition, 30);
+                // Red scout stats
+                if (redScout != null) {
+                    g2d.setColor(Color.RED);
+                    g2d.drawString("Scout: " + redScout.getPoints() + "-" + redScout.getKills(), xPosition, 30);
+                }
 
-                // Рисуване на скаутите
+                // Draw scouts
                 if (blueScout != null) {
                     blueScout.draw(g2d);
                 }
@@ -135,18 +143,19 @@ public class ScoutGame extends JFrame {
                     redScout.draw(g2d);
                 }
 
+                // Draw workers
                 for (Worker worker : blueWorkers) {
                     if (worker != null && worker.isActive()) {
                         worker.draw(g2d);
                     }
                 }
-
                 for (Worker worker : redWorkers) {
                     if (worker != null && worker.isActive()) {
                         worker.draw(g2d);
                     }
                 }
 
+                // Draw defenders and their projectiles
                 for (Defender defender : blueDefenders) {
                     if (defender != null) {
                         defender.drawProjectiles(g2d);
@@ -160,29 +169,33 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
+                // Draw blue soldiers
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
-                        if (soldier != null) {
-                            System.out.println("Drawing soldier at: " + soldier.getX() + ", " + soldier.getY());
+                        if (soldier != null && soldier.isActive()) {
                             soldier.draw(g2d);
+                            soldier.drawPoints(g2d); // Display soldier points
                         }
                     }
                 }
 
+                // Draw red soldiers
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
-                        if (soldier != null) {
-                            System.out.println("Drawing soldier at: " + soldier.getX() + ", " + soldier.getY());
+                        if (soldier != null && soldier.isActive()) {
                             soldier.draw(g2d);
+                            soldier.drawPoints(g2d); // Display soldier points
                         }
                     }
                 }
 
+                // Draw bullet line, if active
                 if (bulletStartX != -1 && bulletStartY != -1) {
                     g2d.setColor(Color.GREEN);
                     g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
                 }
 
+                // Display winner text if the game is over
                 if (ScoutGame.this.gameOver) {
                     g2d.setFont(new Font("Arial", Font.BOLD, 36));
                     g2d.setColor(Color.YELLOW);
@@ -192,6 +205,7 @@ public class ScoutGame extends JFrame {
                     g2d.drawString(winnerText, winnerX, winnerY);
                 }
             }
+
 
             private void drawExplosions(Graphics2D g2d) {
                 long currentTime = System.currentTimeMillis();
@@ -333,7 +347,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -366,7 +380,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -381,7 +395,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 5;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -444,65 +458,67 @@ public class ScoutGame extends JFrame {
                     blueBaseY + baseHeight / 2,
                     "blue",
                     "defender",
-                    i * Math.PI / 4,
-                    this
+                    this, // ScoutGame instance
+                    i * Math.PI / 4 // Initial angle
             );
+
             redDefenders[i] = new Defender(
                     redBaseX + baseWidth / 2,
                     redBaseY + baseHeight / 2,
                     "red",
                     "defender",
-                    Math.PI + i * Math.PI / 4,
-                    this
+                    this, // ScoutGame instance
+                    i * Math.PI / 4 // Initial angle
             );
         }
     }
 
     private void moveDefenders() {
-        for (Defender defender : blueDefenders) {
+        // Обработка за всички защитници на отбора "син"
+        updateDefenders(blueDefenders, redScout, redSoldiers, blueBaseX, blueBaseY);
+
+        // Обработка за всички защитници на отбора "червен"
+        updateDefenders(redDefenders, blueScout, blueSoldiers, redBaseX, redBaseY);
+    }
+
+    // Помощен метод за актуализация на защитниците
+    private void updateDefenders(Defender[] defenders, Scout enemyScout, Soldier[] enemySoldiers, int baseX, int baseY) {
+        // Exit early if there are no defenders
+        if (defenders == null || defenders.length == 0) return;
+
+        for (Defender defender : defenders) {
             if (defender != null) {
-                // Движение около базата
-                defender.patrolAroundBase(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
+                // Move the defender around the base in a circular motion
+                defender.patrolAroundBase(baseX + baseWidth / 2, baseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
 
-                // Проверка и стрелба по скаута
-                defender.checkAndShootIfScoutInRange(redScout);
-
-                // Проверка и стрелба по войниците
-                if (redSoldiers != null) {
-                    defender.checkAndShootIfSoldiersInRange(new ArrayList<>(Arrays.asList(redSoldiers)));
+                // Handle interaction with the enemy scout
+                if (enemyScout != null && enemyScout.isActive()) {
+                    defender.checkAndShootIfScoutInRange(enemyScout);
+                    defender.updateProjectiles(enemyScout);
                 }
 
-                // Актуализиране на куршуми
-                defender.updateProjectiles(redScout);
-                for (Soldier soldier : redSoldiers) {
-                    defender.updateProjectilesForSoldier(soldier);
-                }
-            }
-        }
+                // Handle interaction with enemy soldiers
+                if (enemySoldiers != null && enemySoldiers.length > 0) {
+                    ArrayList<Soldier> activeSoldiers = new ArrayList<>();
 
-        for (Defender defender : redDefenders) {
-            if (defender != null) {
-                // Движение около базата
-                defender.patrolAroundBase(redBaseX + baseWidth / 2, redBaseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
+                    // Collect active enemy soldiers
+                    for (Soldier soldier : enemySoldiers) {
+                        if (soldier != null && soldier.isActive()) {
+                            activeSoldiers.add(soldier);
+                        }
+                    }
 
-                // Проверка и стрелба по скаута
-                defender.checkAndShootIfScoutInRange(blueScout);
-
-                // Проверка и стрелба по войниците
-                if (blueSoldiers != null) {
-                    defender.checkAndShootIfSoldiersInRange(new ArrayList<>(Arrays.asList(blueSoldiers)));
-                }
-
-                // Актуализиране на куршуми
-                defender.updateProjectiles(blueScout);
-                for (Soldier soldier : blueSoldiers) {
-                    defender.updateProjectilesForSoldier(soldier);
+                    // If there are active soldiers, shoot at them and update projectiles
+                    if (!activeSoldiers.isEmpty()) {
+                        defender.checkAndShootIfSoldiersInRange(activeSoldiers);
+                        for (Soldier soldier : activeSoldiers) {
+                            defender.updateProjectilesForSoldier(soldier);
+                        }
+                    }
                 }
             }
         }
     }
-
-
 
 
 
@@ -979,7 +995,7 @@ public class ScoutGame extends JFrame {
         }
 
         for (Worker worker : enemyWorkers) {
-            if (worker == null || !worker.isActive()) { // Проверка за null и активност
+            if (worker == null || !worker.isActive()) {
                 continue;
             }
             if (scout.distanceTo(worker) <= range) {
@@ -1017,7 +1033,18 @@ public class ScoutGame extends JFrame {
             workers[i] = null;
         }
         System.out.println("All workers removed.");
+
+        // Премахване на скаутите
+        if (redScout != null) {
+            redScout = null;
+            System.out.println("Red scout removed.");
+        }
+        if (blueScout != null) {
+            blueScout = null;
+            System.out.println("Blue scout removed.");
+        }
     }
+
 
     public List<Character> getCharacters() {
         List<Character> characters = new ArrayList<>();

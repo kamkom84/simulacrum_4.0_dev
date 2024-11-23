@@ -15,10 +15,10 @@ public class Defender extends Character {
     private double currentAngle;
     private boolean scoutInSight = false;
 
-    public Defender(int startX, int startY, String team, String role, double initialAngle, ScoutGame game) {
+    public Defender(int startX, int startY, String team, String role, ScoutGame game, double initialAngle) {
         super(startX, startY, team, role);
-        this.angleOffset = initialAngle;
         this.game = game;
+        this.angleOffset = initialAngle;
 
         if ("red".equalsIgnoreCase(team)) {
             this.currentAngle = Math.toRadians(180);
@@ -26,6 +26,9 @@ public class Defender extends Character {
             this.currentAngle = Math.toRadians(0);
         }
     }
+
+
+
 
     public void patrolAroundBase(int baseCenterX, int baseCenterY, int shieldRadius) {
         angleOffset += speed;
@@ -100,17 +103,21 @@ public class Defender extends Character {
             projectile.updatePosition();
 
             if (projectile.hasHit(soldier)) {
-                System.out.println("Hit! Soldier loses 1 point.");
-                soldier.decreaseHealth(1); // Намалява здравето на войника
+                System.out.println("Hit! Soldier " + soldier.getId() + " loses 1 point.");
+                soldier.decreaseHealth(1); // Намаляване на точките на войника
 
-                soldier.moveBackFrom((int) this.x, (int) this.y); // Отместване назад след попадение
+                if (soldier.isActive()) {
+                    System.out.println("Soldier " + soldier.getId() + " is still alive.");
+                } else {
+                    System.out.println("Soldier " + soldier.getId() + " is dead and removed.");
+                }
 
-                iterator.remove(); // Премахваме куршума след попадение
-            } else if (!projectile.isActive()) {
-                iterator.remove(); // Премахваме неактивните куршуми
+                iterator.remove(); // Премахване на куршума след попадение
             }
+
         }
     }
+
 
 
     public void drawProjectiles(Graphics g) {
@@ -120,91 +127,79 @@ public class Defender extends Character {
     }
 
     public void checkAndShootIfScoutInRange(Scout scout) {
+        if (scout == null) return; // Ако скаутът е премахнат, спираме метода
+
         double distance = Math.hypot(this.x - scout.getX(), this.y - scout.getY());
 
         if (distance <= SHOOT_RANGE) {
             double angleToScout = Math.atan2(scout.getY() - this.y, scout.getX() - this.x);
-            rotateTowards(angleToScout);
-
-            // Проверете дали охраната е насочена достатъчно близо до целта
-            if (Math.abs(currentAngle - angleToScout) < Math.toRadians(5)) {
-                shootAt(scout); // Стреляйте само ако сме насочени към целта
-            }
-        } else {
-            // Върнете се към началния ъгъл, ако няма цел
+            currentAngle = angleToScout;
+            scoutInSight = true;
+            shootAt(scout);
+        } else if (scoutInSight) {
             if ("red".equalsIgnoreCase(this.team)) {
-                rotateTowards(Math.toRadians(180));
+                currentAngle = Math.toRadians(180);
             } else if ("blue".equalsIgnoreCase(this.team)) {
-                rotateTowards(Math.toRadians(0));
+                currentAngle = Math.toRadians(0);
             }
+            scoutInSight = false;
         }
     }
+
 
 
     public void checkAndShootIfSoldiersInRange(ArrayList<Soldier> soldiers) {
         Soldier closestSoldier = null;
         double closestDistance = Double.MAX_VALUE;
 
+        // Find the closest soldier within range
         for (Soldier soldier : soldiers) {
-            if (!soldier.getTeam().equalsIgnoreCase(this.team)) {
-                double distance = Math.hypot(this.x - soldier.getX(), this.y - soldier.getY());
-                if (distance <= SHOOT_RANGE && distance < closestDistance) {
+            if (!soldier.getTeam().equalsIgnoreCase(this.team) && soldier.isActive()) { // Ensure not same team and active
+                double distanceToSoldier = Math.hypot(soldier.getX() - this.x, soldier.getY() - this.y);
+                if (distanceToSoldier <= SHOOT_RANGE && distanceToSoldier < closestDistance) {
                     closestSoldier = soldier;
-                    closestDistance = distance;
+                    closestDistance = distanceToSoldier;
                 }
             }
         }
 
+        // If a target is found, point towards it and shoot
         if (closestSoldier != null) {
-            double angleToSoldier = Math.atan2(closestSoldier.getY() - this.y, closestSoldier.getX() - this.x);
-            rotateTowards(angleToSoldier);
+            // Update the angle to point directly at the closest soldier
+            this.currentAngle = Math.atan2(closestSoldier.getY() - this.y, closestSoldier.getX() - this.x);
 
-            if (Math.abs(currentAngle - angleToSoldier) < Math.toRadians(5)) {
-                shootAtSoldier(closestSoldier);
-            }
-        } else {
-            if ("red".equalsIgnoreCase(this.team)) {
-                rotateTowards(Math.toRadians(180));
-            } else if ("blue".equalsIgnoreCase(this.team)) {
-                rotateTowards(Math.toRadians(0));
-            }
+            // Shoot at the closest soldier
+            shootAtSoldier(closestSoldier);
         }
     }
+
+
 
 
     private void shootAtSoldier(Soldier soldier) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastShotTime < SHOOT_INTERVAL) {
-            return; // Прекратяване, ако времето между изстрелите не е изминало
+            return; // Prevent shooting too frequently
         }
 
         lastShotTime = currentTime;
 
-        // Създаване на куршум с правилните параметри
+        // Create and shoot a projectile aimed at the soldier
         Projectile projectile = new Projectile(
-                this.x,                   // Начална позиция X
-                this.y,                   // Начална позиция Y
-                soldier.getX(),           // Целева позиция X
-                soldier.getY(),           // Целева позиция Y
-                10.0,                     // Скорост на куршума (оптимална стойност)
-                500.0                     // Максимално разстояние на куршума
+                this.x,
+                this.y,
+                soldier.getX(),
+                soldier.getY(),
+                30.0, // Speed
+                500.0 // Max distance
         );
         projectiles.add(projectile);
 
-        // Визуализация на изстрела
-        game.drawShot(
-                (int) this.x,
-                (int) this.y,
-                (int) (this.x + 5 * Math.cos(currentAngle)),
-                (int) (this.y + 5 * Math.sin(currentAngle))
-        );
-
-        // Възможност за попадение
-        double hitChance = 0.6;
-        if (Math.random() < hitChance) {
-            soldier.decreaseHealth(1);
-        }
+        // Log for debugging
+        System.out.println("Defender shot at Soldier " + soldier.getId());
     }
+
+
 
     private void rotateTowards(double targetAngle) {
         double angleDifference = targetAngle - currentAngle;

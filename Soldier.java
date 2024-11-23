@@ -7,39 +7,41 @@ import java.util.TimerTask;
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 15; // Обхват на оръжието
-    private final int maxBulletDistance = 50; // Максимална дистанция на куршумите
-    private final int healthBarDuration = 500; // Време за показване на здравето
+    private final int weaponLength = 15; // Weapon range
+    private final int maxBulletDistance = 50; // Maximum bullet distance
+    private final int healthBarDuration = 500; // Duration to show health
     private boolean showHealth = false;
     private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
+    private int healthPoints; // Health points of the soldier
 
-    // Координати на противниковата база
+    // Coordinates of the enemy base
     private int enemyBaseX;
     private int enemyBaseY;
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.health = 20;
+        this.healthPoints = 100; // Initial health points
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
         this.id = id;
         this.enemyBaseX = enemyBaseX;
         this.enemyBaseY = enemyBaseY;
+        this.healthPoints = 100;
     }
 
     public void draw(Graphics2D g2d) {
         int bodyRadius = 5;
         int lineLength = 15;
 
-        // Рисуване на тялото
+        // Draw the soldier's body
         g2d.setColor(teamColor);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // Рисуване на посоката
+        // Draw the soldier's direction
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
@@ -47,18 +49,19 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
-        // Рисуване на ID
+        // Draw the soldier's ID
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Consolas", Font.BOLD, 8));
         g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
 
-        // Показване на здравето временно
+        // Temporarily display health in red when hit
         if (showHealth) {
             g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-            g2d.drawString("HP: " + health, (int) x - 10, (int) y - bodyRadius - 20);
+            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
+            g2d.drawString("HP: " + healthPoints, (int) x - 10, (int) y - bodyRadius - 20);
         }
     }
+
 
     public void shoot(Character target) {
         if (target == null || !target.isActive()) return;
@@ -72,9 +75,9 @@ public class Soldier extends Character {
 
             game.drawShot((int) x, (int) y, bulletEndX, bulletEndY);
 
-            int damage = 2;
+            int damage = 2; // Damage dealt per shot
             target.takeDamage(damage);
-            target.showHealthTemporarily();
+            showHealthTemporarily();
             damageDealt += damage;
             System.out.println(team + " Soldier hit " + target.getType() + " for " + damage + " damage.");
         }
@@ -86,56 +89,59 @@ public class Soldier extends Character {
 
     @Override
     public void takeDamage(int damage) {
-        super.takeDamage(damage);
-        showHealthTemporarily();
+        this.healthPoints -= damage;
+        if (this.healthPoints <= 0) {
+            this.healthPoints = 0; // Ensure no negative health
+            this.setActive(false); // Mark soldier as inactive
+            System.out.println("Soldier " + id + " from team " + team + " has been killed.");
+        } else {
+            showHealthTemporarily();
+        }
     }
 
-    public void showHealthTemporarily() {
-        showHealth = true;
+    private void showHealthTemporarily() {
+        showHealth = true; // Enable health display
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                showHealth = false;
+                showHealth = false; // Hide health after 500ms
             }
-        }, healthBarDuration);
+        }, 500); // 500 milliseconds
     }
 
-    // Метод за движение към противниковата база
     public void moveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.5; // Скорост на движение
+        double speed = 1.5; // Movement speed
 
-        // Променяме текущата позиция на войника
+        // Update the soldier's position
         this.x += speed * Math.cos(Math.toRadians(angleToBase));
         this.y += speed * Math.sin(Math.toRadians(angleToBase));
 
-        // Обновяваме текущия ъгъл
+        // Update the current angle
         this.currentAngle = angleToBase;
     }
 
-    // Търсене на цел
     public Character findTarget() {
         for (Character character : game.getCharacters()) {
-            if (character.getTeam().equals(this.team)) continue; // Пропускаме съотборниците
-            if (!character.isActive()) continue; // Пропускаме неактивни врагове
+            if (character.getTeam().equals(this.team)) continue; // Skip teammates
+            if (!character.isActive()) continue; // Skip inactive enemies
 
             double distanceToCharacter = distance(this.x, this.y, character.getX(), character.getY());
             if (distanceToCharacter <= weaponLength) {
-                return character; // Връщаме първия открит враг в обхват
+                return character; // Return the first enemy within range
             }
         }
-        return null; // Няма врагове в обхват
+        return null; // No enemies in range
     }
 
-    // Основен метод за актуализация
     public void update() {
         Character target = findTarget();
 
         if (target != null) {
-            shoot(target); // Ако има цел, стреля по нея
+            shoot(target); // Shoot at the target if found
         } else {
-            moveTowardsEnemyBase(); // Ако няма цел, се движи към базата на противника
+            moveTowardsEnemyBase(); // Move towards the enemy base if no target
         }
     }
 
@@ -144,20 +150,44 @@ public class Soldier extends Character {
         return "Soldier";
     }
 
-    public int getWeaponLength() {
-        return weaponLength; // weaponLength вече е дефинирано като 150
+    public void drawPoints(Graphics g) {
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Arial", Font.BOLD, 8));
+        g.drawString(String.valueOf(healthPoints), (int) this.x, (int) this.y - 10);
     }
 
-    public void moveBackFrom(int defenderX, int defenderY) {
-        // Изчисляване на ъгъла за отместване от защитника
-        double angleAwayFromDefender = Math.atan2(this.y - defenderY, this.x - defenderX);
+    public void decreaseHealth(int amount) {
+        this.healthPoints -= amount;
+        if (this.healthPoints <= 0) {
+            this.healthPoints = 0; // Ensure no negative health points
+            System.out.println("Soldier " + id + " from team " + team + " has been killed.");
+            this.setActive(false); // Deactivate the soldier
+        } else {
+            System.out.println("Soldier " + id + " from team " + team + " has " + this.healthPoints + " health left.");
+            showHealthTemporarily(); // Show health temporarily
+            moveBack(); // Move the soldier back when hit
+        }
+    }
 
-        // Разстояние за отместване назад (определете или наследете стойност)
-        final int BACK_STEP_DISTANCE = 300;
+    private void moveBack() {
+        // Move the soldier back by 100 pixels away from its current position
+        double moveAngle = Math.toRadians(currentAngle + 180); // Move in the opposite direction
+        final int MOVE_BACK_DISTANCE = 100;
 
-        // Актуализиране на координатите на войника
-        this.x += BACK_STEP_DISTANCE * Math.cos(angleAwayFromDefender);
-        this.y += BACK_STEP_DISTANCE * Math.sin(angleAwayFromDefender);
+        this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
+        this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public int getWeaponLength() {
+        return this.weaponLength;
     }
 
 }

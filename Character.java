@@ -89,15 +89,15 @@ public abstract class Character {
         }
     }
 
-    public void showHealthTemporarily() {
-        this.showHealth = true;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                showHealth = false;
-            }
-        }, 500);
-    }
+//    public void showHealthTemporarily() {
+//        this.showHealth = true;
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                showHealth = false;
+//            }
+//        }, 500);
+//    }
 
     public abstract String getType();
 
