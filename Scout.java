@@ -33,13 +33,20 @@ public class Scout extends Character {
     private ScoutGame game;
     private static final int BACK_STEP_DISTANCE = 150;
     private double speed;
+    private boolean showPointReduction = false; // Флаг за показване на намалените точки
+    private int lastReducedPoints = 0; // Стойността на последното намаляване
+    private long pointReductionDisplayStartTime = 0; // Начало на показването
+    private static final int POINT_REDUCTION_DISPLAY_DURATION = 1000; // Продължителност на показването (1 секунда)
+    private int id;
 
-    public Scout(double startX, double startY, String team, ScoutGame game) {
+
+    public Scout(double startX, double startY, String team, ScoutGame game, int id) {
         super(startX, startY, team, "scout");
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
         this.speed = 0.2;///////////////////////////////////////////////////////////////////////////
+        this.id = id;
     }
 
     public void update(Point baseCenter, Resource[] resources) {
@@ -303,13 +310,55 @@ public class Scout extends Character {
         }
     }
 
+    public void draw(Graphics2D g2d) {
+        int bodyRadius = getBodyRadius();
+
+        // Рисуване на тялото на скаута
+        g2d.setColor(team.equals("blue") ? Color.BLUE : Color.RED);
+        g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
+
+        // Показване на съобщение при намалени точки
+        if (showPointReduction) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - pointReductionDisplayStartTime <= POINT_REDUCTION_DISPLAY_DURATION) {
+                g2d.setColor(Color.RED);
+                g2d.setFont(new Font("Consolas", Font.BOLD, 12));
+                g2d.drawString("Fuck", (int) x - 20, (int) y - bodyRadius - 15); // Изписване на "Fuck!!!"
+            } else {
+                showPointReduction = false; // Спиране на визуализацията след изтичане на времето
+            }
+        }
+
+        // Рисуване на ID
+//        g2d.setColor(Color.BLACK);
+//        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
+//        g2d.drawString("" + id, (int) x - 4, (int) y - bodyRadius - 2);
+
+        // Рисуване на стрелка за посоката
+        double arrowLength = bodyRadius * 2; // Дължината на стрелката
+        int arrowX = (int) (x + arrowLength * Math.cos(Math.toRadians(currentAngle)));
+        int arrowY = (int) (y + arrowLength * Math.sin(Math.toRadians(currentAngle)));
+
+        g2d.setColor(Color.GREEN); // Зелен цвят за стрелката
+        g2d.drawLine((int) x, (int) y, arrowX, arrowY); // Рисуване на линия от центъра
+    }
+
+
+
     public void decreasePoints(int amount) {
         points -= amount;
         if (points < 0) points = 0;
+
+        // Настройка за визуализация на намалението
+        showPointReduction = true;
+        lastReducedPoints = amount;
+        pointReductionDisplayStartTime = System.currentTimeMillis();
+
         System.out.println("Scout's points decreased to: " + points);
         reverseDirection();
         updatePosition();
     }
+
 
     public void updatePosition() {
         double deltaX = Math.cos(Math.toRadians(currentAngle));

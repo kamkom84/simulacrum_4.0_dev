@@ -3,19 +3,20 @@ package classesSeparated;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 150;
-    private final int maxBulletDistance = 200;
-    private final int healthBarDuration = 500;
+    private final int weaponLength = 150; // Обхват на оръжието
+    private final int maxBulletDistance = 200; // Максимална дистанция на куршумите
+    private final int healthBarDuration = 500; // Време за показване на здравето
     private boolean showHealth = false;
     private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
 
-    // Добавени координати на противниковата база
+    // Координати на противниковата база
     private int enemyBaseX;
     private int enemyBaseY;
 
@@ -30,15 +31,15 @@ public class Soldier extends Character {
         this.enemyBaseY = enemyBaseY;
     }
 
-
-
     public void draw(Graphics2D g2d) {
-        int bodyRadius = 5;/////////////////////////////////////////////////////////////////
+        int bodyRadius = 5;
         int lineLength = 15;
 
+        // Рисуване на тялото
         g2d.setColor(teamColor);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
+        // Рисуване на посоката
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
@@ -46,9 +47,17 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
+        // Рисуване на ID
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Consolas", Font.BOLD, 8));
         g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
+
+        // Показване на здравето временно
+        if (showHealth) {
+            g2d.setColor(Color.RED);
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            g2d.drawString("HP: " + health, (int) x - 10, (int) y - bodyRadius - 20);
+        }
     }
 
     public void shoot(Character target) {
@@ -119,7 +128,6 @@ public class Soldier extends Character {
         return null; // Няма врагове в обхват
     }
 
-
     // Основен метод за актуализация
     public void update() {
         Character target = findTarget();
@@ -135,4 +143,9 @@ public class Soldier extends Character {
     public String getType() {
         return "Soldier";
     }
+
+    public int getWeaponLength() {
+        return weaponLength; // weaponLength вече е дефинирано като 150
+    }
+
 }
