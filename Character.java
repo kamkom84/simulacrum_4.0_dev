@@ -1,8 +1,5 @@
 package classesSeparated;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public abstract class Character {
     protected double x;
     protected double y;
@@ -15,9 +12,6 @@ public abstract class Character {
     private boolean active = true;
     private boolean showHealth = false;
     private String type;
-//    protected String team;
-
-
 
     public Character(double startX, double startY, String team, String role) {
         this.x = startX;
@@ -89,18 +83,7 @@ public abstract class Character {
         }
     }
 
-//    public void showHealthTemporarily() {
-//        this.showHealth = true;
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                showHealth = false;
-//            }
-//        }, 500);
-//    }
-
     public abstract String getType();
-
 
     public String getTeam() {
         return team;

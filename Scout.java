@@ -22,21 +22,19 @@ public class Scout extends Character {
     private long rechargeStartTime = 0;
     private static final int RECHARGE_DURATION = 10 * 1000;
     private double currentAngle;
-//    private Worker currentTargetWorker = null;
     private Resource currentTargetResource = null;
     private int resourceIndex = 0;
     private boolean isExploding = false;
     private long explosionStartTime = 0;
     private static final int EXPLOSION_DURATION = 5000;
     private static final int EXPLOSION_RADIUS = 25;
-//    private int bodyRadius = 10;
     private ScoutGame game;
     private static final int BACK_STEP_DISTANCE = 150;
     private double speed;
-    private boolean showPointReduction = false; // Флаг за показване на намалените точки
-    private int lastReducedPoints = 0; // Стойността на последното намаляване
-    private long pointReductionDisplayStartTime = 0; // Начало на показването
-    private static final int POINT_REDUCTION_DISPLAY_DURATION = 1000; // Продължителност на показването (1 секунда)
+    private boolean showPointReduction = false;
+    private int lastReducedPoints = 0;
+    private long pointReductionDisplayStartTime = 0;
+    private static final int POINT_REDUCTION_DISPLAY_DURATION = 1000;
     private int id;
 
 
@@ -313,19 +311,17 @@ public class Scout extends Character {
     public void draw(Graphics2D g2d) {
         int bodyRadius = getBodyRadius();
 
-        // Рисуване на тялото на скаута
         g2d.setColor(team.equals("blue") ? Color.BLUE : Color.RED);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // Показване на съобщение при намалени точки
         if (showPointReduction) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - pointReductionDisplayStartTime <= POINT_REDUCTION_DISPLAY_DURATION) {
                 g2d.setColor(Color.RED);
                 g2d.setFont(new Font("Consolas", Font.BOLD, 12));
-                g2d.drawString("Fuck", (int) x - 20, (int) y - bodyRadius - 15); // Изписване на "Fuck!!!"
+                g2d.drawString("Fuck", (int) x - 20, (int) y - bodyRadius - 15);
             } else {
-                showPointReduction = false; // Спиране на визуализацията след изтичане на времето
+                showPointReduction = false;
             }
         }
 
@@ -334,22 +330,18 @@ public class Scout extends Character {
 //        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
 //        g2d.drawString("" + id, (int) x - 4, (int) y - bodyRadius - 2);
 
-        // Рисуване на стрелка за посоката
-        double arrowLength = bodyRadius * 2; // Дължината на стрелката
+        double arrowLength = bodyRadius * 2;
         int arrowX = (int) (x + arrowLength * Math.cos(Math.toRadians(currentAngle)));
         int arrowY = (int) (y + arrowLength * Math.sin(Math.toRadians(currentAngle)));
 
-        g2d.setColor(Color.GREEN); // Зелен цвят за стрелката
-        g2d.drawLine((int) x, (int) y, arrowX, arrowY); // Рисуване на линия от центъра
+        g2d.setColor(Color.GREEN);
+        g2d.drawLine((int) x, (int) y, arrowX, arrowY);
     }
-
-
 
     public void decreasePoints(int amount) {
         points -= amount;
         if (points < 0) points = 0;
 
-        // Настройка за визуализация на намалението
         showPointReduction = true;
         lastReducedPoints = amount;
         pointReductionDisplayStartTime = System.currentTimeMillis();
@@ -358,7 +350,6 @@ public class Scout extends Character {
         reverseDirection();
         updatePosition();
     }
-
 
     public void updatePosition() {
         double deltaX = Math.cos(Math.toRadians(currentAngle));

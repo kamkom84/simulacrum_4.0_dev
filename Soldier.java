@@ -3,45 +3,40 @@ package classesSeparated;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 15; // Weapon range
-    private final int maxBulletDistance = 50; // Maximum bullet distance
-    private final int healthBarDuration = 500; // Duration to show health
+    private final int weaponLength = 15;
+    private final int maxBulletDistance = 50;
+    private final int healthBarDuration = 500;
     private boolean showHealth = false;
     private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
-    private int healthPoints; // Health points of the soldier
-
-    // Coordinates of the enemy base
+    private int healthPoints;
     private int enemyBaseX;
     private int enemyBaseY;
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 100; // Initial health points
+        this.healthPoints = 100;
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
         this.id = id;
         this.enemyBaseX = enemyBaseX;
         this.enemyBaseY = enemyBaseY;
-        this.healthPoints = 100;
+//        this.healthPoints = 100;
     }
 
     public void draw(Graphics2D g2d) {
         int bodyRadius = 5;
         int lineLength = 15;
 
-        // Draw the soldier's body
         g2d.setColor(teamColor);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // Draw the soldier's direction
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
@@ -49,19 +44,16 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
-        // Draw the soldier's ID
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-        g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
+//        g2d.setColor(Color.WHITE);
+//        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
+//        g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
 
-        // Temporarily display health in red when hit
         if (showHealth) {
             g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
+            g2d.setFont(new Font("Consolas", Font.BOLD, 8));
             g2d.drawString("HP: " + healthPoints, (int) x - 10, (int) y - bodyRadius - 20);
         }
     }
-
 
     public void shoot(Character target) {
         if (target == null || !target.isActive()) return;
@@ -75,7 +67,7 @@ public class Soldier extends Character {
 
             game.drawShot((int) x, (int) y, bulletEndX, bulletEndY);
 
-            int damage = 2; // Damage dealt per shot
+            int damage = 2;
             target.takeDamage(damage);
             showHealthTemporarily();
             damageDealt += damage;
@@ -91,8 +83,8 @@ public class Soldier extends Character {
     public void takeDamage(int damage) {
         this.healthPoints -= damage;
         if (this.healthPoints <= 0) {
-            this.healthPoints = 0; // Ensure no negative health
-            this.setActive(false); // Mark soldier as inactive
+            this.healthPoints = 0;
+            this.setActive(false);
             System.out.println("Soldier " + id + " from team " + team + " has been killed.");
         } else {
             showHealthTemporarily();
@@ -100,48 +92,46 @@ public class Soldier extends Character {
     }
 
     private void showHealthTemporarily() {
-        showHealth = true; // Enable health display
+        showHealth = true;
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                showHealth = false; // Hide health after 500ms
+                showHealth = false;
             }
-        }, 500); // 500 milliseconds
+        }, 500);
     }
 
     public void moveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.0; // Movement speed
+        double speed = 1.0;
 
-        // Update the soldier's position
         this.x += speed * Math.cos(Math.toRadians(angleToBase));
         this.y += speed * Math.sin(Math.toRadians(angleToBase));
 
-        // Update the current angle
         this.currentAngle = angleToBase;
     }
 
     public Character findTarget() {
         for (Character character : game.getCharacters()) {
-            if (character.getTeam().equals(this.team)) continue; // Skip teammates
-            if (!character.isActive()) continue; // Skip inactive enemies
+            if (character.getTeam().equals(this.team)) continue;
+            if (!character.isActive()) continue;
 
             double distanceToCharacter = distance(this.x, this.y, character.getX(), character.getY());
             if (distanceToCharacter <= weaponLength) {
-                return character; // Return the first enemy within range
+                return character;
             }
         }
-        return null; // No enemies in range
+        return null;
     }
 
     public void update() {
         Character target = findTarget();
 
         if (target != null) {
-            shoot(target); // Shoot at the target if found
+            shoot(target);
         } else {
-            moveTowardsEnemyBase(); // Move towards the enemy base if no target
+            moveTowardsEnemyBase();
         }
     }
 
@@ -159,19 +149,18 @@ public class Soldier extends Character {
     public void decreaseHealth(int amount) {
         this.healthPoints -= amount;
         if (this.healthPoints <= 0) {
-            this.healthPoints = 0; // Ensure no negative health points
+            this.healthPoints = 0;
             System.out.println("Soldier " + id + " from team " + team + " has been killed.");
             this.setActive(false); // Deactivate the soldier
         } else {
             System.out.println("Soldier " + id + " from team " + team + " has " + this.healthPoints + " health left.");
-            showHealthTemporarily(); // Show health temporarily
-            moveBack(); // Move the soldier back when hit
+            showHealthTemporarily();
+            moveBack();
         }
     }
 
     private void moveBack() {
-        // Move the soldier back by 100 pixels away from its current position
-        double moveAngle = Math.toRadians(currentAngle + 180); // Move in the opposite direction
+        double moveAngle = Math.toRadians(currentAngle + 180);
         final int MOVE_BACK_DISTANCE = 100;
 
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
