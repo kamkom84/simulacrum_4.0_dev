@@ -74,4 +74,5 @@ public class Projectile {
     public boolean isActive() {
         return active;
     }
+
 }

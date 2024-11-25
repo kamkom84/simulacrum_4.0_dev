@@ -52,7 +52,7 @@ public class Defender extends Character {
                 this.y,
                 scout.getX(),
                 scout.getY(),
-                30.0,
+                40.0,
                 500.0
         );
         projectiles.add(projectile);
@@ -171,7 +171,7 @@ public class Defender extends Character {
                 this.y,
                 soldier.getX(),
                 soldier.getY(),
-                30.0,
+                50.0,
                 500.0
         );
         projectiles.add(projectile);
