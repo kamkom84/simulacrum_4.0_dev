@@ -142,7 +142,7 @@ public class Defender extends Character {
         double closestDistance = Double.MAX_VALUE;
 
         for (Soldier soldier : soldiers) {
-            if (!soldier.getTeam().equalsIgnoreCase(this.team) && soldier.isActive()) { // Ensure not same team and active
+            if (!soldier.getTeam().equalsIgnoreCase(this.team) && soldier.isActive()) {
                 double distanceToSoldier = Math.hypot(soldier.getX() - this.x, soldier.getY() - this.y);
                 if (distanceToSoldier <= SHOOT_RANGE && distanceToSoldier < closestDistance) {
                     closestSoldier = soldier;
