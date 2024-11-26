@@ -47,7 +47,7 @@ public class ScoutGame extends JFrame {
         redSoldiers = new Soldier[0];
         blueSoldiers = new Soldier[0];
 
-        setTitle("simulacrum drone wars");
+        setTitle("simulacrum");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -319,7 +319,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -367,7 +367,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 2;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
