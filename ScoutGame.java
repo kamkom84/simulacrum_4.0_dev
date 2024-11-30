@@ -501,7 +501,7 @@ public class ScoutGame extends JFrame {
         g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(169, 169, 169) : new Color(200, 180, 0));
+            g2d.setColor(resource.getValue() <= 0 ? new Color(169, 169, 169) : new Color(120, 130, 0));
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
@@ -598,12 +598,10 @@ public class ScoutGame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (index < blueWorkers.length && blueWorkers[index] != null) {
                     blueWorkers[index].activate();
-                    System.out.println("Blue worker " + (index + 1) + " activated.");
                 }
 
                 if (index < redWorkers.length && redWorkers[index] != null) {
                     redWorkers[index].activate();
-                    System.out.println("Red worker " + (index + 1) + " activated.");
                 }
 
                 index++;
@@ -625,15 +623,9 @@ public class ScoutGame extends JFrame {
         boolean allBlueWorkersAtStart = allWorkersAtStartPosition(blueWorkers, blueBaseX, blueBaseY);
         boolean allRedWorkersAtStart = allWorkersAtStartPosition(redWorkers, redBaseX, redBaseY);
 
-        System.out.println("Conditions for creating soldiers:");
-        System.out.println("Resources depleted: " + resourcesDepleted);
-        System.out.println("All blue workers at start: " + allBlueWorkersAtStart);
-        System.out.println("All red workers at start: " + allRedWorkersAtStart);
-
         for (Worker worker : blueWorkers) {
             if (worker != null) {
                 if (resourcesDepleted && !worker.isAtStartPosition(blueBaseX, blueBaseY)) {
-                    System.out.println("Moving blue worker " + worker.getId() + " to start position.");
                     worker.moveToStartPosition(blueBaseX, blueBaseY);
                 }
                 worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout);
@@ -689,38 +681,37 @@ public class ScoutGame extends JFrame {
     private boolean allWorkersAtStartPosition(Worker[] workers, int baseX, int baseY) {
         for (Worker worker : workers) {
             if (worker != null && !worker.isAtStartPosition(baseX, baseY)) {
-                System.out.println("Worker " + worker.getId() + " is not at start position.");
                 return false;
             }
         }
         return true;
     }
 
-    private void moveScoutsToSoldierPositions() {
-        final int OFFSET_DISTANCE = 50;
-
-        if (blueSoldiers != null && blueSoldiers.length > 0) {
-            Soldier leadBlueSoldier = blueSoldiers[0];
-            double angleToEnemyBase = Math.atan2(leadBlueSoldier.getY() - redBaseY, leadBlueSoldier.getX() - redBaseX);
-            int scoutX = (int) (leadBlueSoldier.getX() + OFFSET_DISTANCE * Math.cos(angleToEnemyBase));
-            int scoutY = (int) (leadBlueSoldier.getY() + OFFSET_DISTANCE * Math.sin(angleToEnemyBase));
-            blueScout.setX(scoutX);
-            blueScout.setY(scoutY);
-            blueScout.setCurrentAngle(Math.toDegrees(angleToEnemyBase));
-        }
-
-        if (redSoldiers != null && redSoldiers.length > 0) {
-            Soldier leadRedSoldier = redSoldiers[0];
-            double angleToEnemyBase = Math.atan2(leadRedSoldier.getY() - blueBaseY, leadRedSoldier.getX() - blueBaseX);
-            int scoutX = (int) (leadRedSoldier.getX() + OFFSET_DISTANCE * Math.cos(angleToEnemyBase));
-            int scoutY = (int) (leadRedSoldier.getY() + OFFSET_DISTANCE * Math.sin(angleToEnemyBase));
-            redScout.setX(scoutX);
-            redScout.setY(scoutY);
-            redScout.setCurrentAngle(Math.toDegrees(angleToEnemyBase));
-        }
-
-        repaint();
-    }
+//    private void moveScoutsToSoldierPositions() {
+//        final int OFFSET_DISTANCE = 50;
+//
+//        if (blueSoldiers != null && blueSoldiers.length > 0) {
+//            Soldier leadBlueSoldier = blueSoldiers[0];
+//            double angleToEnemyBase = Math.atan2(leadBlueSoldier.getY() - redBaseY, leadBlueSoldier.getX() - redBaseX);
+//            int scoutX = (int) (leadBlueSoldier.getX() + OFFSET_DISTANCE * Math.cos(angleToEnemyBase));
+//            int scoutY = (int) (leadBlueSoldier.getY() + OFFSET_DISTANCE * Math.sin(angleToEnemyBase));
+//            blueScout.setX(scoutX);
+//            blueScout.setY(scoutY);
+//            blueScout.setCurrentAngle(Math.toDegrees(angleToEnemyBase));
+//        }
+//
+//        if (redSoldiers != null && redSoldiers.length > 0) {
+//            Soldier leadRedSoldier = redSoldiers[0];
+//            double angleToEnemyBase = Math.atan2(leadRedSoldier.getY() - blueBaseY, leadRedSoldier.getX() - blueBaseX);
+//            int scoutX = (int) (leadRedSoldier.getX() + OFFSET_DISTANCE * Math.cos(angleToEnemyBase));
+//            int scoutY = (int) (leadRedSoldier.getY() + OFFSET_DISTANCE * Math.sin(angleToEnemyBase));
+//            redScout.setX(scoutX);
+//            redScout.setY(scoutY);
+//            redScout.setCurrentAngle(Math.toDegrees(angleToEnemyBase));
+//        }
+//
+//        repaint();
+//    }
 
     private Soldier[] addSoldierToArray(Soldier[] array, Soldier soldier) {
         if (array == null) {
@@ -732,20 +723,20 @@ public class ScoutGame extends JFrame {
         return newArray;
     }
 
-    private void moveScoutsToStartPosition() {
-        System.out.println("Moving scouts to start positions...");
-
-        blueScout.setX(blueBaseX + baseWidth / 2);
-        blueScout.setY(blueBaseY - 100);
-        blueScout.setCurrentAngle(0);
-        System.out.println("Blue Scout moved to: " + blueScout.getX() + ", " + blueScout.getY());
-
-        // Промяна на позицията на червения скаут
-        redScout.setX(redBaseX + baseWidth / 2);
-        redScout.setY(redBaseY - 100);
-        redScout.setCurrentAngle(180);
-        System.out.println("Red Scout moved to: " + redScout.getX() + ", " + redScout.getY());
-    }
+//    private void moveScoutsToStartPosition() {
+//        System.out.println("Moving scouts to start positions...");
+//
+//        blueScout.setX(blueBaseX + baseWidth / 2);
+//        blueScout.setY(blueBaseY - 100);
+//        blueScout.setCurrentAngle(0);
+//        System.out.println("Blue Scout moved to: " + blueScout.getX() + ", " + blueScout.getY());
+//
+//        // Промяна на позицията на червения скаут
+//        redScout.setX(redBaseX + baseWidth / 2);
+//        redScout.setY(redBaseY - 100);
+//        redScout.setCurrentAngle(180);
+//        System.out.println("Red Scout moved to: " + redScout.getX() + ", " + redScout.getY());
+//    }
 
     private void initializeSoldiers(String team, int baseX, int baseY, int baseHealth) {
         final int soldierHealthCost = 5;
@@ -756,7 +747,6 @@ public class ScoutGame extends JFrame {
 
         int maxSoldiers = baseHealth / soldierHealthCost;
         if (maxSoldiers <= 0) {
-            System.out.println("Not enough points to create soldiers for team " + team);
             return;
         }
 
