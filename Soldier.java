@@ -20,7 +20,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 75;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -44,14 +44,14 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
-//        g2d.setColor(Color.WHITE);
-//        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-//        g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
+        g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
 
         if (showHealth) {
             g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-            g2d.drawString("HP: " + healthPoints, (int) x - 10, (int) y - bodyRadius - 20);
+            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
+            g2d.drawString("" + healthPoints, (int) x - 10, (int) y - bodyRadius - 20);
         }
     }
 
@@ -161,7 +161,7 @@ public class Soldier extends Character {
 
     private void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 150;/////////////////////////////////////////////////////////////////////////////
+        final int MOVE_BACK_DISTANCE = 50;/////////////////////////////////////////////////////////////////////////////
 
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
