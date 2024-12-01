@@ -356,16 +356,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-    private boolean isNearWorkers(double x, double y, List<Point2D.Double> workerPositions) {
-        int minDistance = 50;
-        for (Point2D.Double workerPos : workerPositions) {
-            if (distance(x, y, workerPos.x, workerPos.y) < minDistance) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void initializeWorkers() {
         int totalWorkers = 100;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
@@ -410,6 +400,16 @@ public class ScoutGame extends JFrame {
             allWorkers.add(blueWorkers[i]);
             allWorkers.add(redWorkers[i]);
         }
+    }
+
+    private boolean isNearWorkers(double x, double y, List<Point2D.Double> workerPositions) {
+        int minDistance = 50;
+        for (Point2D.Double workerPos : workerPositions) {
+            if (distance(x, y, workerPos.x, workerPos.y) < minDistance) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isNearBase(int x, int y) {
@@ -638,7 +638,6 @@ public class ScoutGame extends JFrame {
         for (Worker worker : redWorkers) {
             if (worker != null) {
                 if (resourcesDepleted && !worker.isAtStartPosition(redBaseX, redBaseY)) {
-                    System.out.println("Moving red worker " + worker.getId() + " to start position.");
                     worker.moveToStartPosition(redBaseX, redBaseY);
                 }
                 worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout);
@@ -749,7 +748,6 @@ public class ScoutGame extends JFrame {
         final int columnSpacing = 30;
         final int rowSpacing = 30;
         final int targetY = baseY - 200;
-
         int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
         int maxSoldiers = baseHealth / soldierHealthCost;
 
@@ -789,12 +787,10 @@ public class ScoutGame extends JFrame {
             }
         }
 
-        System.out.println("Created " + maxSoldiers + " soldiers for team " + team);
     }
 
     public boolean allResourcesDepleted() {
         for (Resource resource : resources) {
-            System.out.println("Resource value: " + resource.getValue());
             if (resource.getValue() > 0) {
                 return false;
             }
@@ -813,7 +809,7 @@ public class ScoutGame extends JFrame {
                 }
             }
         }
-        System.out.println("All workers are at base.");
+
         return true;
     }
 
@@ -855,7 +851,6 @@ public class ScoutGame extends JFrame {
         double closestDistance = maxRange;
 
         if (enemyWorkers == null) {
-            System.out.println("Enemy workers array is null!");
             return null;
         }
 
@@ -916,15 +911,12 @@ public class ScoutGame extends JFrame {
         for (int i = 0; i < workers.length; i++) {
             workers[i] = null;
         }
-        System.out.println("All workers removed.");
 
         if (redScout != null) {
             redScout = null;
-            System.out.println("Red scout removed.");
         }
         if (blueScout != null) {
             blueScout = null;
-            System.out.println("Blue scout removed.");
         }
     }
 
