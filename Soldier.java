@@ -161,7 +161,7 @@ public class Soldier extends Character {
 
     private void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 50;/////////////////////////////////////////////////////////////////////////////
+        final int MOVE_BACK_DISTANCE = 150;/////////////////////////////////////////////////////////////////////////////
 
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
