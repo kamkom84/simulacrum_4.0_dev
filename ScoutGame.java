@@ -318,7 +318,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
             if (worker.hasStarted() && !worker.isActive()) {
@@ -328,7 +327,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -361,12 +360,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 2000);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -752,7 +751,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 2000; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
