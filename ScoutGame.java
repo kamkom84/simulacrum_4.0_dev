@@ -36,9 +36,7 @@ public class ScoutGame extends JFrame {
     private List<ExplosionEffect> explosionEffects = new ArrayList<>();
     private Soldier[] blueSoldiers;
     private Soldier[] redSoldiers;
-//    private boolean blueSoldiersInitialized = false;
-//    private boolean redSoldiersInitialized = false;
-//    private boolean soldiersCreated = false;
+
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -256,8 +254,7 @@ public class ScoutGame extends JFrame {
             if (redSoldiers != null) {
                 for (Soldier soldier : redSoldiers) {
                     if (soldier != null) {
-                        updateSoldier(soldier, blueWorkers, blueScout, blueDefenders);
-                    }
+                        updateSoldier(soldier, blueWorkers, blueScout, blueDefenders);                    }
                 }
             }
 
@@ -276,12 +273,16 @@ public class ScoutGame extends JFrame {
     }
 
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
+        // Актуализация на войника (намиране на цели и действия)
+        soldier.update();
+
+        // Допълнителна логика за проверка на конкретни типове цели
         boolean targetFound = false;
 
         for (Worker enemy : enemyWorkers) {
             if (enemy != null && enemy.isActive() &&
                     distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= soldier.getWeaponLength()) {
-                soldier.shoot(enemy);
+                soldier.shoot(enemy); // Стреля по работник
                 targetFound = true;
                 break;
             }
@@ -289,7 +290,7 @@ public class ScoutGame extends JFrame {
 
         if (!targetFound && enemyScout != null && enemyScout.isActive() &&
                 distance(soldier.getX(), soldier.getY(), enemyScout.getX(), enemyScout.getY()) <= soldier.getWeaponLength()) {
-            soldier.shoot(enemyScout);
+            soldier.shoot(enemyScout); // Стреля по скаут
             targetFound = true;
         }
 
@@ -297,17 +298,19 @@ public class ScoutGame extends JFrame {
             for (Defender defender : enemyDefenders) {
                 if (defender != null && defender.isActive() &&
                         distance(soldier.getX(), soldier.getY(), defender.getX(), defender.getY()) <= soldier.getWeaponLength()) {
-                    soldier.shoot(defender);
+                    soldier.shoot(defender); // Стреля по защитник
                     targetFound = true;
                     break;
                 }
             }
         }
 
+        // Ако няма цел, се движи към базата на врага
         if (!targetFound) {
             soldier.moveTowardsEnemyBase();
         }
     }
+
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
@@ -318,7 +321,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[40];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -351,12 +354,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5000);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 20;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -742,7 +745,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierHealthCost = 10000; /////////////////////////////////////////////////////////////////////////////
+        final int soldierHealthCost = 1; /////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 20;
         final int columnSpacing = 30;
         final int rowSpacing = 30;

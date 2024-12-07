@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Defender extends Character {
-    private double speed = 0.04;
+    private double speed = 0.03;
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
-    private static final int SHOOT_RANGE = 500;/////////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_RANGE = 300;/////////////////////////////////////////////////////////////////////////
     private static final int SHOOT_INTERVAL = 500;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;

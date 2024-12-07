@@ -18,9 +18,10 @@ public class Soldier extends Character {
     private int enemyBaseX;
     private int enemyBaseY;
 
+
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 75;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -61,16 +62,17 @@ public class Soldier extends Character {
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
 
-        if (distanceToTarget <= weaponLength) {
+        if (distanceToTarget <= 100) {
             int bulletEndX = (int) (x + maxBulletDistance * Math.cos(Math.toRadians(angleToTarget)));
             int bulletEndY = (int) (y + maxBulletDistance * Math.sin(Math.toRadians(angleToTarget)));
 
             game.drawShot((int) x, (int) y, bulletEndX, bulletEndY);
 
-            int damage = 2;
+            int damage = 1; ////////////////////////////////////////////////////////////////////////////////////////////
             target.takeDamage(damage);
             showHealthTemporarily();
             damageDealt += damage;
+
             System.out.println(team + " Soldier hit " + target.getType() + " for " + damage + " damage.");
         }
     }
@@ -82,12 +84,14 @@ public class Soldier extends Character {
     @Override
     public void takeDamage(int damage) {
         this.healthPoints -= damage;
+
         if (this.healthPoints <= 0) {
             this.healthPoints = 0;
             this.setActive(false);
             System.out.println("Soldier " + id + " from team " + team + " has been killed.");
         } else {
             showHealthTemporarily();
+            moveBack(); // Отместване назад при уцелване
         }
     }
 
@@ -104,36 +108,77 @@ public class Soldier extends Character {
 
     public void moveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.0;
+        double speed = 1.0; // Скорост на движение
+        boolean tooClose = false;
 
-        this.x += speed * Math.cos(Math.toRadians(angleToBase));
-        this.y += speed * Math.sin(Math.toRadians(angleToBase));
+        // Проверка за близки войници
+        for (Character character : game.getCharacters()) {
+            if (character != this && character instanceof Soldier && character.isActive() &&
+                    distance(this.x, this.y, character.getX(), character.getY()) < 60) {
+                tooClose = true;
+
+                // Отместване от другия войник
+                double angleAway = calculateAngleTo(character.getX(), character.getY(), this.x, this.y);
+                this.x += speed * Math.cos(Math.toRadians(angleAway));
+                this.y += speed * Math.sin(Math.toRadians(angleAway));
+                break;
+            }
+        }
+
+        // Ако няма войници наблизо, движи се към базата на врага
+        if (!tooClose) {
+            this.x += speed * Math.cos(Math.toRadians(angleToBase));
+            this.y += speed * Math.sin(Math.toRadians(angleToBase));
+        }
 
         this.currentAngle = angleToBase;
     }
 
+
+
     public Character findTarget() {
+        Character closestTarget = null;
+        double closestDistance = 100; // Радиус за засичане на врага
+
         for (Character character : game.getCharacters()) {
-            if (character.getTeam().equals(this.team)) continue;
-            if (!character.isActive()) continue;
+            if (character.getTeam().equals(this.team)) continue; // Пропуска войници от същия отбор
+            if (!character.isActive()) continue; // Пропуска неактивни войници
 
             double distanceToCharacter = distance(this.x, this.y, character.getX(), character.getY());
-            if (distanceToCharacter <= weaponLength) {
-                return character;
+            if (distanceToCharacter <= closestDistance) {
+                closestTarget = character;
+                closestDistance = distanceToCharacter; // Актуализира най-близката цел
             }
         }
-        return null;
+
+        return closestTarget; // Връща най-близката цел или null, ако няма цел
     }
+
+
 
     public void update() {
         Character target = findTarget();
 
         if (target != null) {
-            shoot(target);
+            shoot(target); // Стреля по намерената цел
         } else {
-            moveTowardsEnemyBase();
+            boolean tooClose = false;
+            for (Character character : game.getCharacters()) {
+                if (character != this && character instanceof Soldier && character.isActive() &&
+                        distance(this.x, this.y, character.getX(), character.getY()) < 60) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose) {
+                moveTowardsEnemyBase(); // Продължава към базата на врага
+            }
         }
     }
+
+
+
 
     @Override
     public String getType() {
@@ -161,10 +206,12 @@ public class Soldier extends Character {
 
     private void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 150;/////////////////////////////////////////////////////////////////////////////
+        final int MOVE_BACK_DISTANCE = 50;/////////////////////////////////////////////////////////////
 
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
+
+        System.out.println("Soldier " + id + " from team " + team + " moved back after being hit.");
     }
 
     public int getId() {
