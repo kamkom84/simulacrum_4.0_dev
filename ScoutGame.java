@@ -139,6 +139,7 @@ public class ScoutGame extends JFrame {
                         worker.draw(g2d);
                     }
                 }
+
                 for (Worker worker : redWorkers) {
                     if (worker != null && worker.isActive()) {
                         worker.draw(g2d);
@@ -151,6 +152,7 @@ public class ScoutGame extends JFrame {
                         defender.drawDirectionLine(g2d);
                     }
                 }
+
                 for (Defender defender : redDefenders) {
                     if (defender != null) {
                         defender.drawProjectiles(g2d);
@@ -175,7 +177,7 @@ public class ScoutGame extends JFrame {
                 }
 
                 if (bulletStartX != -1 && bulletStartY != -1) {
-                    g2d.setColor(Color.GREEN);
+                    g2d.setColor(Color.RED);
                     g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
                 }
 
@@ -200,14 +202,19 @@ public class ScoutGame extends JFrame {
         };
 
         mainPanel.setLayout(new BorderLayout());
+
         mainPanel.setBackground(Color.BLACK);
 
         JPanel controlPanel = new JPanel();
+
         controlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
         controlPanel.setBackground(Color.DARK_GRAY);
 
         JButton minimizeButton = new JButton("-");
+
         minimizeButton.addActionListener(e -> setState(JFrame.ICONIFIED));
+
         controlPanel.add(minimizeButton);
 
         JButton fullscreenButton = new JButton("□");
@@ -224,9 +231,11 @@ public class ScoutGame extends JFrame {
         JButton closeButton = new JButton("X");
 
         closeButton.addActionListener(e -> System.exit(0));
+
         controlPanel.add(closeButton);
 
         add(controlPanel, BorderLayout.NORTH);
+
         add(mainPanel, BorderLayout.CENTER);
 
         Timer timer = new Timer(150, e -> {
@@ -263,7 +272,7 @@ public class ScoutGame extends JFrame {
 
             moveWorkers();
 
-            removeDeadSoldiers(); // Премахване на мъртвите войници
+            removeDeadSoldiers();
 
             mainPanel.repaint();
         });
@@ -274,16 +283,14 @@ public class ScoutGame extends JFrame {
     }
 
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
-        // Актуализация на войника (намиране на цели и действия)
         soldier.update();
 
-        // Допълнителна логика за проверка на конкретни типове цели
         boolean targetFound = false;
 
         for (Worker enemy : enemyWorkers) {
             if (enemy != null && enemy.isActive() &&
                     distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= soldier.getWeaponLength()) {
-                soldier.shoot(enemy); // Стреля по работник
+                soldier.shoot(enemy);
                 targetFound = true;
                 break;
             }
@@ -291,7 +298,7 @@ public class ScoutGame extends JFrame {
 
         if (!targetFound && enemyScout != null && enemyScout.isActive() &&
                 distance(soldier.getX(), soldier.getY(), enemyScout.getX(), enemyScout.getY()) <= soldier.getWeaponLength()) {
-            soldier.shoot(enemyScout); // Стреля по скаут
+            soldier.shoot(enemyScout);
             targetFound = true;
         }
 
@@ -299,14 +306,13 @@ public class ScoutGame extends JFrame {
             for (Defender defender : enemyDefenders) {
                 if (defender != null && defender.isActive() &&
                         distance(soldier.getX(), soldier.getY(), defender.getX(), defender.getY()) <= soldier.getWeaponLength()) {
-                    soldier.shoot(defender); // Стреля по защитник
+                    soldier.shoot(defender);
                     targetFound = true;
                     break;
                 }
             }
         }
 
-        // Ако няма цел, се движи към базата на врага
         if (!targetFound) {
             soldier.moveTowardsEnemyBase();
         }
@@ -355,7 +361,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -746,13 +752,13 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierHealthCost = 1; /////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
         final int targetY = baseY - 200;
         int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
-        int maxSoldiers = baseHealth / soldierHealthCost;
+        int maxSoldiers = baseHealth / soldierCost;
 
         if (maxSoldiers <= 0) {
             System.out.println("Not enough points to create soldiers for " + team + " team.");
@@ -783,10 +789,10 @@ public class ScoutGame extends JFrame {
 
             if (team.equals("blue")) {
                 blueSoldiers = addSoldierToArray(blueSoldiers, soldier);
-                blueBaseHealth -= soldierHealthCost;
+                blueBaseHealth -= soldierCost;
             } else {
                 redSoldiers = addSoldierToArray(redSoldiers, soldier);
-                redBaseHealth -= soldierHealthCost;
+                redBaseHealth -= soldierCost;
             }
         }
 
@@ -827,7 +833,6 @@ public class ScoutGame extends JFrame {
                 .filter(soldier -> soldier != null && soldier.isActive())
                 .toArray(Soldier[]::new);
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ScoutGame::new);
@@ -914,7 +919,7 @@ public class ScoutGame extends JFrame {
         this.bulletEndY = endY;
         repaint();
 
-        Timer timer = new Timer(50, e -> {
+        Timer timer = new Timer(150, e -> {////////////////////////////////////////////////////////////////
             bulletStartX = bulletStartY = bulletEndX = bulletEndY = -1;
             repaint();
             ((Timer) e.getSource()).stop();

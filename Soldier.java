@@ -18,7 +18,6 @@ public class Soldier extends Character {
     private int enemyBaseX;
     private int enemyBaseY;
 
-
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
         this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +27,6 @@ public class Soldier extends Character {
         this.id = id;
         this.enemyBaseX = enemyBaseX;
         this.enemyBaseY = enemyBaseY;
-//        this.healthPoints = 100;
     }
 
     public void draw(Graphics2D g2d) {
@@ -91,7 +89,7 @@ public class Soldier extends Character {
             System.out.println("Soldier " + id + " from team " + team + " has been killed.");
         } else {
             showHealthTemporarily();
-            moveBack(); // Отместване назад при уцелване
+            moveBack();
         }
     }
 
@@ -111,13 +109,11 @@ public class Soldier extends Character {
         double speed = 1.0; // Скорост на движение
         boolean tooClose = false;
 
-        // Проверка за близки войници
         for (Character character : game.getCharacters()) {
             if (character != this && character instanceof Soldier && character.isActive() &&
                     distance(this.x, this.y, character.getX(), character.getY()) < 60) {
                 tooClose = true;
 
-                // Отместване от другия войник
                 double angleAway = calculateAngleTo(character.getX(), character.getY(), this.x, this.y);
                 this.x += speed * Math.cos(Math.toRadians(angleAway));
                 this.y += speed * Math.sin(Math.toRadians(angleAway));
@@ -125,7 +121,6 @@ public class Soldier extends Character {
             }
         }
 
-        // Ако няма войници наблизо, движи се към базата на врага
         if (!tooClose) {
             this.x += speed * Math.cos(Math.toRadians(angleToBase));
             this.y += speed * Math.sin(Math.toRadians(angleToBase));
@@ -134,27 +129,23 @@ public class Soldier extends Character {
         this.currentAngle = angleToBase;
     }
 
-
-
     public Character findTarget() {
         Character closestTarget = null;
         double closestDistance = 100; //////////////////////////////////////////////////////////////////////////////////
 
         for (Character character : game.getCharacters()) {
-            if (character.getTeam().equals(this.team)) continue; // Пропуска войници от същия отбор
-            if (!character.isActive()) continue; // Пропуска неактивни войници
+            if (character.getTeam().equals(this.team)) continue;
+            if (!character.isActive()) continue;
 
             double distanceToCharacter = distance(this.x, this.y, character.getX(), character.getY());
             if (distanceToCharacter <= closestDistance) {
                 closestTarget = character;
-                closestDistance = distanceToCharacter; // Актуализира най-близката цел
+                closestDistance = distanceToCharacter;
             }
         }
 
-        return closestTarget; // Връща най-близката цел или null, ако няма цел
+        return closestTarget;
     }
-
-
 
     public void update() {
         if (!isActive()) return;
@@ -178,9 +169,6 @@ public class Soldier extends Character {
             }
         }
     }
-
-
-
 
     @Override
     public String getType() {
