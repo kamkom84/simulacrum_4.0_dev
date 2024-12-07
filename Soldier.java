@@ -157,6 +157,8 @@ public class Soldier extends Character {
 
 
     public void update() {
+        if (!isActive()) return;
+
         Character target = findTarget();
 
         if (target != null) {

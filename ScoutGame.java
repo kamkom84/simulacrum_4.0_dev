@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import static java.awt.geom.Point2D.distance;
@@ -263,6 +264,8 @@ public class ScoutGame extends JFrame {
             checkForAvailableResources();
 
             moveWorkers();
+
+            removeDeadSoldiers(); // Премахване на мъртвите войници
 
             mainPanel.repaint();
         });
@@ -815,6 +818,19 @@ public class ScoutGame extends JFrame {
         return true;
     }
 
+    private void removeDeadSoldiers() {
+        // Премахва мъртвите сини войници
+        blueSoldiers = Arrays.stream(blueSoldiers)
+                .filter(soldier -> soldier != null && soldier.isActive())
+                .toArray(Soldier[]::new);
+
+        // Премахва мъртвите червени войници
+        redSoldiers = Arrays.stream(redSoldiers)
+                .filter(soldier -> soldier != null && soldier.isActive())
+                .toArray(Soldier[]::new);
+    }
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ScoutGame::new);
     }
@@ -927,7 +943,7 @@ public class ScoutGame extends JFrame {
 
         if (blueSoldiers != null) {
             for (Soldier soldier : blueSoldiers) {
-                if (soldier != null) {
+                if (soldier != null && soldier.isActive()) {
                     characters.add(soldier);
                 }
             }
@@ -935,7 +951,7 @@ public class ScoutGame extends JFrame {
 
         if (redSoldiers != null) {
             for (Soldier soldier : redSoldiers) {
-                if (soldier != null) {
+                if (soldier != null && soldier.isActive()) {
                     characters.add(soldier);
                 }
             }
