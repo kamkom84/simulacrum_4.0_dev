@@ -160,7 +160,7 @@ public class ScoutGame extends JFrame {
 
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
-                        if (soldier != null && soldier.isActive()) {
+                        if (soldier != null) {
                             soldier.draw(g2d);
 //                            soldier.drawPoints(g2d);
                         }
@@ -169,7 +169,7 @@ public class ScoutGame extends JFrame {
 
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
-                        if (soldier != null && soldier.isActive()) {
+                        if (soldier != null) {
                             soldier.draw(g2d);
 //                            soldier.drawPoints(g2d);
                         }

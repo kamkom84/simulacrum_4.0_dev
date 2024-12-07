@@ -138,7 +138,7 @@ public class Soldier extends Character {
 
     public Character findTarget() {
         Character closestTarget = null;
-        double closestDistance = 100; // Радиус за засичане на врага
+        double closestDistance = 100; //////////////////////////////////////////////////////////////////////////////////
 
         for (Character character : game.getCharacters()) {
             if (character.getTeam().equals(this.team)) continue; // Пропуска войници от същия отбор
@@ -162,7 +162,7 @@ public class Soldier extends Character {
         Character target = findTarget();
 
         if (target != null) {
-            shoot(target); // Стреля по намерената цел
+            shoot(target);
         } else {
             boolean tooClose = false;
             for (Character character : game.getCharacters()) {
@@ -174,7 +174,7 @@ public class Soldier extends Character {
             }
 
             if (!tooClose) {
-                moveTowardsEnemyBase(); // Продължава към базата на врага
+                moveTowardsEnemyBase();
             }
         }
     }
