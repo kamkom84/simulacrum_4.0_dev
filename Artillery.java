@@ -13,7 +13,7 @@ public class Artillery extends Character {
     private long fireRate;
     private int healthPoints;
 
-    private Projectile currentProjectile; // Активен снаряд
+    private ArtilleryProjectile currentProjectile; // Активен снаряд
     private List<ExplosionEffect> explosions; // Ефекти на експлозии
 
     public Artillery(int baseX, int baseY, int enemyBaseX, int enemyBaseY, String team, ScoutGame game) {
@@ -41,24 +41,20 @@ public class Artillery extends Character {
     }
 
     public void drawArtillery(Graphics2D g2d) {
-        // Рисуване на артилерията
         int bodyRadius = 10;
         g2d.setColor(Color.YELLOW);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // Рисуване на цевта
-        int lineLength = 40;
+        int lineLength = 20;
         int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
         int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.setColor(Color.RED);
         g2d.drawLine((int) x, (int) y, x2, y2);
 
-        // Рисуване на снаряда
         if (currentProjectile != null) {
             currentProjectile.drawArtilleryProjectile(g2d);
         }
 
-        // Рисуване на експлозиите
         for (ExplosionEffect explosion : explosions) {
             explosion.draw(g2d);
         }
@@ -67,7 +63,6 @@ public class Artillery extends Character {
     public void updateArtillery() {
         if (!isActive()) return;
 
-        // Обновяване на снаряда
         if (currentProjectile != null) {
             currentProjectile.update();
             if (currentProjectile.hasReachedTarget()) {
@@ -76,25 +71,23 @@ public class Artillery extends Character {
             }
         }
 
-        // Обновяване на експлозиите
         explosions.removeIf(ExplosionEffect::isExpired);
 
-        // Проверка дали можем да стреляме
-        if (canShoot()) {
+        if (currentProjectile == null && canShoot()) {
             fireProjectile();
         }
     }
 
     private void fireProjectile() {
-        // Създава нов снаряд само ако няма текущ активен снаряд
         if (currentProjectile == null) {
-            currentProjectile = new Projectile(x, y, enemyBaseX, enemyBaseY);
+            double shieldRadius = game.getBaseShieldRadius(); // Радиусът на щита
+            Point shieldEdge = calculateShieldEdge(enemyBaseX, enemyBaseY, this.x, this.y, shieldRadius);
+            currentProjectile = new ArtilleryProjectile(this.x, this.y, shieldEdge.getX(), shieldEdge.getY());
         }
     }
 
-
     private void createExplosion(double targetX, double targetY) {
-        explosions.add(new ExplosionEffect(targetX, targetY, 30, Color.RED, 3000));
+        explosions.add(new ExplosionEffect(targetX, targetY, 15, Color.RED, 1000));
     }
 
     private boolean canShoot() {
@@ -120,46 +113,66 @@ public class Artillery extends Character {
         return "artillery";
     }
 
-    // Вътрешен клас за снаряд
-    private class Projectile {
+    private class ArtilleryProjectile {
         private double x, y; // Позиция на снаряда
         private final double targetX, targetY;
-        private final double speed = 5.0; // Скорост на снаряда
+        private final double speed = 15.0; ///////////////////////////////////////////////////////////////////////
 
-        public Projectile(double startX, double startY, double targetX, double targetY) {
+        public ArtilleryProjectile(double startX, double startY, double targetX, double targetY) {
             this.x = startX;
             this.y = startY;
-            this.targetX = targetX;
-            this.targetY = targetY;
+
+            // Изчисляваме вектора към целевата точка
+            double dx = targetX - startX;
+            double dy = targetY - startY;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Ако разстоянието е валидно, задаваме целевите координати
+            if (distance > 0) {
+                this.targetX = targetX;
+                this.targetY = targetY;
+            } else {
+                // Ако разстоянието е нула (рядко се случва), задаваме целта на стартовите координати
+                this.targetX = startX;
+                this.targetY = startY;
+            }
         }
 
         public void update() {
-            // Изчисляваме разстоянието до целта
             double dx = targetX - x;
             double dy = targetY - y;
             double distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance <= speed) {
-                // Ако сме близо до целта, спираме на целта
                 x = targetX;
                 y = targetY;
             } else {
-                // Придвижваме снаряда към целта
                 x += (dx / distance) * speed;
                 y += (dy / distance) * speed;
             }
         }
 
         public boolean hasReachedTarget() {
-            // Проверка дали снарядът е стигнал целта
-            return x == targetX && y == targetY;
+            return Math.hypot(x - targetX, y - targetY) <= speed;
         }
 
         public void drawArtilleryProjectile(Graphics2D g2d) {
-            // Червена линия вместо топче
             g2d.setColor(Color.RED);
-            g2d.drawLine((int) x, (int) y, (int) targetX, (int) targetY);
+
+            // Определете дължината на "патрона" (линията)
+            int lineLength = 10; // Можете да промените тази стойност
+
+            // Изчислете ъгъла на движение
+            double angle = Math.atan2(targetY - y, targetX - x);
+
+            // Изчислете края на линията (патрона)
+            int endX = (int) (x + lineLength * Math.cos(angle));
+            int endY = (int) (y + lineLength * Math.sin(angle));
+
+            // Рисуване на линия (патрон)
+            g2d.drawLine((int) x, (int) y, endX, endY);
         }
+
 
         public double getTargetX() {
             return targetX;
@@ -170,8 +183,6 @@ public class Artillery extends Character {
         }
     }
 
-
-    // Вътрешен клас за експлозия
     private class ExplosionEffect {
         private final double x, y;
         private final int radius;
@@ -202,4 +213,12 @@ public class Artillery extends Character {
             }
         }
     }
+
+    private Point calculateShieldEdge(double baseX, double baseY, double startX, double startY, double radius) {
+        double angle = Math.atan2(baseY - startY, baseX - startX);
+        double edgeX = baseX - radius * Math.cos(angle);
+        double edgeY = baseY - radius * Math.sin(angle);
+        return new Point((int) edgeX, (int) edgeY);
+    }
+
 }

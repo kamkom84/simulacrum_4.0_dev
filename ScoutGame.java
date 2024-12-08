@@ -177,13 +177,9 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
-
-
                 if (artillery != null && artillery.isActive()) {
                     artillery.drawArtillery(g2d);
                 }
-
-
 
                 if (bulletStartX != -1 && bulletStartY != -1) {
                     g2d.setColor(Color.RED);
@@ -199,7 +195,6 @@ public class ScoutGame extends JFrame {
                     g2d.drawString(winnerText, winnerX, winnerY);
                 }
             }
-
 
             private void drawExplosions(Graphics2D g2d) {
                 long currentTime = System.currentTimeMillis();
@@ -357,9 +352,6 @@ public class ScoutGame extends JFrame {
                 }
             }
 
-
-
-
             mainPanel.repaint();
         });
 
@@ -371,7 +363,6 @@ public class ScoutGame extends JFrame {
     private double calculateAngleTo(double x1, double y1, double x2, double y2) {
         return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
     }
-
 
     private boolean areSoldiersLeft(String team) {
         for (Character c : getCharacters()) {
@@ -422,8 +413,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
-
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
             if (worker.hasStarted() && !worker.isActive()) {
@@ -466,7 +455,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -857,7 +846,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 5; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -928,12 +917,10 @@ public class ScoutGame extends JFrame {
     }
 
     private void removeDeadSoldiers() {
-        // Премахва мъртвите сини войници
         blueSoldiers = Arrays.stream(blueSoldiers)
                 .filter(soldier -> soldier != null && soldier.isActive())
                 .toArray(Soldier[]::new);
 
-        // Премахва мъртвите червени войници
         redSoldiers = Arrays.stream(redSoldiers)
                 .filter(soldier -> soldier != null && soldier.isActive())
                 .toArray(Soldier[]::new);
@@ -1024,7 +1011,7 @@ public class ScoutGame extends JFrame {
         this.bulletEndY = endY;
         repaint();
 
-        Timer timer = new Timer(150, e -> {////////////////////////////////////////////////////////////////
+        Timer timer = new Timer(150, e -> {
             bulletStartX = bulletStartY = bulletEndX = bulletEndY = -1;
             repaint();
             ((Timer) e.getSource()).stop();
@@ -1098,6 +1085,10 @@ public class ScoutGame extends JFrame {
         }
 
         return characters;
+    }
+
+    public double getBaseShieldRadius() {
+        return Math.max(baseWidth, baseHeight) * 1.5; // Примерно изчисление
     }
 
 }
