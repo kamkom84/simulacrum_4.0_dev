@@ -389,7 +389,6 @@ public class ScoutGame extends JFrame {
             return;
         }
 
-        // Ако не чака, продължаваме със стандартната логика:
         soldier.update();
 
         boolean targetFound = false;
