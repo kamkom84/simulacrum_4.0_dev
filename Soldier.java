@@ -8,7 +8,6 @@ import static java.awt.geom.Point2D.distance;
 public class Soldier extends Character {
     private final int weaponLength = 15;
     private final int maxBulletDistance = 50;
-    private final int healthBarDuration = 500;
     private boolean showHealth = false;
     private int damageDealt = 0;
     private Color teamColor;
@@ -19,6 +18,7 @@ public class Soldier extends Character {
     private int enemyBaseY;
     private int baseX;
     private int baseY;
+    private boolean waiting = false;
 
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
@@ -159,32 +159,6 @@ public class Soldier extends Character {
         }
     }
 
-//    public void moveTowardsEnemyBase() {
-//        double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-//        double speed = 1.0; // Скорост на движение
-//        boolean tooClose = false;
-//
-//        for (Character character : game.getCharacters()) {
-//            if (character != this && character instanceof Soldier && character.isActive() &&
-//                    distance(this.x, this.y, character.getX(), character.getY()) < 60) {
-//                tooClose = true;
-//
-//                double angleAway = calculateAngleTo(character.getX(), character.getY(), this.x, this.y);
-//                this.x += speed * Math.cos(Math.toRadians(angleAway));
-//                this.y += speed * Math.sin(Math.toRadians(angleAway));
-//                break;
-//            }
-//        }
-//
-//        if (!tooClose) {
-//            this.x += speed * Math.cos(Math.toRadians(angleToBase));
-//            this.y += speed * Math.sin(Math.toRadians(angleToBase));
-//        }
-//
-//        this.currentAngle = angleToBase;
-//    }
-
-
     public Character findTarget() {
         Character closestTarget = null;
         double closestDistance = 100; //////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +178,11 @@ public class Soldier extends Character {
     }
 
     public void update() {
+
+        if (waiting) {
+            return;
+        }
+
         if (!isActive()) return;
 
         Character target = findTarget();
@@ -270,6 +249,10 @@ public class Soldier extends Character {
 
     public int getWeaponLength() {
         return this.weaponLength;
+    }
+
+    public void setWaiting(boolean waiting) {
+        this.waiting = waiting;
     }
 
 }

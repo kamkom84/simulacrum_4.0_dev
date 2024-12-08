@@ -10,7 +10,6 @@ public abstract class Character {
     protected int health;
     private int bodyRadius = 10;
     private boolean active = true;
-    private boolean showHealth = false;
     private String type;
 
     public Character(double startX, double startY, String team, String role) {
@@ -32,16 +31,6 @@ public abstract class Character {
 
     public double getAngle() {
         return angle;
-    }
-
-    public double distanceToAnt(Character otherAnt) {
-        if (otherAnt == null) {
-            return -1;
-        }
-
-        double dx = this.x - otherAnt.getX();
-        double dy = this.y - otherAnt.getY();
-        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public double getCurrentAngle() {
@@ -87,5 +76,18 @@ public abstract class Character {
 
     public String getTeam() {
         return team;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 }

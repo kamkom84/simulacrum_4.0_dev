@@ -38,10 +38,10 @@ public class Artillery extends Character {
 
     public void drawArtillery(Graphics2D g2d) {
         int bodyRadius = 8;
-        g2d.setColor(Color.GRAY);
+        g2d.setColor(Color.YELLOW);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        g2d.setColor(Color.YELLOW);
+        g2d.setColor(Color.RED);
         int lineLength = 20;
         int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
         int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
@@ -49,7 +49,7 @@ public class Artillery extends Character {
 
         g2d.setFont(new Font("Consolas", Font.BOLD, 10));
         g2d.setColor(Color.WHITE);
-        g2d.drawString("Art", (int)x - 10, (int)y - 10);
+//        g2d.drawString("", (int)x - 10, (int)y - 10);
     }
 
 
@@ -90,7 +90,6 @@ public class Artillery extends Character {
 
     private void shootAtEnemyBase(Character target) {
         double angleToTarget = Math.toDegrees(Math.atan2(target.getY() - y, target.getX() - x));
-        // Може да визуализираме изстрел
         game.drawShot((int)this.x, (int)this.y,
                 (int)target.getX(), (int)target.getY());
 

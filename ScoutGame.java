@@ -287,18 +287,80 @@ public class ScoutGame extends JFrame {
                 artillery.updateArtillery();
             }
 
-            if (!artilleryCalled && !areEnemiesLeft("red") && !areEnemiesLeft("blue")) {
+            boolean redHasSoldiers = areSoldiersLeft("red");
+            boolean blueHasSoldiers = areSoldiersLeft("blue");
 
-                if (!areEnemiesLeft("red")) {
-                    Artillery art = new Artillery(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2,
-                            redBaseX + baseWidth / 2, redBaseY + baseHeight / 2,
-                            "blue", this);
-
+            if (!artilleryCalled) {
+                if (!redHasSoldiers && blueHasSoldiers) {
+                    // Извикваме артилерията на синия отбор
+                    Artillery art = new Artillery(
+                            blueBaseX + baseWidth / 2,
+                            blueBaseY + baseHeight / 2,
+                            redBaseX + baseWidth / 2,
+                            redBaseY + baseHeight / 2,
+                            "blue", this
+                    );
                     this.artillery = art;
-                }
-
                     artilleryCalled = true;
+
+                    // Изчисляваме ъгъла към вражеската база
+                    double angleToEnemyBase = calculateAngleTo(blueBaseX, blueBaseY, redBaseX, redBaseY);
+                    double artX = artillery.getX();
+                    double artY = artillery.getY();
+
+                    // Подреждаме сините войници зад артилерията
+                    double spacing = 20.0; // разстояние между войниците
+                    for (int i = 0; i < blueSoldiers.length; i++) {
+                        if (blueSoldiers[i] != null && blueSoldiers[i].isActive()) {
+                            double offset = (i + 1) * spacing;
+                            double angleBehind = angleToEnemyBase + 180;
+                            double soldierX = artX + offset * Math.cos(Math.toRadians(angleBehind));
+                            double soldierY = artY + offset * Math.sin(Math.toRadians(angleBehind));
+
+                            blueSoldiers[i].setX(soldierX);
+                            blueSoldiers[i].setY(soldierY);
+                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase);
+                            blueSoldiers[i].setWaiting(true); // Сините вече чакат и не се движат
+                        }
+                    }
+
+                } else if (!blueHasSoldiers && redHasSoldiers) {
+                    // Извикваме артилерията на червения отбор
+                    Artillery art = new Artillery(
+                            redBaseX + baseWidth / 2,
+                            redBaseY + baseHeight / 2,
+                            blueBaseX + baseWidth / 2,
+                            blueBaseY + baseHeight / 2,
+                            "red", this
+                    );
+                    this.artillery = art;
+                    artilleryCalled = true;
+
+                    // Изчисляваме ъгъла към вражеската база (от гледна точка на червената база)
+                    double angleToEnemyBase = calculateAngleTo(redBaseX, redBaseY, blueBaseX, blueBaseY);
+                    double artX = artillery.getX();
+                    double artY = artillery.getY();
+
+                    // Подреждаме червените войници зад артилерията
+                    double spacing = 20.0;
+                    for (int i = 0; i < redSoldiers.length; i++) {
+                        if (redSoldiers[i] != null && redSoldiers[i].isActive()) {
+                            double offset = (i + 1) * spacing;
+                            double angleBehind = angleToEnemyBase + 180;
+                            double soldierX = artX + offset * Math.cos(Math.toRadians(angleBehind));
+                            double soldierY = artY + offset * Math.sin(Math.toRadians(angleBehind));
+
+                            redSoldiers[i].setX(soldierX);
+                            redSoldiers[i].setY(soldierY);
+                            redSoldiers[i].setCurrentAngle(angleToEnemyBase);
+                            redSoldiers[i].setWaiting(true);
+                        }
+                    }
                 }
+            }
+
+
+
 
             mainPanel.repaint();
         });
@@ -307,6 +369,21 @@ public class ScoutGame extends JFrame {
 
         setVisible(true);
     }
+
+    private double calculateAngleTo(double x1, double y1, double x2, double y2) {
+        return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
+    }
+
+
+    private boolean areSoldiersLeft(String team) {
+        for (Character c : getCharacters()) {
+            if (c instanceof Soldier && c.getTeam().equals(team) && c.isActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private boolean areEnemiesLeft(String team) {
         for (Character c : getCharacters()) {
