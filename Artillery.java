@@ -28,8 +28,8 @@ public class Artillery extends Character {
         this.currentAngle = angleToEnemyBase;
 
         this.range = 700.0;
-        this.damage = 20; // Увеличена щета
-        this.fireRate = 3000; // Интервал между изстрелите (3 секунди)
+        this.damage = 20; ////////////////////////////////////////////////////////////////////// Увеличена щета
+        this.fireRate = 3000; /////////////////////////////////////////////////////////////////// Интервал между изстрелите (3 секунди)
         this.lastShotTime = System.currentTimeMillis();
 
         this.healthPoints = 100;
@@ -114,9 +114,9 @@ public class Artillery extends Character {
     }
 
     private class ArtilleryProjectile {
-        private double x, y; // Позиция на снаряда
+        private double x, y;
         private final double targetX, targetY;
-        private final double speed = 15.0; ///////////////////////////////////////////////////////////////////////
+        private final double speed = 30.0; ///////////////////////////////////////////////////////////////////////
 
         public ArtilleryProjectile(double startX, double startY, double targetX, double targetY) {
             this.x = startX;
@@ -165,11 +165,9 @@ public class Artillery extends Character {
             // Изчислете ъгъла на движение
             double angle = Math.atan2(targetY - y, targetX - x);
 
-            // Изчислете края на линията (патрона)
             int endX = (int) (x + lineLength * Math.cos(angle));
             int endY = (int) (y + lineLength * Math.sin(angle));
 
-            // Рисуване на линия (патрон)
             g2d.drawLine((int) x, (int) y, endX, endY);
         }
 

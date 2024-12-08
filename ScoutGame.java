@@ -422,7 +422,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[101];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -455,12 +455,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 1000);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -608,7 +608,7 @@ public class ScoutGame extends JFrame {
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
-            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
             g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
         }
     }
@@ -846,8 +846,8 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
-        final int maxRowsPerColumn = 10;
+        final int soldierCost = 5000; /////////////////////////////////////////////////////////////////////////////////////
+        final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
         final int targetY = baseY - 200;
@@ -1088,7 +1088,7 @@ public class ScoutGame extends JFrame {
     }
 
     public double getBaseShieldRadius() {
-        return Math.max(baseWidth, baseHeight) * 1.5; // Примерно изчисление
+        return Math.max(baseWidth, baseHeight) * 1.5;
     }
 
 }
