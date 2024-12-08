@@ -254,5 +254,7 @@ public class Soldier extends Character {
     public void setWaiting(boolean waiting) {
         this.waiting = waiting;
     }
-
+    public boolean isWaiting() {
+        return waiting;
+    }
 }

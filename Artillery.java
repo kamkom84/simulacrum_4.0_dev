@@ -1,82 +1,92 @@
 package classesSeparated;
 
 import java.awt.*;
-import static java.awt.geom.Point2D.distance;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Artillery extends Character {
     private ScoutGame game;
     private int enemyBaseX, enemyBaseY;
-    private int baseX, baseY;
     private double range;
     private int damage;
     private long lastShotTime;
     private long fireRate;
-    protected int healthPoints;
+    private int healthPoints;
 
+    private Projectile currentProjectile; // Активен снаряд
+    private List<ExplosionEffect> explosions; // Ефекти на експлозии
 
     public Artillery(int baseX, int baseY, int enemyBaseX, int enemyBaseY, String team, ScoutGame game) {
         super(baseX, baseY, team, "artillery");
         this.game = game;
         this.enemyBaseX = enemyBaseX;
         this.enemyBaseY = enemyBaseY;
-        this.baseX = baseX;
-        this.baseY = baseY;
 
         double angleToEnemyBase = Math.toDegrees(Math.atan2(enemyBaseY - baseY, enemyBaseX - baseX));
-
-        double distanceFromBase = 500.0;//////////////////////////////////////////////////////////////
-        this.x = baseX + distanceFromBase * Math.cos(Math.toRadians(angleToEnemyBase));
-        this.y = baseY + distanceFromBase * Math.sin(Math.toRadians(angleToEnemyBase));
-
+        this.x = baseX;
+        this.y = baseY;
         this.currentAngle = angleToEnemyBase;
 
         this.range = 700.0;
-        this.damage = 5;
-        this.fireRate = 260000;
+        this.damage = 20; // Увеличена щета
+        this.fireRate = 3000; // Интервал между изстрелите (3 секунди)
         this.lastShotTime = System.currentTimeMillis();
+
+        this.healthPoints = 100;
+        this.explosions = new ArrayList<>();
     }
 
     public void drawArtillery(Graphics2D g2d) {
-        int bodyRadius = 8;
+        // Рисуване на артилерията
+        int bodyRadius = 10;
         g2d.setColor(Color.YELLOW);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        g2d.setColor(Color.RED);
-        int lineLength = 20;
+        // Рисуване на цевта
+        int lineLength = 40;
         int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
         int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
-        g2d.drawLine((int)x, (int)y, x2, y2);
+        g2d.setColor(Color.RED);
+        g2d.drawLine((int) x, (int) y, x2, y2);
 
-        g2d.setFont(new Font("Consolas", Font.BOLD, 10));
-        g2d.setColor(Color.WHITE);
-//        g2d.drawString("", (int)x - 10, (int)y - 10);
+        // Рисуване на снаряда
+        if (currentProjectile != null) {
+            currentProjectile.draw(g2d);
+        }
+
+        // Рисуване на експлозиите
+        for (ExplosionEffect explosion : explosions) {
+            explosion.draw(g2d);
+        }
     }
-
 
     public void updateArtillery() {
         if (!isActive()) return;
-        Character target = findTarget();
-        if (target != null && canShoot()) {
-            shootAtEnemyBase(target);
-        }
-    }
 
-
-    private Character findTarget() {
-        Character closestTarget = null;
-        double closestDistance = range;
-
-        for (Character c : game.getCharacters()) {
-            if (!c.getTeam().equals(this.team) && c.isActive()) {
-                double dist = distance(this.x, this.y, c.getX(), c.getY());
-                if (dist <= closestDistance) {
-                    closestTarget = c;
-                    closestDistance = dist;
-                }
+        // Обновяване на снаряда
+        if (currentProjectile != null) {
+            currentProjectile.update();
+            if (currentProjectile.hasReachedTarget()) {
+                createExplosion(currentProjectile.getTargetX(), currentProjectile.getTargetY());
+                currentProjectile = null;
             }
         }
 
-        return closestTarget;
+        // Обновяване на експлозиите
+        explosions.removeIf(ExplosionEffect::isExpired);
+
+        // Проверка дали можем да стреляме
+        if (canShoot()) {
+            fireProjectile();
+        }
+    }
+
+    private void fireProjectile() {
+        currentProjectile = new Projectile(x, y, enemyBaseX, enemyBaseY);
+    }
+
+    private void createExplosion(double targetX, double targetY) {
+        explosions.add(new ExplosionEffect(targetX, targetY, 30, Color.RED, 3000));
     }
 
     private boolean canShoot() {
@@ -88,19 +98,8 @@ public class Artillery extends Character {
         return false;
     }
 
-    private void shootAtEnemyBase(Character target) {
-        double angleToTarget = Math.toDegrees(Math.atan2(target.getY() - y, target.getX() - x));
-        game.drawShot((int)this.x, (int)this.y,
-                (int)target.getX(), (int)target.getY());
-
-        target.takeDamage(damage);
-
-        this.currentAngle = angleToTarget;
-    }
-
     @Override
     public void takeDamage(int dmg) {
-
         this.healthPoints -= dmg;
         if (this.healthPoints <= 0) {
             this.healthPoints = 0;
@@ -110,14 +109,83 @@ public class Artillery extends Character {
 
     @Override
     public String getType() {
-        return "";
+        return "artillery";
     }
 
-    public double getRange() {
-        return range;
+    // Вътрешен клас за снаряд
+    private class Projectile {
+        private double x, y;
+        private final double targetX, targetY;
+        private final double speed = 8.0;
+
+        public Projectile(double startX, double startY, double targetX, double targetY) {
+            this.x = startX;
+            this.y = startY;
+            this.targetX = targetX;
+            this.targetY = targetY;
+        }
+
+        public void update() {
+            double dx = targetX - x;
+            double dy = targetY - y;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance <= speed) {
+                x = targetX;
+                y = targetY;
+            } else {
+                x += (dx / distance) * speed;
+                y += (dy / distance) * speed;
+            }
+        }
+
+        public boolean hasReachedTarget() {
+            return x == targetX && y == targetY;
+        }
+
+        public void draw(Graphics2D g2d) {
+            g2d.setColor(Color.YELLOW);
+            g2d.fillOval((int) x - 5, (int) y - 5, 10, 10);
+        }
+
+        public double getTargetX() {
+            return targetX;
+        }
+
+        public double getTargetY() {
+            return targetY;
+        }
     }
 
-    public int getDamage() {
-        return damage;
+    // Вътрешен клас за експлозия
+    private class ExplosionEffect {
+        private final double x, y;
+        private final int radius;
+        private Color color;
+        private final long expirationTime;
+        private final long duration;
+
+        public ExplosionEffect(double x, double y, int radius, Color color, long duration) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.color = color;
+            this.duration = duration;
+            this.expirationTime = System.currentTimeMillis() + duration;
+        }
+
+        public boolean isExpired() {
+            return System.currentTimeMillis() > expirationTime;
+        }
+
+        public void draw(Graphics2D g2d) {
+            long timeLeft = expirationTime - System.currentTimeMillis();
+            if (timeLeft > 0) {
+                int alpha = (int) (255 * timeLeft / duration);
+                Color fadingColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+                g2d.setColor(fadingColor);
+                g2d.fillOval((int) x - radius, (int) y - radius, radius * 2, radius * 2);
+            }
+        }
     }
 }

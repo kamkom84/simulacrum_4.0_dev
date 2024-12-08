@@ -308,19 +308,18 @@ public class ScoutGame extends JFrame {
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    // Подреждаме сините войници зад артилерията
-                    double spacing = 20.0; // разстояние между войниците
+                    // Подреждаме сините войници зад артилерията в колона
+                    double spacing = 20.0; // Разстояние между войниците
                     for (int i = 0; i < blueSoldiers.length; i++) {
                         if (blueSoldiers[i] != null && blueSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing;
-                            double angleBehind = angleToEnemyBase + 180;
-                            double soldierX = artX + offset * Math.cos(Math.toRadians(angleBehind));
-                            double soldierY = artY + offset * Math.sin(Math.toRadians(angleBehind));
+                            double offset = (i + 1) * spacing; // Разстояние за всеки войник
+                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase)); // Изместване по X зад артилерията
+                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase)); // Изместване по Y зад артилерията
 
                             blueSoldiers[i].setX(soldierX);
                             blueSoldiers[i].setY(soldierY);
-                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase);
-                            blueSoldiers[i].setWaiting(true); // Сините вече чакат и не се движат
+                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase); // Да гледат към противниковата база
+                            blueSoldiers[i].setWaiting(true); // Слагаме ги в режим на чакане
                         }
                     }
 
@@ -341,19 +340,18 @@ public class ScoutGame extends JFrame {
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    // Подреждаме червените войници зад артилерията
+                    // Подреждаме червените войници зад артилерията в колона
                     double spacing = 20.0;
                     for (int i = 0; i < redSoldiers.length; i++) {
                         if (redSoldiers[i] != null && redSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing;
-                            double angleBehind = angleToEnemyBase + 180;
-                            double soldierX = artX + offset * Math.cos(Math.toRadians(angleBehind));
-                            double soldierY = artY + offset * Math.sin(Math.toRadians(angleBehind));
+                            double offset = (i + 1) * spacing; // Разстояние за всеки войник
+                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase)); // Изместване по X зад артилерията
+                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase)); // Изместване по Y зад артилерията
 
                             redSoldiers[i].setX(soldierX);
                             redSoldiers[i].setY(soldierY);
-                            redSoldiers[i].setCurrentAngle(angleToEnemyBase);
-                            redSoldiers[i].setWaiting(true);
+                            redSoldiers[i].setCurrentAngle(angleToEnemyBase); // Да гледат към противниковата база
+                            redSoldiers[i].setWaiting(true); // Слагаме ги в режим на чакане
                         }
                     }
                 }
@@ -384,20 +382,14 @@ public class ScoutGame extends JFrame {
         return false;
     }
 
-
-    private boolean areEnemiesLeft(String team) {
-        for (Character c : getCharacters()) {
-            if (c.isActive() && c.getTeam().equals(team) && !(c instanceof Worker)) {
-                // Проверяваме дали има активен противник (войник, защитник, скаут)
-                // Може да уточните какво считате за "противник" - тук игнорираме Worker, защото е работник.
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
+        // Първо проверяваме дали войникът е в режим на изчакване
+        if (soldier.isWaiting()) {
+            // Ако чака, не правим нищо - не извикваме soldier.update(), не търсим цели, не му казваме да се движи
+            return;
+        }
+
+        // Ако не чака, продължаваме със стандартната логика:
         soldier.update();
 
         boolean targetFound = false;
@@ -432,6 +424,8 @@ public class ScoutGame extends JFrame {
             soldier.moveTowardsEnemyBase();
         }
     }
+
+
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
