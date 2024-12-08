@@ -37,7 +37,8 @@ public class ScoutGame extends JFrame {
     private List<ExplosionEffect> explosionEffects = new ArrayList<>();
     private Soldier[] blueSoldiers;
     private Soldier[] redSoldiers;
-
+    private boolean artilleryCalled = false;
+    private Artillery artillery;
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -176,6 +177,14 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
+
+
+                if (artillery != null && artillery.isActive()) {
+                    artillery.drawArtillery(g2d);
+                }
+
+
+
                 if (bulletStartX != -1 && bulletStartY != -1) {
                     g2d.setColor(Color.RED);
                     g2d.drawLine(bulletStartX, bulletStartY, bulletEndX, bulletEndY);
@@ -274,6 +283,23 @@ public class ScoutGame extends JFrame {
 
             removeDeadSoldiers();
 
+            if (artillery != null && artillery.isActive()) {
+                artillery.updateArtillery();
+            }
+
+            if (!artilleryCalled && !areEnemiesLeft("red") && !areEnemiesLeft("blue")) {
+
+                if (!areEnemiesLeft("red")) {
+                    Artillery art = new Artillery(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2,
+                            redBaseX + baseWidth / 2, redBaseY + baseHeight / 2,
+                            "blue", this);
+
+                    this.artillery = art;
+                }
+
+                    artilleryCalled = true;
+                }
+
             mainPanel.repaint();
         });
 
@@ -281,6 +307,18 @@ public class ScoutGame extends JFrame {
 
         setVisible(true);
     }
+
+    private boolean areEnemiesLeft(String team) {
+        for (Character c : getCharacters()) {
+            if (c.isActive() && c.getTeam().equals(team) && !(c instanceof Worker)) {
+                // Проверяваме дали има активен противник (войник, защитник, скаут)
+                // Може да уточните какво считате за "противник" - тук игнорираме Worker, защото е работник.
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
         soldier.update();
@@ -327,7 +365,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -360,12 +398,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 2000);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 1;////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -751,7 +789,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 2000; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;

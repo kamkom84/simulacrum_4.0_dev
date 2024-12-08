@@ -17,16 +17,21 @@ public class Soldier extends Character {
     private int healthPoints;
     private int enemyBaseX;
     private int enemyBaseY;
+    private int baseX;
+    private int baseY;
+
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 20;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
         this.id = id;
         this.enemyBaseX = enemyBaseX;
         this.enemyBaseY = enemyBaseY;
+        this.baseX = baseX;
+        this.baseY = baseY;
     }
 
     public void draw(Graphics2D g2d) {
@@ -106,7 +111,7 @@ public class Soldier extends Character {
 
     public void moveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.0; // Скорост на движение
+        double speed = 1.0;
         boolean tooClose = false;
 
         for (Character character : game.getCharacters()) {
@@ -127,7 +132,58 @@ public class Soldier extends Character {
         }
 
         this.currentAngle = angleToBase;
+
+        boolean enemiesLeft = false;
+        for (Character c : game.getCharacters()) {
+            if (!c.getTeam().equals(this.getTeam()) && c.isActive()) {
+                enemiesLeft = true;
+                break;
+            }
+        }
+
+        if (!enemiesLeft) {
+            double angleToEnemyBase = calculateAngleTo(baseX, baseY, enemyBaseX, enemyBaseY);
+            double targetX = baseX + 200 * Math.cos(Math.toRadians(angleToEnemyBase));
+            double targetY = baseY + 200 * Math.sin(Math.toRadians(angleToEnemyBase));
+
+            double distanceToTarget = distance(this.x, this.y, targetX, targetY);
+
+            if (distanceToTarget > 5) {
+                double angleToTarget = calculateAngleTo(this.x, this.y, targetX, targetY);
+                this.x += speed * Math.cos(Math.toRadians(angleToTarget));
+                this.y += speed * Math.sin(Math.toRadians(angleToTarget));
+                this.currentAngle = angleToTarget;
+            } else {
+                this.currentAngle = angleToEnemyBase;
+            }
+        }
     }
+
+//    public void moveTowardsEnemyBase() {
+//        double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
+//        double speed = 1.0; // Скорост на движение
+//        boolean tooClose = false;
+//
+//        for (Character character : game.getCharacters()) {
+//            if (character != this && character instanceof Soldier && character.isActive() &&
+//                    distance(this.x, this.y, character.getX(), character.getY()) < 60) {
+//                tooClose = true;
+//
+//                double angleAway = calculateAngleTo(character.getX(), character.getY(), this.x, this.y);
+//                this.x += speed * Math.cos(Math.toRadians(angleAway));
+//                this.y += speed * Math.sin(Math.toRadians(angleAway));
+//                break;
+//            }
+//        }
+//
+//        if (!tooClose) {
+//            this.x += speed * Math.cos(Math.toRadians(angleToBase));
+//            this.y += speed * Math.sin(Math.toRadians(angleToBase));
+//        }
+//
+//        this.currentAngle = angleToBase;
+//    }
+
 
     public Character findTarget() {
         Character closestTarget = null;
