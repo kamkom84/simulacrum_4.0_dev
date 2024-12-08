@@ -34,6 +34,10 @@ public class Artillery extends Character {
 
         this.healthPoints = 100;
         this.explosions = new ArrayList<>();
+
+        double distanceFromBase = 500.0; // Разстояние на артилерията от базата
+        this.x = baseX + distanceFromBase * Math.cos(Math.toRadians(angleToEnemyBase));
+        this.y = baseY + distanceFromBase * Math.sin(Math.toRadians(angleToEnemyBase));
     }
 
     public void drawArtillery(Graphics2D g2d) {
@@ -51,7 +55,7 @@ public class Artillery extends Character {
 
         // Рисуване на снаряда
         if (currentProjectile != null) {
-            currentProjectile.draw(g2d);
+            currentProjectile.drawArtilleryProjectile(g2d);
         }
 
         // Рисуване на експлозиите
@@ -82,8 +86,12 @@ public class Artillery extends Character {
     }
 
     private void fireProjectile() {
-        currentProjectile = new Projectile(x, y, enemyBaseX, enemyBaseY);
+        // Създава нов снаряд само ако няма текущ активен снаряд
+        if (currentProjectile == null) {
+            currentProjectile = new Projectile(x, y, enemyBaseX, enemyBaseY);
+        }
     }
+
 
     private void createExplosion(double targetX, double targetY) {
         explosions.add(new ExplosionEffect(targetX, targetY, 30, Color.RED, 3000));
@@ -114,9 +122,9 @@ public class Artillery extends Character {
 
     // Вътрешен клас за снаряд
     private class Projectile {
-        private double x, y;
+        private double x, y; // Позиция на снаряда
         private final double targetX, targetY;
-        private final double speed = 8.0;
+        private final double speed = 5.0; // Скорост на снаряда
 
         public Projectile(double startX, double startY, double targetX, double targetY) {
             this.x = startX;
@@ -126,26 +134,31 @@ public class Artillery extends Character {
         }
 
         public void update() {
+            // Изчисляваме разстоянието до целта
             double dx = targetX - x;
             double dy = targetY - y;
             double distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance <= speed) {
+                // Ако сме близо до целта, спираме на целта
                 x = targetX;
                 y = targetY;
             } else {
+                // Придвижваме снаряда към целта
                 x += (dx / distance) * speed;
                 y += (dy / distance) * speed;
             }
         }
 
         public boolean hasReachedTarget() {
+            // Проверка дали снарядът е стигнал целта
             return x == targetX && y == targetY;
         }
 
-        public void draw(Graphics2D g2d) {
-            g2d.setColor(Color.YELLOW);
-            g2d.fillOval((int) x - 5, (int) y - 5, 10, 10);
+        public void drawArtilleryProjectile(Graphics2D g2d) {
+            // Червена линия вместо топче
+            g2d.setColor(Color.RED);
+            g2d.drawLine((int) x, (int) y, (int) targetX, (int) targetY);
         }
 
         public double getTargetX() {
@@ -156,6 +169,7 @@ public class Artillery extends Character {
             return targetY;
         }
     }
+
 
     // Вътрешен клас за експлозия
     private class ExplosionEffect {

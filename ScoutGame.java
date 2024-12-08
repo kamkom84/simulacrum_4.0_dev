@@ -383,9 +383,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
-        // Първо проверяваме дали войникът е в режим на изчакване
         if (soldier.isWaiting()) {
-            // Ако чака, не правим нищо - не извикваме soldier.update(), не търсим цели, не му казваме да се движи
             return;
         }
 
