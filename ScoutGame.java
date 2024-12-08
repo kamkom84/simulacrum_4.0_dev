@@ -857,7 +857,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 5; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
