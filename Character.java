@@ -90,4 +90,5 @@ public abstract class Character {
         this.x = x;
         this.y = y;
     }
+
 }

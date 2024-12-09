@@ -325,10 +325,9 @@ public class Scout extends Character {
             }
         }
 
-        // Рисуване на ID
-//        g2d.setColor(Color.BLACK);
-//        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-//        g2d.drawString("" + id, (int) x - 4, (int) y - bodyRadius - 2);
+        //g2d.setColor(Color.BLACK);
+        //g2d.setFont(new Font("Consolas", Font.BOLD, 8));
+        //g2d.drawString("" + id, (int) x - 4, (int) y - bodyRadius - 2);
 
         double arrowLength = bodyRadius * 2;
         int arrowX = (int) (x + arrowLength * Math.cos(Math.toRadians(currentAngle)));
@@ -346,7 +345,7 @@ public class Scout extends Character {
         lastReducedPoints = amount;
         pointReductionDisplayStartTime = System.currentTimeMillis();
 
-        System.out.println("Scout's points decreased to: " + points);
+        //System.out.println("Scout's points decreased to: " + points);
         reverseDirection();
         updatePosition();
     }
@@ -373,7 +372,7 @@ public class Scout extends Character {
             reverseDirection();
         }
 
-        System.out.println("Scout's position updated: (" + x + ", " + y + ")");
+        //System.out.println("Scout's position updated: (" + x + ", " + y + ")");
     }
 
     private void moveRandomly() {
@@ -393,7 +392,8 @@ public class Scout extends Character {
         if (health < 0) {
             health = 0;
         }
-        System.out.println("Scout health: " + health);
+
+        //System.out.println("Scout health: " + health);
     }
 
     public int getHealth() {

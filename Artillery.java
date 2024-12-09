@@ -13,8 +13,8 @@ public class Artillery extends Character {
     private long fireRate;
     private int healthPoints;
 
-    private ArtilleryProjectile currentProjectile; // Активен снаряд
-    private List<ExplosionEffect> explosions; // Ефекти на експлозии
+    private ArtilleryProjectile currentProjectile;
+    private List<ExplosionEffect> explosions;
 
     public Artillery(int baseX, int baseY, int enemyBaseX, int enemyBaseY, String team, ScoutGame game) {
         super(baseX, baseY, team, "artillery");
@@ -28,8 +28,8 @@ public class Artillery extends Character {
         this.currentAngle = angleToEnemyBase;
 
         this.range = 700.0;
-        this.damage = 20; ////////////////////////////////////////////////////////////////////// Увеличена щета
-        this.fireRate = 3000; /////////////////////////////////////////////////////////////////// Интервал между изстрелите (3 секунди)
+        this.damage = 20; //////////////////////////////////////////////////////////////////////
+        this.fireRate = 3000; //////////////////////////////////////////////////////////////////
         this.lastShotTime = System.currentTimeMillis();
 
         this.healthPoints = 100;
@@ -80,7 +80,7 @@ public class Artillery extends Character {
 
     private void fireProjectile() {
         if (currentProjectile == null) {
-            double shieldRadius = game.getBaseShieldRadius(); // Радиусът на щита
+            double shieldRadius = game.getBaseShieldRadius();
             Point shieldEdge = calculateShieldEdge(enemyBaseX, enemyBaseY, this.x, this.y, shieldRadius);
             currentProjectile = new ArtilleryProjectile(this.x, this.y, shieldEdge.getX(), shieldEdge.getY());
         }
@@ -122,17 +122,14 @@ public class Artillery extends Character {
             this.x = startX;
             this.y = startY;
 
-            // Изчисляваме вектора към целевата точка
             double dx = targetX - startX;
             double dy = targetY - startY;
             double distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Ако разстоянието е валидно, задаваме целевите координати
             if (distance > 0) {
                 this.targetX = targetX;
                 this.targetY = targetY;
             } else {
-                // Ако разстоянието е нула (рядко се случва), задаваме целта на стартовите координати
                 this.targetX = startX;
                 this.targetY = startY;
             }
@@ -159,10 +156,8 @@ public class Artillery extends Character {
         public void drawArtilleryProjectile(Graphics2D g2d) {
             g2d.setColor(Color.RED);
 
-            // Определете дължината на "патрона" (линията)
-            int lineLength = 10; // Можете да промените тази стойност
+            int lineLength = 10;
 
-            // Изчислете ъгъла на движение
             double angle = Math.atan2(targetY - y, targetX - x);
 
             int endX = (int) (x + lineLength * Math.cos(angle));
@@ -171,7 +166,6 @@ public class Artillery extends Character {
             g2d.drawLine((int) x, (int) y, endX, endY);
         }
 
-
         public double getTargetX() {
             return targetX;
         }
@@ -179,6 +173,7 @@ public class Artillery extends Character {
         public double getTargetY() {
             return targetY;
         }
+
     }
 
     private class ExplosionEffect {

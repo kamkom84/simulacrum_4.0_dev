@@ -22,9 +22,9 @@ public class Worker extends Character {
     private int baseHeight;
     private ScoutGame scoutGame;
     private Resource[] resources;
-    private int workerId;
+    //private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 2000;
+    private int health = 500;
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;
@@ -116,7 +116,7 @@ public class Worker extends Character {
         if (closestResourceIndex != -1) {
             targetResourceIndex = closestResourceIndex;
             resourceOccupied[targetResourceIndex] = true;
-            System.out.println("Worker " + id + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
+            //System.out.println("Worker " + id + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
         }
 
         return nearest;
@@ -300,15 +300,11 @@ public class Worker extends Character {
 
         this.x = -1000;
         this.y = -1000;
-        System.out.println("Worker " + id + " of team " + team + " is now inactive.");
+        //System.out.println("Worker " + id + " of team " + team + " is now inactive.");
     }
 
     public String getTeam() {
         return this.team;
-    }
-
-    public boolean isWorkingOn(Resource resource) {
-        return this.targetResource != null && this.targetResource.equals(resource);
     }
 
     public void setAngle(double angle) {
@@ -345,8 +341,7 @@ public class Worker extends Character {
     public void moveToBase(int baseX, int baseY) {
         this.x = baseX;
         this.y = baseY;
-
-        System.out.println("Worker " + this.getId() + " moved to base (" + baseX + ", " + baseY + ").");
+        //System.out.println("Worker " + this.getId() + " moved to base (" + baseX + ", " + baseY + ").");
     }
 
     public boolean isAtStartPosition(int baseX, int baseY) {

@@ -77,7 +77,7 @@ public class Defender extends Character {
             projectile.updatePosition();
 
             if (projectile.hasHit(scout)) {
-                System.out.println("Hit! Scout loses 1 point.");
+                //System.out.println("Hit! Scout loses 1 point.");
                 scout.decreaseHealth(1);
                 //game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
                 scout.moveBackFrom((int) this.x, (int) this.y);
@@ -96,13 +96,11 @@ public class Defender extends Character {
             projectile.updatePosition();
 
             if (projectile.hasHit(soldier)) {
-                System.out.println("Hit! Soldier " + soldier.getId() + " loses 1 point.");
-                soldier.decreaseHealth(1); // Намаляване на точките на войника
-
+                soldier.decreaseHealth(1);
                 if (soldier.isActive()) {
-                    System.out.println("Soldier " + soldier.getId() + " is still alive.");
+                    //System.out.println("Soldier " + soldier.getId() + " is still alive.");
                 } else {
-                    System.out.println("Soldier " + soldier.getId() + " is dead and removed.");
+                    //System.out.println("Soldier " + soldier.getId() + " is dead and removed.");
                 }
 
                 iterator.remove();
@@ -176,7 +174,6 @@ public class Defender extends Character {
         );
         projectiles.add(projectile);
 
-        System.out.println("Defender shot at Soldier " + soldier.getId());
     }
 
     private void rotateTowards(double targetAngle) {

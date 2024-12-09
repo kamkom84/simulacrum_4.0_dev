@@ -353,6 +353,7 @@ public class ScoutGame extends JFrame {
             }
 
             mainPanel.repaint();
+
         });
 
         timer.start();
@@ -378,7 +379,7 @@ public class ScoutGame extends JFrame {
             return;
         }
 
-        soldier.update();
+        soldier.updateSoldier();
 
         boolean targetFound = false;
 
@@ -409,7 +410,7 @@ public class ScoutGame extends JFrame {
         }
 
         if (!targetFound) {
-            soldier.moveTowardsEnemyBase();
+            soldier.soldierMoveTowardsEnemyBase();
         }
     }
 
@@ -422,7 +423,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[101];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -455,12 +456,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 1000);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 100);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -846,7 +847,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 5000; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 50; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;

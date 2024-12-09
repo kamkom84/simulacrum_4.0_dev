@@ -23,7 +23,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 5000;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -75,8 +75,6 @@ public class Soldier extends Character {
             target.takeDamage(damage);
             showHealthTemporarily();
             damageDealt += damage;
-
-            System.out.println(team + " Soldier hit " + target.getType() + " for " + damage + " damage.");
         }
     }
 
@@ -91,7 +89,6 @@ public class Soldier extends Character {
         if (this.healthPoints <= 0) {
             this.healthPoints = 0;
             this.setActive(false);
-            System.out.println("Soldier " + id + " from team " + team + " has been killed.");
         } else {
             showHealthTemporarily();
             moveBack();
@@ -109,7 +106,7 @@ public class Soldier extends Character {
         }, 500);
     }
 
-    public void moveTowardsEnemyBase() {
+    public void soldierMoveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
         double speed = 1.0;
         boolean tooClose = false;
@@ -177,7 +174,7 @@ public class Soldier extends Character {
         return closestTarget;
     }
 
-    public void update() {
+    public void updateSoldier() {
 
         if (waiting) {
             return;
@@ -200,7 +197,7 @@ public class Soldier extends Character {
             }
 
             if (!tooClose) {
-                moveTowardsEnemyBase();
+                soldierMoveTowardsEnemyBase();
             }
         }
     }
@@ -220,10 +217,10 @@ public class Soldier extends Character {
         this.healthPoints -= amount;
         if (this.healthPoints <= 0) {
             this.healthPoints = 0;
-            System.out.println("Soldier " + id + " from team " + team + " has been killed.");
-            this.setActive(false); // Deactivate the soldier
+            //System.out.println("Soldier " + id + " from team " + team + " has been killed.");
+            this.setActive(false);
         } else {
-            System.out.println("Soldier " + id + " from team " + team + " has " + this.healthPoints + " health left.");
+            //System.out.println("Soldier " + id + " from team " + team + " has " + this.healthPoints + " health left.");
             showHealthTemporarily();
             moveBack();
         }
@@ -232,11 +229,8 @@ public class Soldier extends Character {
     private void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
         final int MOVE_BACK_DISTANCE = 50;/////////////////////////////////////////////////////////////
-
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
-
-        System.out.println("Soldier " + id + " from team " + team + " moved back after being hit.");
     }
 
     public int getId() {
@@ -254,7 +248,9 @@ public class Soldier extends Character {
     public void setWaiting(boolean waiting) {
         this.waiting = waiting;
     }
+
     public boolean isWaiting() {
         return waiting;
     }
+
 }
