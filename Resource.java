@@ -27,7 +27,7 @@ public class Resource {
     }
 
     public void reducePoints(int amount) {
-        value = Math.max(0, value - amount)
+        value = Math.max(0, value - amount);
     }
 
     public int getRadius() {
