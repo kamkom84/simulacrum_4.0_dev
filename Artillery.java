@@ -35,7 +35,7 @@ public class Artillery extends Character {
         this.healthPoints = 100;
         this.explosions = new ArrayList<>();
 
-        double distanceFromBase = 500.0; // Разстояние на артилерията от базата
+        double distanceFromBase = 500.0;
         this.x = baseX + distanceFromBase * Math.cos(Math.toRadians(angleToEnemyBase));
         this.y = baseY + distanceFromBase * Math.sin(Math.toRadians(angleToEnemyBase));
     }
@@ -45,7 +45,7 @@ public class Artillery extends Character {
         g2d.setColor(Color.YELLOW);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        int lineLength = 20;
+        int lineLength = 40;
         int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
         int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.setColor(Color.RED);
@@ -87,7 +87,7 @@ public class Artillery extends Character {
     }
 
     private void createExplosion(double targetX, double targetY) {
-        explosions.add(new ExplosionEffect(targetX, targetY, 15, Color.RED, 1000));
+        explosions.add(new ExplosionEffect(targetX, targetY, 15, Color.RED, 1500));
     }
 
     private boolean canShoot() {
@@ -156,7 +156,7 @@ public class Artillery extends Character {
         public void drawArtilleryProjectile(Graphics2D g2d) {
             g2d.setColor(Color.RED);
 
-            int lineLength = 10;
+            int lineLength = 1;///////////////////////////////////////////////////////////////////////////////////////
 
             double angle = Math.atan2(targetY - y, targetX - x);
 
@@ -205,6 +205,7 @@ public class Artillery extends Character {
                 g2d.fillOval((int) x - radius, (int) y - radius, radius * 2, radius * 2);
             }
         }
+
     }
 
     private Point calculateShieldEdge(double baseX, double baseY, double startX, double startY, double radius) {
