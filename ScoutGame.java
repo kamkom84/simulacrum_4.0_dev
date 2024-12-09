@@ -752,7 +752,7 @@ public class ScoutGame extends JFrame {
         }
 
         if (!anyActiveWorkers) {
-            System.out.println("No active workers remaining.");
+            //System.out.println("No active workers remaining.");
         }
 
         if (resourcesDepleted && allBlueWorkersAtStart && allRedWorkersAtStart) {
@@ -764,14 +764,14 @@ public class ScoutGame extends JFrame {
                 startSoldierCreation("blue", blueBaseX, blueBaseY);
                 soldiersCreated = true;
             } else {
-                System.out.println("Not enough points to create soldiers for team blue.");
+                //System.out.println("Not enough points to create soldiers for team blue.");
             }
 
             if (redBaseHealth >= 5) {
                 startSoldierCreation("red", redBaseX, redBaseY);
                 soldiersCreated = true;
             } else {
-                System.out.println("Not enough points to create soldiers for team red.");
+                //System.out.println("Not enough points to create soldiers for team red.");
             }
 
             if (soldiersCreated) {
