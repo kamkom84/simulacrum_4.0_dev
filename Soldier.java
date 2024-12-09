@@ -7,7 +7,7 @@ import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
     private final int weaponLength = 15;
-    private final int maxBulletDistance = 50;
+    private final int maxBulletDistance = 100;
     private boolean showHealth = false;
     private int damageDealt = 0;
     private Color teamColor;
@@ -23,7 +23,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -158,7 +158,7 @@ public class Soldier extends Character {
 
     public Character findTarget() {
         Character closestTarget = null;
-        double closestDistance = 100; //////////////////////////////////////////////////////////////////////////////////
+        double closestDistance = 250; //////////////////////////////////////////////////////////////////////////////////
 
         for (Character character : game.getCharacters()) {
             if (character.getTeam().equals(this.team)) continue;

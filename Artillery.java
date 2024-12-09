@@ -45,7 +45,7 @@ public class Artillery extends Character {
         g2d.setColor(Color.YELLOW);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        int lineLength = 40;
+        int lineLength = 30;
         int x2 = (int) (x + lineLength * Math.cos(Math.toRadians(currentAngle)));
         int y2 = (int) (y + lineLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.setColor(Color.RED);
@@ -156,7 +156,7 @@ public class Artillery extends Character {
         public void drawArtilleryProjectile(Graphics2D g2d) {
             g2d.setColor(Color.RED);
 
-            int lineLength = 1;///////////////////////////////////////////////////////////////////////////////////////
+            int lineLength = 10;///////////////////////////////////////////////////////////////////////////////////////
 
             double angle = Math.atan2(targetY - y, targetX - x);
 
