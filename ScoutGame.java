@@ -131,6 +131,7 @@ public class ScoutGame extends JFrame {
                 if (blueScout != null) {
                     blueScout.draw(g2d);
                 }
+
                 if (redScout != null) {
                     redScout.draw(g2d);
                 }
@@ -424,7 +425,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[40];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -444,6 +445,7 @@ public class ScoutGame extends JFrame {
         for (Worker worker : blueWorkers) {
             workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
+
         for (Worker worker : redWorkers) {
             workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
@@ -457,12 +459,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 2000);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 20;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -606,11 +608,11 @@ public class ScoutGame extends JFrame {
         g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(169, 169, 169) : new Color(180, 130, 0));
+            g2d.setColor(resource.getValue() <= 0 ? new Color(169, 169, 169) : new Color(180, 130, 10));
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
-            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
             g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
         }
     }
@@ -848,7 +850,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1000; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 10; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
