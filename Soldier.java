@@ -23,7 +23,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 150;////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -55,7 +55,7 @@ public class Soldier extends Character {
         if (showHealth) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("Consolas", Font.BOLD, 10));
-            g2d.drawString("" + healthPoints, (int) x - 10, (int) y - bodyRadius - 20);
+            g2d.drawString("" + healthPoints, (int) x - 6, (int) y - bodyRadius - 10);
         }
     }
 

@@ -289,7 +289,6 @@ public class ScoutGame extends JFrame {
 
             if (!artilleryCalled) {
                 if (!redHasSoldiers && blueHasSoldiers) {
-                    // Извикваме артилерията на синия отбор
                     Artillery art = new Artillery(
                             blueBaseX + baseWidth / 2,
                             blueBaseY + baseHeight / 2,
@@ -300,28 +299,25 @@ public class ScoutGame extends JFrame {
                     this.artillery = art;
                     artilleryCalled = true;
 
-                    // Изчисляваме ъгъла към вражеската база
                     double angleToEnemyBase = calculateAngleTo(blueBaseX, blueBaseY, redBaseX, redBaseY);
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    // Подреждаме сините войници зад артилерията в колона
-                    double spacing = 20.0; // Разстояние между войниците
+                    double spacing = 20.0;
                     for (int i = 0; i < blueSoldiers.length; i++) {
                         if (blueSoldiers[i] != null && blueSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing; // Разстояние за всеки войник
-                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase)); // Изместване по X зад артилерията
-                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase)); // Изместване по Y зад артилерията
+                            double offset = (i + 1) * spacing;
+                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase));
+                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase));
 
                             blueSoldiers[i].setX(soldierX);
                             blueSoldiers[i].setY(soldierY);
-                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase); // Да гледат към противниковата база
-                            blueSoldiers[i].setWaiting(true); // Слагаме ги в режим на чакане
+                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase);
+                            blueSoldiers[i].setWaiting(true);
                         }
                     }
 
                 } else if (!blueHasSoldiers && redHasSoldiers) {
-                    // Извикваме артилерията на червения отбор
                     Artillery art = new Artillery(
                             redBaseX + baseWidth / 2,
                             redBaseY + baseHeight / 2,
@@ -332,23 +328,21 @@ public class ScoutGame extends JFrame {
                     this.artillery = art;
                     artilleryCalled = true;
 
-                    // Изчисляваме ъгъла към вражеската база (от гледна точка на червената база)
                     double angleToEnemyBase = calculateAngleTo(redBaseX, redBaseY, blueBaseX, blueBaseY);
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    // Подреждаме червените войници зад артилерията в колона
                     double spacing = 20.0;
                     for (int i = 0; i < redSoldiers.length; i++) {
                         if (redSoldiers[i] != null && redSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing; // Разстояние за всеки войник
-                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase)); // Изместване по X зад артилерията
-                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase)); // Изместване по Y зад артилерията
+                            double offset = (i + 1) * spacing;
+                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase));
+                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase));
 
                             redSoldiers[i].setX(soldierX);
                             redSoldiers[i].setY(soldierY);
-                            redSoldiers[i].setCurrentAngle(angleToEnemyBase); // Да гледат към противниковата база
-                            redSoldiers[i].setWaiting(true); // Слагаме ги в режим на чакане
+                            redSoldiers[i].setCurrentAngle(angleToEnemyBase);
+                            redSoldiers[i].setWaiting(true);
                         }
                     }
                 }
@@ -425,7 +419,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -459,12 +453,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 1;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -554,7 +548,6 @@ public class ScoutGame extends JFrame {
 
     private void moveDefenders() {
         updateDefenders(blueDefenders, redScout, redSoldiers, blueBaseX, blueBaseY);
-
         updateDefenders(redDefenders, blueScout, blueSoldiers, redBaseX, redBaseY);
     }
 
@@ -846,11 +839,10 @@ public class ScoutGame extends JFrame {
             redBaseHealth -= pointsUsed;
         }
 
-        System.out.println("Created " + maxSoldiers + " soldiers for team " + team);
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 10; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -859,7 +851,6 @@ public class ScoutGame extends JFrame {
         int maxSoldiers = baseHealth / soldierCost;
 
         if (maxSoldiers <= 0) {
-            System.out.println("Not enough points to create soldiers for " + team + " team.");
             return;
         }
 
@@ -908,10 +899,10 @@ public class ScoutGame extends JFrame {
     public boolean allWorkersAtBase(Worker[] workers, int baseX, int baseY) {
         for (Worker worker : workers) {
             if (worker != null) {
-                System.out.println("Worker " + worker.getId() + " position: (" + worker.getX() + ", " + worker.getY() + ")");
-                System.out.println("Checking if worker is at base (" + baseX + ", " + baseY + ")");
+                //System.out.println("Worker " + worker.getId() + " position: (" + worker.getX() + ", " + worker.getY() + ")");
+                //System.out.println("Checking if worker is at base (" + baseX + ", " + baseY + ")");
                 if (!worker.isAtBase(baseX, baseY)) {
-                    System.out.println("Worker " + worker.getId() + " is NOT at base.");
+                    //System.out.println("Worker " + worker.getId() + " is NOT at base.");
                     return false;
                 }
             }
