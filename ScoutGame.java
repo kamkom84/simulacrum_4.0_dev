@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -752,7 +752,7 @@ public class ScoutGame extends JFrame {
         }
 
         if (resourcesDepleted && allBlueWorkersAtStart && allRedWorkersAtStart) {
-            System.out.println("Resources depleted and workers returned. Creating soldiers...");
+            //System.out.println("Resources depleted and workers returned. Creating soldiers...");
 
             boolean soldiersCreated = false;
 
