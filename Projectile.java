@@ -23,7 +23,7 @@ public class Projectile {
         this.color = Color.RED;
     }
 
-    public void updatePosition() {
+    public void updateProjectilePosition() {
         if (!active) return;
 
         double angle = Math.atan2(targetY - y, targetX - x);
@@ -42,7 +42,7 @@ public class Projectile {
         }
     }
 
-    public void draw(Graphics g) {
+    public void drawProjectile(Graphics g) {
         if (!active) return;
 
         Graphics2D g2d = (Graphics2D) g;
@@ -58,7 +58,7 @@ public class Projectile {
         g2d.drawLine((int) x, (int) y, endX, endY);
     }
 
-    public boolean hasHit(Character target) {
+    public boolean hasProjectileHit(Character target) {
         double distanceToTarget = Math.hypot(x - target.getX(), y - target.getY());
         if (distanceToTarget <= target.getBodyRadius()) {
             if (target instanceof Scout) {
@@ -71,7 +71,7 @@ public class Projectile {
         return false;
     }
 
-    public boolean isActive() {
+    public boolean isProjectileActive() {
         return active;
     }
 

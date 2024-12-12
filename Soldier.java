@@ -34,29 +34,30 @@ public class Soldier extends Character {
         this.baseY = baseY;
     }
 
-    public void draw(Graphics2D g2d) {
-        int bodyRadius = 5;
-        int lineLength = 15;
+    public void drawSoldier(Graphics2D g2d) {
+        int soldierBodyRadius = 4;
+        int soldierWeaponLength = 15;
 
         g2d.setColor(teamColor);
-        g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
+        g2d.fillOval((int) (x - soldierBodyRadius), (int) (y - soldierBodyRadius), soldierBodyRadius * 2, soldierBodyRadius * 2);
 
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
-        int x2 = x1 + (int) (lineLength * Math.cos(Math.toRadians(currentAngle)));
-        int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(currentAngle)));
+        int x2 = x1 + (int) (soldierWeaponLength * Math.cos(Math.toRadians(currentAngle)));
+        int y2 = y1 + (int) (soldierWeaponLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-        g2d.drawString("" + id, (int) x - 6, (int) y - bodyRadius - 10);
+        g2d.setFont(new Font("Arial", Font.BOLD, 8));
+        g2d.drawString("" + id, (int) x - 6, (int) y - soldierBodyRadius - 1);
 
         if (showHealth) {
             g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Consolas", Font.BOLD, 10));
-            g2d.drawString("" + healthPoints, (int) x - 6, (int) y - bodyRadius - 10);
+            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+            g2d.drawString("" + healthPoints, (int) x - 8, (int) y - soldierBodyRadius - 9);
         }
+
     }
 
     public void shoot(Character target) {

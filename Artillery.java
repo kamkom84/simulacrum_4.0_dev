@@ -56,7 +56,7 @@ public class Artillery extends Character {
         }
 
         for (ExplosionEffect explosion : explosions) {
-            explosion.draw(g2d);
+            explosion.drawExplosion(g2d);
         }
     }
 
@@ -64,14 +64,14 @@ public class Artillery extends Character {
         if (!isActive()) return;
 
         if (currentProjectile != null) {
-            currentProjectile.update();
+            currentProjectile.updateArtilleryProjectile();
             if (currentProjectile.hasReachedTarget()) {
                 createExplosion(currentProjectile.getTargetX(), currentProjectile.getTargetY());
                 currentProjectile = null;
             }
         }
 
-        explosions.removeIf(ExplosionEffect::isExpired);
+        explosions.removeIf(ExplosionEffect::isExplosionExpired);
 
         if (currentProjectile == null && canShoot()) {
             fireProjectile();
@@ -135,7 +135,7 @@ public class Artillery extends Character {
             }
         }
 
-        public void update() {
+        public void updateArtilleryProjectile() {
             double dx = targetX - x;
             double dy = targetY - y;
             double distance = Math.sqrt(dx * dx + dy * dy);
@@ -192,11 +192,11 @@ public class Artillery extends Character {
             this.expirationTime = System.currentTimeMillis() + duration;
         }
 
-        public boolean isExpired() {
+        public boolean isExplosionExpired() {
             return System.currentTimeMillis() > expirationTime;
         }
 
-        public void draw(Graphics2D g2d) {
+        public void drawExplosion(Graphics2D g2d) {
             long timeLeft = expirationTime - System.currentTimeMillis();
             if (timeLeft > 0) {
                 int alpha = (int) (255 * timeLeft / duration);

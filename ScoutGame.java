@@ -151,21 +151,21 @@ public class ScoutGame extends JFrame {
                 for (Defender defender : blueDefenders) {
                     if (defender != null) {
                         defender.drawProjectiles(g2d);
-                        defender.drawDirectionLine(g2d);
+                        defender.drawDefenderWeaponDirection(g2d);
                     }
                 }
 
                 for (Defender defender : redDefenders) {
                     if (defender != null) {
                         defender.drawProjectiles(g2d);
-                        defender.drawDirectionLine(g2d);
+                        defender.drawDefenderWeaponDirection(g2d);
                     }
                 }
 
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
                         if (soldier != null) {
-                            soldier.draw(g2d);
+                            soldier.drawSoldier(g2d);
                         }
                     }
                 }
@@ -173,7 +173,7 @@ public class ScoutGame extends JFrame {
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
                         if (soldier != null) {
-                            soldier.draw(g2d);
+                            soldier.drawSoldier(g2d);
                         }
                     }
                 }

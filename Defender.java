@@ -8,7 +8,7 @@ public class Defender extends Character {
     private double speed = 0.03;
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
-    private static final int SHOOT_RANGE = 300;/////////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_RANGE = 400;/////////////////////////////////////////////////////////////////////////
     private static final int SHOOT_INTERVAL = 500;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;
@@ -74,16 +74,16 @@ public class Defender extends Character {
         Iterator<Projectile> iterator = projectiles.iterator();
         while (iterator.hasNext()) {
             Projectile projectile = iterator.next();
-            projectile.updatePosition();
+            projectile.updateProjectilePosition();
 
-            if (projectile.hasHit(scout)) {
+            if (projectile.hasProjectileHit(scout)) {
                 //System.out.println("Hit! Scout loses 1 point.");
                 scout.decreaseHealth(1);
                 //game.addExplosionEffect(scout.getX(), scout.getY(), 20, Color.RED, 500);
                 scout.moveBackFrom((int) this.x, (int) this.y);
 
                 iterator.remove();
-            } else if (!projectile.isActive()) {
+            } else if (!projectile.isProjectileActive()) {
                 iterator.remove();
             }
         }
@@ -93,9 +93,9 @@ public class Defender extends Character {
         Iterator<Projectile> iterator = projectiles.iterator();
         while (iterator.hasNext()) {
             Projectile projectile = iterator.next();
-            projectile.updatePosition();
+            projectile.updateProjectilePosition();
 
-            if (projectile.hasHit(soldier)) {
+            if (projectile.hasProjectileHit(soldier)) {
                 soldier.decreaseHealth(1);
                 if (soldier.isActive()) {
                     //System.out.println("Soldier " + soldier.getId() + " is still alive.");
@@ -111,7 +111,7 @@ public class Defender extends Character {
 
     public void drawProjectiles(Graphics g) {
         for (Projectile projectile : projectiles) {
-            projectile.draw(g);
+            projectile.drawProjectile(g);
         }
     }
 
@@ -152,11 +152,11 @@ public class Defender extends Character {
         if (closestSoldier != null) {
             this.currentAngle = Math.atan2(closestSoldier.getY() - this.y, closestSoldier.getX() - this.x);
 
-            shootAtSoldier(closestSoldier);
+            defenderShootAtSoldier(closestSoldier);
         }
     }
 
-    private void shootAtSoldier(Soldier soldier) {
+    private void defenderShootAtSoldier(Soldier soldier) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastShotTime < SHOOT_INTERVAL) {
             return;
@@ -176,23 +176,23 @@ public class Defender extends Character {
 
     }
 
-    private void rotateTowards(double targetAngle) {
-        double angleDifference = targetAngle - currentAngle;
+//    private void rotateTowards(double targetAngle) {
+//        double angleDifference = targetAngle - currentAngle;
+//
+//        angleDifference = (angleDifference + Math.PI) % (2 * Math.PI) - Math.PI;
+//
+//        double rotationSpeed = Math.toRadians(5);
+//
+//        if (Math.abs(angleDifference) <= rotationSpeed) {
+//            currentAngle = targetAngle;
+//        } else {
+//            currentAngle += Math.signum(angleDifference) * rotationSpeed;
+//        }
+//
+//        currentAngle = (currentAngle + 2 * Math.PI) % (2 * Math.PI);
+//    }
 
-        angleDifference = (angleDifference + Math.PI) % (2 * Math.PI) - Math.PI;
-
-        double rotationSpeed = Math.toRadians(5);
-
-        if (Math.abs(angleDifference) <= rotationSpeed) {
-            currentAngle = targetAngle;
-        } else {
-            currentAngle += Math.signum(angleDifference) * rotationSpeed;
-        }
-
-        currentAngle = (currentAngle + 2 * Math.PI) % (2 * Math.PI);
-    }
-
-    public void drawDirectionLine(Graphics g) {
+    public void drawDefenderWeaponDirection(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(Color.GREEN);
         g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[]{10f, 10f}, 0f));
