@@ -382,7 +382,7 @@ public class ScoutGame extends JFrame {
         for (Worker enemy : enemyWorkers) {
             if (enemy != null && enemy.isActive() &&
                     distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= soldier.getWeaponLength()) {
-                soldier.shoot(enemy);
+                soldier.soldierShoot(enemy);
                 targetFound = true;
                 break;
             }
@@ -390,7 +390,7 @@ public class ScoutGame extends JFrame {
 
         if (!targetFound && enemyScout != null && enemyScout.isActive() &&
                 distance(soldier.getX(), soldier.getY(), enemyScout.getX(), enemyScout.getY()) <= soldier.getWeaponLength()) {
-            soldier.shoot(enemyScout);
+            soldier.soldierShoot(enemyScout);
             targetFound = true;
         }
 
@@ -398,7 +398,7 @@ public class ScoutGame extends JFrame {
             for (Defender defender : enemyDefenders) {
                 if (defender != null && defender.isActive() &&
                         distance(soldier.getX(), soldier.getY(), defender.getX(), defender.getY()) <= soldier.getWeaponLength()) {
-                    soldier.shoot(defender);
+                    soldier.soldierShoot(defender);
                     targetFound = true;
                     break;
                 }

@@ -60,7 +60,7 @@ public class Soldier extends Character {
 
     }
 
-    public void shoot(Character target) {
+    public void soldierShoot(Character target) {
         if (target == null || !target.isActive()) return;
 
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
@@ -104,12 +104,12 @@ public class Soldier extends Character {
             public void run() {
                 showHealth = false;
             }
-        }, 500);
+        }, 1000);/////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     public void soldierMoveTowardsEnemyBase() {
         double angleToBase = calculateAngleTo(this.x, this.y, enemyBaseX, enemyBaseY);
-        double speed = 1.0;
+        double speed = 1.5;
         boolean tooClose = false;
 
         for (Character character : game.getCharacters()) {
@@ -186,7 +186,7 @@ public class Soldier extends Character {
         Character target = findTarget();
 
         if (target != null) {
-            shoot(target);
+            soldierShoot(target);
         } else {
             boolean tooClose = false;
             for (Character character : game.getCharacters()) {
