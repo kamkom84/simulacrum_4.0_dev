@@ -178,6 +178,7 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
+
                 if (artillery != null && artillery.isActive()) {
                     artillery.
                             drawArtillery(g2d);
@@ -260,7 +261,7 @@ public class ScoutGame extends JFrame {
             if (blueSoldiers != null) {
                 for (Soldier soldier : blueSoldiers) {
                     if (soldier != null) {
-                        updateSoldier(soldier, redWorkers, redScout, redDefenders);
+                        soldier.updateSoldier();
                     }
                 }
             }
@@ -268,9 +269,11 @@ public class ScoutGame extends JFrame {
             if (redSoldiers != null) {
                 for (Soldier soldier : redSoldiers) {
                     if (soldier != null) {
-                        updateSoldier(soldier, blueWorkers, blueScout, blueDefenders);                    }
+                        soldier.updateSoldier();
+                    }
                 }
             }
+
 
             moveDefenders();
 
@@ -1014,6 +1017,8 @@ public class ScoutGame extends JFrame {
         timer.setRepeats(false);
         timer.start();
     }
+
+
 
     private void removeWorkers(Worker[] workers) {
         for (int i = 0; i < workers.length; i++) {
