@@ -165,7 +165,7 @@ public class ScoutGame extends JFrame {
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
                         if (soldier != null) {
-                            soldier.drawSoldier(g2d);
+                            soldier.updateSoldier(blueSoldiers); // Подаваме сините съотборници
                         }
                     }
                 }
@@ -173,10 +173,11 @@ public class ScoutGame extends JFrame {
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
                         if (soldier != null) {
-                            soldier.drawSoldier(g2d);
+                            soldier.updateSoldier(redSoldiers); // Подаваме червените съотборници
                         }
                     }
                 }
+
 
 
                 if (artillery != null && artillery.isActive()) {
@@ -261,7 +262,7 @@ public class ScoutGame extends JFrame {
             if (blueSoldiers != null) {
                 for (Soldier soldier : blueSoldiers) {
                     if (soldier != null) {
-                        soldier.updateSoldier();
+                        updateSoldier(soldier, redWorkers, redScout, redDefenders, blueSoldiers);
                     }
                 }
             }
@@ -269,7 +270,7 @@ public class ScoutGame extends JFrame {
             if (redSoldiers != null) {
                 for (Soldier soldier : redSoldiers) {
                     if (soldier != null) {
-                        soldier.updateSoldier();
+                        updateSoldier(soldier, blueWorkers, blueScout, blueDefenders, redSoldiers);
                     }
                 }
             }
@@ -373,15 +374,17 @@ public class ScoutGame extends JFrame {
         return false;
     }
 
-    private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders) {
+    private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders, Soldier[] teammates) {
         if (soldier.isWaiting()) {
             return;
         }
 
-        soldier.updateSoldier();
+        // Обновяване на състоянието на войника с предадените съотборници
+        soldier.updateSoldier(teammates);
 
         boolean targetFound = false;
 
+        // Проверка за работници на врага
         for (Worker enemy : enemyWorkers) {
             if (enemy != null && enemy.isActive() &&
                     distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= soldier.getWeaponLength()) {
@@ -391,12 +394,14 @@ public class ScoutGame extends JFrame {
             }
         }
 
+        // Проверка за скаути на врага
         if (!targetFound && enemyScout != null && enemyScout.isActive() &&
                 distance(soldier.getX(), soldier.getY(), enemyScout.getX(), enemyScout.getY()) <= soldier.getWeaponLength()) {
             soldier.soldierShoot(enemyScout);
             targetFound = true;
         }
 
+        // Проверка за защитници на врага
         if (!targetFound && enemyDefenders != null) {
             for (Defender defender : enemyDefenders) {
                 if (defender != null && defender.isActive() &&
@@ -408,10 +413,13 @@ public class ScoutGame extends JFrame {
             }
         }
 
+        // Ако няма цел, войникът се придвижва към центъра
         if (!targetFound) {
-            soldier.soldierMoveTowardsEnemyBase();
+            soldier.soldierMoveTowardsCenter(teammates);
         }
     }
+
+
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
@@ -592,7 +600,7 @@ public class ScoutGame extends JFrame {
         g2d.setColor(Color.BLUE);
         g2d.drawRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
 
-        g2d.setColor(new Color(0, 0, 255, 100));
+        g2d.setColor(new Color(0, 0, 255, 200));
         g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
         g2d.setColor(new Color(200, 50, 50));

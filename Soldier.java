@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
@@ -21,11 +22,9 @@ public class Soldier extends Character {
     private boolean waiting = false;
     private Projectile currentProjectile;
 
-
-
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;
+        this.healthPoints = 10;
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -59,7 +58,6 @@ public class Soldier extends Character {
             g2d.drawString("" + healthPoints, (int) x - 8, (int) y - soldierBodyRadius - 9);
         }
 
-        // Рисуване на текущия патрон
         if (currentProjectile != null) {
             currentProjectile.draw(g2d);
         }
@@ -72,28 +70,47 @@ public class Soldier extends Character {
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
 
         if (distanceToTarget <= 100) {
-            this.currentAngle = angleToTarget; // Оръжието сочи към врага
+            this.currentAngle = angleToTarget;
 
-            // Създаване на нов патрон
             currentProjectile = new Projectile(
                     x + weaponLength * Math.cos(Math.toRadians(angleToTarget)),
                     y + weaponLength * Math.sin(Math.toRadians(angleToTarget)),
-                    angleToTarget
+                    target.getX(),
+                    target.getY()
             );
+
         }
     }
 
     public void updateProjectile(Character target) {
         if (currentProjectile != null && currentProjectile.isActive()) {
-            currentProjectile.updatePosition();
+            currentProjectile.updateSoldierProjectilePosition();
 
-            // Проверка за удар с целта
+            // Проверка за сблъсък с целта
             if (currentProjectile.checkCollision(target)) {
                 target.takeDamage(1);
-                currentProjectile = null; // Изчистване на патрона
+                currentProjectile.deactivate(); // Деактивиране на патрона
             }
         }
     }
+
+    private void maintainDistanceFromTeammates(Soldier[] teammates) {
+        double minDistance = 30.0;
+
+        for (Soldier teammate : teammates) {
+            if (teammate != null && teammate != this) { // Игнорираме себе си
+                double distance = Point2D.distance(this.x, this.y, teammate.getX(), teammate.getY());
+                if (distance < minDistance) {
+                    // Отместваме войника в обратната посока на съотборника
+                    double angleAwayFromTeammate = calculateAngleTo(teammate.getX(), teammate.getY(), this.x, this.y);
+                    this.x += 1.0 * Math.cos(Math.toRadians(angleAwayFromTeammate));
+                    this.y += 1.0 * Math.sin(Math.toRadians(angleAwayFromTeammate));
+                }
+            }
+        }
+    }
+
+
 
     private double calculateAngleTo(double x1, double y1, double x2, double y2) {
         return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
@@ -112,6 +129,13 @@ public class Soldier extends Character {
         }
     }
 
+    private void moveBack() {
+        double moveAngle = Math.toRadians(currentAngle + 180);
+        final int MOVE_BACK_DISTANCE = 50;
+        this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
+        this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
+    }
+
     private void showHealthTemporarily() {
         showHealth = true;
         Timer timer = new Timer();
@@ -123,47 +147,23 @@ public class Soldier extends Character {
         }, 1000);
     }
 
-    public void soldierMoveTowardsEnemyBase() {
-        double speed = 6.0;
+    public void soldierMoveTowardsCenter(Soldier[] teammates) {
+        double speed = 2.0;
 
-        // Разстояния между колоните и редовете на армията
-        int columnSpacing = 30;
-        int rowSpacing = 20;
-        int soldiersPerColumn = 20; // Максимален брой войници в една колона
+        // Център на картата
+        double centerX = game.getWidth() / 2.0;
+        double centerY = game.getHeight() / 2.0;
 
-        int columnIndex = id / soldiersPerColumn; // Определяне на колоната въз основа на ID-то на войника
-        int rowIndex = id % soldiersPerColumn; // Определяне на реда във всяка колона
+        // Изчисляваме ъгъла към центъра
+        double angleToCenter = calculateAngleTo(this.x, this.y, centerX, centerY);
 
-        // Целева позиция за формация във вертикални колони
-        double formationTargetX = baseX + (team.equals("blue") ? columnIndex * columnSpacing : -columnIndex * columnSpacing);
-        double formationTargetY = baseY + rowIndex * rowSpacing;
+        // Движим се към центъра
+        this.x += speed * Math.cos(Math.toRadians(angleToCenter));
+        this.y += speed * Math.sin(Math.toRadians(angleToCenter));
 
-        // Ограничаване на позициите в рамките на екрана
-        int screenWidth = game.getWidth();
-        int screenHeight = game.getHeight();
-
-        formationTargetX = Math.max(10, Math.min(screenWidth - 10, formationTargetX));
-        formationTargetY = Math.max(10, Math.min(screenHeight - 10, formationTargetY));
-
-        // Проверка дали войникът е достигнал целевата позиция на формацията
-        if (distance(this.x, this.y, formationTargetX, formationTargetY) > 5) {
-            // Движение към позицията на формацията
-            double angleToFormation = calculateAngleTo(this.x, this.y, formationTargetX, formationTargetY);
-            this.x += speed * Math.cos(Math.toRadians(angleToFormation));
-            this.y += speed * Math.sin(Math.toRadians(angleToFormation));
-            this.currentAngle = angleToFormation;
-        } else {
-            // След като е във формация, продължава към центъра на екрана
-            double centerX = screenWidth / 2.0;
-            double centerY = screenHeight / 2.0;
-            double angleToCenter = calculateAngleTo(this.x, this.y, centerX, centerY);
-            this.x += speed * Math.cos(Math.toRadians(angleToCenter));
-            this.y += speed * Math.sin(Math.toRadians(angleToCenter));
-            this.currentAngle = angleToCenter;
-        }
+        // Уверяваме се, че не се приближаваме прекалено до съотборниците
+        maintainDistanceFromTeammates(teammates);
     }
-
-
 
 
     public Character findTarget() {
@@ -184,7 +184,7 @@ public class Soldier extends Character {
         return closestTarget;
     }
 
-    public void updateSoldier() {
+    public void updateSoldier(Soldier[] teammates) {
         if (waiting) {
             return;
         }
@@ -197,37 +197,14 @@ public class Soldier extends Character {
             soldierShoot(target);
             updateProjectile(target);
         } else {
-            soldierMoveTowardsEnemyBase();
+            soldierMoveTowardsCenter(teammates); // Подаваме съотборниците
         }
     }
+
 
     @Override
     public String getType() {
         return "Soldier";
-    }
-
-    public void drawPoints(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.setFont(new Font("Arial", Font.BOLD, 8));
-        g.drawString(String.valueOf(healthPoints), (int) this.x, (int) this.y - 10);
-    }
-
-    public void decreaseHealth(int amount) {
-        this.healthPoints -= amount;
-        if (this.healthPoints <= 0) {
-            this.healthPoints = 0;
-            this.setActive(false);
-        } else {
-            showHealthTemporarily();
-            moveBack();
-        }
-    }
-
-    private void moveBack() {
-        double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 50;
-        this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
-        this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
     }
 
     public int getId() {
@@ -238,10 +215,6 @@ public class Soldier extends Character {
         return healthPoints;
     }
 
-    public int getWeaponLength() {
-        return this.weaponLength;
-    }
-
     public void setWaiting(boolean waiting) {
         this.waiting = waiting;
     }
@@ -250,48 +223,65 @@ public class Soldier extends Character {
         return waiting;
     }
 
-    // Вътрешен клас за патроните
+    public int getWeaponLength() {
+        return weaponLength;
+    }
+
     private class Projectile {
         private double x, y;
+        private double targetX, targetY;
         private double directionAngle;
         private double speed = 5.0;
-        private int length = 10;
         private boolean active = true;
 
-        public Projectile(double startX, double startY, double directionAngle) {
+        public Projectile(double startX, double startY, double targetX, double targetY) {
             this.x = startX;
             this.y = startY;
-            this.directionAngle = directionAngle;
+            this.targetX = targetX;
+            this.targetY = targetY;
+            this.directionAngle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
         }
 
-        public void updatePosition() {
+        public void updateSoldierProjectilePosition() {
             if (!active) return;
 
-            x += speed * Math.cos(Math.toRadians(directionAngle));
-            y += speed * Math.sin(Math.toRadians(directionAngle));
+            double dx = speed * Math.cos(Math.toRadians(directionAngle));
+            double dy = speed * Math.sin(Math.toRadians(directionAngle));
+
+            // Движение към целта
+            this.x += dx;
+            this.y += dy;
+
+            // Проверка дали патронът е достигнал целта
+            if (Math.abs(x - targetX) <= speed && Math.abs(y - targetY) <= speed) {
+                this.x = targetX;
+                this.y = targetY;
+                this.active = false; // Деактивиране на патрона
+            }
         }
 
         public boolean checkCollision(Character target) {
-            double distanceToTarget = Point2D.distance(x, y, target.getX(), target.getY());
-            if (distanceToTarget < 5) {
-                active = false;
-                return true;
-            }
-            return false;
+            // Проверка за сблъсък с врага
+            return Point2D.distance(x, y, target.getX(), target.getY()) < 5;
         }
 
         public void draw(Graphics2D g2d) {
             if (!active) return;
 
-            double endX = x + length * Math.cos(Math.toRadians(directionAngle));
-            double endY = y + length * Math.sin(Math.toRadians(directionAngle));
             g2d.setColor(Color.YELLOW);
             g2d.setStroke(new BasicStroke(2.0f));
-            g2d.drawLine((int) x, (int) y, (int) endX, (int) endY);
+            g2d.drawLine((int) x, (int) y, (int) targetX, (int) targetY);
         }
 
         public boolean isActive() {
             return active;
         }
+
+        public void deactivate() {
+            this.active = false;
+        }
     }
+
+
+
 }
