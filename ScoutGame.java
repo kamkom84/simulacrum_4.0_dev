@@ -164,19 +164,20 @@ public class ScoutGame extends JFrame {
 
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
-                        if (soldier != null) {
-                            soldier.updateSoldier(blueSoldiers); // Подаваме сините съотборници
+                        if (soldier != null && soldier.isActive()) {
+                            soldier.drawSoldier(g2d);
                         }
                     }
                 }
 
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
-                        if (soldier != null) {
-                            soldier.updateSoldier(redSoldiers); // Подаваме червените съотборници
+                        if (soldier != null && soldier.isActive()) {
+                            soldier.drawSoldier(g2d);
                         }
                     }
                 }
+
 
 
 
@@ -418,8 +419,6 @@ public class ScoutGame extends JFrame {
             soldier.soldierMoveTowardsCenter(teammates);
         }
     }
-
-
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {

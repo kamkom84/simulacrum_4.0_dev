@@ -8,9 +8,9 @@ import java.util.TimerTask;
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 15;
+    private final int weaponLength = 10;////////////////////////////////////////////////////////////////////////////////
     private boolean showHealth = false;
-    private int damageDealt = 0;
+//    private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
@@ -21,10 +21,11 @@ public class Soldier extends Character {
     private int baseY;
     private boolean waiting = false;
     private Projectile currentProjectile;
+    private long lastShotTime = 0;
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 10;
+        this.healthPoints = 50;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -36,7 +37,8 @@ public class Soldier extends Character {
     }
 
     public void drawSoldier(Graphics2D g2d) {
-        int soldierBodyRadius = 4;
+
+        int soldierBodyRadius = 5;
 
         g2d.setColor(teamColor);
         g2d.fillOval((int) (x - soldierBodyRadius), (int) (y - soldierBodyRadius), soldierBodyRadius * 2, soldierBodyRadius * 2);
@@ -63,8 +65,13 @@ public class Soldier extends Character {
         }
     }
 
+
+
     public void soldierShoot(Character target) {
         if (target == null || !target.isActive()) return;
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastShotTime < 3000) return;//////////////////////////////////////////////////////////////////
 
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
@@ -79,6 +86,7 @@ public class Soldier extends Character {
                     target.getY()
             );
 
+            lastShotTime = currentTime; // Запазване на времето на последния изстрел
         }
     }
 
@@ -95,7 +103,7 @@ public class Soldier extends Character {
     }
 
     private void maintainDistanceFromTeammates(Soldier[] teammates) {
-        double minDistance = 30.0;
+        double minDistance = 60.0;
 
         for (Soldier teammate : teammates) {
             if (teammate != null && teammate != this) { // Игнорираме себе си
@@ -109,8 +117,6 @@ public class Soldier extends Character {
             }
         }
     }
-
-
 
     private double calculateAngleTo(double x1, double y1, double x2, double y2) {
         return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
@@ -131,7 +137,7 @@ public class Soldier extends Character {
 
     private void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 50;
+        final int MOVE_BACK_DISTANCE = 70;//////////////////////////////////////////////////////////////////////////////
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
     }
@@ -148,7 +154,7 @@ public class Soldier extends Character {
     }
 
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 2.0;
+        double speed = 1.0;
 
         // Център на картата
         double centerX = game.getWidth() / 2.0;
@@ -164,7 +170,6 @@ public class Soldier extends Character {
         // Уверяваме се, че не се приближаваме прекалено до съотборниците
         maintainDistanceFromTeammates(teammates);
     }
-
 
     public Character findTarget() {
         Character closestTarget = null;
@@ -201,7 +206,6 @@ public class Soldier extends Character {
         }
     }
 
-
     @Override
     public String getType() {
         return "Soldier";
@@ -231,8 +235,9 @@ public class Soldier extends Character {
         private double x, y;
         private double targetX, targetY;
         private double directionAngle;
-        private double speed = 5.0;
+        private double speed = 25.0; ///////////////////////////////////////////////////////////////////////////////////
         private boolean active = true;
+        private String team;
 
         public Projectile(double startX, double startY, double targetX, double targetY) {
             this.x = startX;
@@ -241,6 +246,36 @@ public class Soldier extends Character {
             this.targetY = targetY;
             this.directionAngle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
         }
+
+
+
+//        public void updateSoldierProjectilePosition() {
+//            if (!active) return;
+//
+//            double dx = speed * Math.cos(Math.toRadians(directionAngle));
+//            double dy = speed * Math.sin(Math.toRadians(directionAngle));
+//
+//            // Движение към целта
+//            this.x += dx;
+//            this.y += dy;
+//
+//            // Проверка за удряне на всички цели на пътя
+//            for (Character character : game.getCharacters()) {
+//                if (!character.isActive() || character.getTeam().equals(this.team)) continue;
+//
+//                if (Point2D.distance(x, y, character.getX(), character.getY()) < 5) {
+//                    character.takeDamage(1);
+//                    this.active = false; // Деактивиране на патрона след удряне на цел
+//                    break;
+//                }
+//            }
+//
+//            // Проверка дали патронът е достигнал зададената цел
+//            if (Point2D.distance(x, y, targetX, targetY) < 5) {
+//                this.active = false;
+//            }
+//        }
+
 
         public void updateSoldierProjectilePosition() {
             if (!active) return;
@@ -252,13 +287,28 @@ public class Soldier extends Character {
             this.x += dx;
             this.y += dy;
 
-            // Проверка дали патронът е достигнал целта
-            if (Math.abs(x - targetX) <= speed && Math.abs(y - targetY) <= speed) {
-                this.x = targetX;
-                this.y = targetY;
-                this.active = false; // Деактивиране на патрона
+            // Проверка за удряне на всички цели на пътя
+            for (Character character : game.getCharacters()) {
+                if (!character.isActive() || character.getTeam().equals(Soldier.this.team)) continue;
+
+                if (Point2D.distance(x, y, character.getX(), character.getY()) < 5) {
+                    character.takeDamage(1);
+                    this.active = false; // Деактивиране на патрона след удряне на цел
+                    return;
+                }
+            }
+
+            // Проверка дали патронът е преминал целта с 5 пиксела
+            double distanceToTarget = Point2D.distance(x, y, targetX, targetY);
+            if (distanceToTarget > 5 && Point2D.distance(x - dx, y - dy, targetX, targetY) <= 5) {
+                this.active = false; // Деактивиране на патрона след преминаване на целта
             }
         }
+
+
+
+
+
 
         public boolean checkCollision(Character target) {
             // Проверка за сблъсък с врага
@@ -268,9 +318,15 @@ public class Soldier extends Character {
         public void draw(Graphics2D g2d) {
             if (!active) return;
 
+            // Рисуване на по-къса линия, започваща от края на оръжието
+            double startX = x - 3 * Math.cos(Math.toRadians(directionAngle));
+            double startY = y - 3 * Math.sin(Math.toRadians(directionAngle));
+            double endX = x + 3 * Math.cos(Math.toRadians(directionAngle));
+            double endY = y + 3 * Math.sin(Math.toRadians(directionAngle));
+
             g2d.setColor(Color.YELLOW);
-            g2d.setStroke(new BasicStroke(2.0f));
-            g2d.drawLine((int) x, (int) y, (int) targetX, (int) targetY);
+            g2d.setStroke(new BasicStroke(1.0f));
+            g2d.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
         }
 
         public boolean isActive() {
@@ -281,7 +337,4 @@ public class Soldier extends Character {
             this.active = false;
         }
     }
-
-
-
 }
