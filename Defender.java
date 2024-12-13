@@ -97,12 +97,6 @@ public class Defender extends Character {
 
             if (projectile.hasProjectileHit(soldier)) {
                 soldier.decreaseHealth(1);
-                if (soldier.isActive()) {
-                    //System.out.println("Soldier " + soldier.getId() + " is still alive.");
-                } else {
-                    //System.out.println("Soldier " + soldier.getId() + " is dead and removed.");
-                }
-
                 iterator.remove();
             }
 
@@ -175,22 +169,6 @@ public class Defender extends Character {
         projectiles.add(projectile);
 
     }
-
-//    private void rotateTowards(double targetAngle) {
-//        double angleDifference = targetAngle - currentAngle;
-//
-//        angleDifference = (angleDifference + Math.PI) % (2 * Math.PI) - Math.PI;
-//
-//        double rotationSpeed = Math.toRadians(5);
-//
-//        if (Math.abs(angleDifference) <= rotationSpeed) {
-//            currentAngle = targetAngle;
-//        } else {
-//            currentAngle += Math.signum(angleDifference) * rotationSpeed;
-//        }
-//
-//        currentAngle = (currentAngle + 2 * Math.PI) % (2 * Math.PI);
-//    }
 
     public void drawDefenderWeaponDirection(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
