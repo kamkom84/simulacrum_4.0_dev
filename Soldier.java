@@ -27,7 +27,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 20;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -78,7 +78,7 @@ public class Soldier extends Character {
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
 
-        if (distanceToTarget <= 100) {
+        if (distanceToTarget <= 100) {///////////////////////////////////////////////////////////////////////////////////
             this.currentAngle = angleToTarget;
 
             currentProjectile = new Projectile(
@@ -198,15 +198,19 @@ public class Soldier extends Character {
 
         if (!isActive()) return;
 
+        // Намиране на цел
         Character target = findTarget();
 
         if (target != null) {
+            // Ако има цел, стреля
             soldierShoot(target);
             updateProjectile(target);
         } else {
-            soldierMoveTowardsCenter(teammates); // Подаваме съотборниците
+            // Ако няма цел, продължава движение към центъра
+            soldierMoveTowardsCenter(teammates);
         }
     }
+
 
     @Override
     public String getType() {
