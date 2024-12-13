@@ -146,7 +146,7 @@ public class Defender extends Character {
         if (closestSoldier != null) {
             this.currentAngle = Math.atan2(closestSoldier.getY() - this.y, closestSoldier.getX() - this.x);
 
-            defenderShootAtSoldier(closestSoldier);
+            //defenderShootAtSoldier(closestSoldier);
         }
     }
 
@@ -163,7 +163,7 @@ public class Defender extends Character {
                 this.y,
                 soldier.getX(),
                 soldier.getY(),
-                50.0,
+                30.0,/////////////////////////////////////////////////////////////////////////////////////////////
                 500.0
         );
         projectiles.add(projectile);

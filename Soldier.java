@@ -10,7 +10,6 @@ import static java.awt.geom.Point2D.distance;
 public class Soldier extends Character {
     private final int weaponLength = 10;////////////////////////////////////////////////////////////////////////////////
     private boolean showHealth = false;
-//    private int damageDealt = 0;
     private Color teamColor;
     private ScoutGame game;
     private int id;
@@ -22,12 +21,12 @@ public class Soldier extends Character {
     private boolean waiting = false;
     private Projectile currentProjectile;
     private long lastShotTime = 0;
-    private float alpha = 1.0f; // Прозрачност на патрона (1.0 = напълно видим, 0.0 = напълно невидим)
+    private float alpha = 1.0f;
 
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 20;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 200;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
