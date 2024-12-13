@@ -40,6 +40,7 @@ public class ScoutGame extends JFrame {
     private boolean artilleryCalled = false;
     private Artillery artillery;
 
+
     public ScoutGame() {
         allWorkers = new ArrayList<>();
 

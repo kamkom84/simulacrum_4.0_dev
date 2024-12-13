@@ -22,6 +22,8 @@ public class Soldier extends Character {
     private boolean waiting = false;
     private Projectile currentProjectile;
     private long lastShotTime = 0;
+    private float alpha = 1.0f; // Прозрачност на патрона (1.0 = напълно видим, 0.0 = напълно невидим)
+
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
@@ -277,6 +279,8 @@ public class Soldier extends Character {
 //        }
 
 
+        private float alpha = 1.0f; // Прозрачност на патрона (1.0 = напълно видим, 0.0 = напълно невидим)
+
         public void updateSoldierProjectilePosition() {
             if (!active) return;
 
@@ -298,12 +302,15 @@ public class Soldier extends Character {
                 }
             }
 
-            // Проверка дали патронът е преминал целта с 5 пиксела
-            double distanceToTarget = Point2D.distance(x, y, targetX, targetY);
-            if (distanceToTarget > 5 && Point2D.distance(x - dx, y - dy, targetX, targetY) <= 5) {
-                this.active = false; // Деактивиране на патрона след преминаване на целта
+            // Проверка дали патронът е преминал 5 пиксела след целта
+            if (Point2D.distance(x, y, targetX, targetY) > 5) {
+                alpha -= 0.1f; // Намаляване на прозрачността с всяка стъпка
+                if (alpha <= 0) {
+                    this.active = false; // Деактивиране на патрона, когато стане напълно невидим
+                }
             }
         }
+
 
 
 
@@ -318,6 +325,10 @@ public class Soldier extends Character {
         public void draw(Graphics2D g2d) {
             if (!active) return;
 
+            // Настройка на прозрачността
+            Composite originalComposite = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
             // Рисуване на по-къса линия, започваща от края на оръжието
             double startX = x - 3 * Math.cos(Math.toRadians(directionAngle));
             double startY = y - 3 * Math.sin(Math.toRadians(directionAngle));
@@ -327,6 +338,9 @@ public class Soldier extends Character {
             g2d.setColor(Color.YELLOW);
             g2d.setStroke(new BasicStroke(1.0f));
             g2d.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
+
+            // Възстановяване на оригиналната прозрачност
+            g2d.setComposite(originalComposite);
         }
 
         public boolean isActive() {
