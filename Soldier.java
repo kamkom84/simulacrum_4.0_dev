@@ -155,7 +155,7 @@ public class Soldier extends Character {
     }
 
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 0.8;
+        double speed = 1.0;
 
         // Център на картата
         double centerX = game.getWidth() / 2.0;
