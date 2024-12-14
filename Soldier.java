@@ -136,7 +136,7 @@ public class Soldier extends Character {
         }
     }
 
-    private void moveBack() {
+    public void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
         final int MOVE_BACK_DISTANCE = 70;//////////////////////////////////////////////////////////////////////////////
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
@@ -236,11 +236,22 @@ public class Soldier extends Character {
         return weaponLength;
     }
 
+    public void moveBackFrom(int x, int y) {
+        // Изчисляване на посоката за отместване
+        double angle = Math.atan2(this.y - y, this.x - x);
+        int offset = 10; // Стойност за отместване назад
+
+        // Актуализиране на координатите
+        this.x += offset * Math.cos(angle);
+        this.y += offset * Math.sin(angle);
+    }
+
+
     private class Projectile {
         private double x, y;
         private double targetX, targetY;
         private double directionAngle;
-        private double speed = 25.0; ///////////////////////////////////////////////////////////////////////////////////
+        private double speed = 30.0; ///////////////////////////////////////////////////////////////////////////////////
         private boolean active = true;
         private String team;
 
@@ -254,35 +265,7 @@ public class Soldier extends Character {
 
 
 
-//        public void updateSoldierProjectilePosition() {
-//            if (!active) return;
-//
-//            double dx = speed * Math.cos(Math.toRadians(directionAngle));
-//            double dy = speed * Math.sin(Math.toRadians(directionAngle));
-//
-//            // Движение към целта
-//            this.x += dx;
-//            this.y += dy;
-//
-//            // Проверка за удряне на всички цели на пътя
-//            for (Character character : game.getCharacters()) {
-//                if (!character.isActive() || character.getTeam().equals(this.team)) continue;
-//
-//                if (Point2D.distance(x, y, character.getX(), character.getY()) < 5) {
-//                    character.takeDamage(1);
-//                    this.active = false; // Деактивиране на патрона след удряне на цел
-//                    break;
-//                }
-//            }
-//
-//            // Проверка дали патронът е достигнал зададената цел
-//            if (Point2D.distance(x, y, targetX, targetY) < 5) {
-//                this.active = false;
-//            }
-//        }
-
-
-        private float alpha = 1.0f; // Прозрачност на патрона (1.0 = напълно видим, 0.0 = напълно невидим)
+        private float alpha = 1.0f;
 
         public void updateSoldierProjectilePosition() {
             if (!active) return;
@@ -354,4 +337,5 @@ public class Soldier extends Character {
             this.active = false;
         }
     }
+
 }

@@ -89,19 +89,29 @@ public class Defender extends Character {
         }
     }
 
-    public void updateProjectilesForSoldier(Soldier soldier) {
+    public void updateProjectilesForSoldier(ArrayList<Soldier> soldiers) {
         Iterator<Projectile> iterator = projectiles.iterator();
         while (iterator.hasNext()) {
             Projectile projectile = iterator.next();
             projectile.updateProjectilePosition();
 
-            if (projectile.hasProjectileHit(soldier)) {
-                soldier.decreaseHealth(1);
-                iterator.remove();
+            boolean hit = false;
+            for (Soldier soldier : soldiers) {
+                if (projectile.hasProjectileHit(soldier)) {
+                    soldier.decreaseHealth(1);
+                    soldier.moveBackFrom((int) this.x, (int) this.y);
+                    hit = true; // Маркирайте, че има попадение
+                    break; // Спиране след първия удар
+                }
             }
 
+            if (hit || !projectile.isProjectileActive()) {
+                iterator.remove(); // Премахване на проектил само през итератора
+            }
         }
     }
+
+
 
     public void drawProjectiles(Graphics g) {
         for (Projectile projectile : projectiles) {
@@ -145,10 +155,14 @@ public class Defender extends Character {
 
         if (closestSoldier != null) {
             this.currentAngle = Math.atan2(closestSoldier.getY() - this.y, closestSoldier.getX() - this.x);
-
-            //defenderShootAtSoldier(closestSoldier);
+            defenderShootAtSoldier(closestSoldier);
+        } else if ("red".equalsIgnoreCase(this.team)) {
+            this.currentAngle = Math.toRadians(180);
+        } else if ("blue".equalsIgnoreCase(this.team)) {
+            this.currentAngle = Math.toRadians(0);
         }
     }
+
 
     private void defenderShootAtSoldier(Soldier soldier) {
         long currentTime = System.currentTimeMillis();
@@ -164,9 +178,23 @@ public class Defender extends Character {
                 soldier.getX(),
                 soldier.getY(),
                 30.0,/////////////////////////////////////////////////////////////////////////////////////////////
-                500.0
+                400.0///////////////////////////////////////////////////////////////////////////////////////////////////
         );
         projectiles.add(projectile);
+
+        // Визуализация на изстрела
+        game.drawShot(
+                (int) this.x,
+                (int) this.y,
+                (int) (this.x + 5 * Math.cos(currentAngle)),
+                (int) (this.y + 5 * Math.sin(currentAngle))
+        );
+
+        // Намаляване на здравето на войника
+        double hitChance = 0.7;
+        if (Math.random() < hitChance) {
+            soldier.decreaseHealth(2);
+        }
 
     }
 

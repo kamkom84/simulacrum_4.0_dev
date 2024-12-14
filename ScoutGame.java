@@ -464,7 +464,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 35);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -586,7 +586,7 @@ public class ScoutGame extends JFrame {
                     if (!activeSoldiers.isEmpty()) {
                         defender.checkAndShootIfSoldiersInRange(activeSoldiers);
                         for (Soldier soldier : activeSoldiers) {
-                            defender.updateProjectilesForSoldier(soldier);
+                            defender.updateProjectilesForSoldier(activeSoldiers);
                         }
                     }
                 }
