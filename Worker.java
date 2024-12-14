@@ -126,7 +126,7 @@ public class Worker extends Character {
         if (targetResource == null) return;
 
         double distance = distance(targetResource.getX(), targetResource.getY(), x, y);
-        double moveSpeed = 5.0;
+        double moveSpeed = 6.0;////////////////////////////////////////////////////////////////
         int resourceRadius = 20;
         int workerRadius = 6;
 

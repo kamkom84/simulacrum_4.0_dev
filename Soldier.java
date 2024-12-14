@@ -72,7 +72,7 @@ public class Soldier extends Character {
         if (target == null || !target.isActive()) return;
 
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastShotTime < 3000) return;//////////////////////////////////////////////////////////////////
+        if (currentTime - lastShotTime < 2000) return;//////////////////////////////////////////////////////////////////
 
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
@@ -104,7 +104,7 @@ public class Soldier extends Character {
     }
 
     private void maintainDistanceFromTeammates(Soldier[] teammates) {
-        double minDistance = 60.0;
+        double minDistance = 50.0;
 
         for (Soldier teammate : teammates) {
             if (teammate != null && teammate != this) { // Игнорираме себе си
@@ -155,7 +155,7 @@ public class Soldier extends Character {
     }
 
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 1.0;
+        double speed = 0.8;
 
         // Център на картата
         double centerX = game.getWidth() / 2.0;

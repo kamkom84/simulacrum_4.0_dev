@@ -8,8 +8,8 @@ public class Defender extends Character {
     private double speed = 0.03;
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
-    private static final int SHOOT_RANGE = 400;/////////////////////////////////////////////////////////////////////////
-    private static final int SHOOT_INTERVAL = 500;//////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_RANGE = 300;/////////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_INTERVAL = 1000;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;
     private double currentAngle;
@@ -95,21 +95,25 @@ public class Defender extends Character {
             Projectile projectile = iterator.next();
             projectile.updateProjectilePosition(); // Актуализиране на позицията
 
+            // Проверка за попадение върху някой от войниците
             boolean hit = false;
             for (Soldier soldier : soldiers) {
-                if (projectile.hasProjectileHit(soldier)) {
-                    soldier.decreaseHealth(1); // Намаляване на здравето
-                    soldier.moveBackFrom((int) this.x, (int) this.y); // Отдръпване
-                    hit = true; // Маркираме, че е ударен
-                    break; // Спираме след първия удар
+                if (soldier != null && soldier.isActive() && projectile.hasProjectileHit(soldier)) {
+                    soldier.decreaseHealth(1); // Намаляване на здравето на войника
+                    soldier.moveBackFrom((int) this.x, (int) this.y); // Отдръпване на войника
+                    hit = true; // Маркираме, че патронът е ударил цел
+                    break; // Спиране на проверките след първото попадение
                 }
             }
 
+            // Премахваме проектилите, които са ударили целта или са изчерпали максималното си разстояние
             if (hit || !projectile.isProjectileActive()) {
-                iterator.remove(); // Премахваме изчерпаните патрони
+                iterator.remove(); // Премахване чрез итератора
             }
         }
     }
+
+
 
 
 
@@ -163,37 +167,29 @@ public class Defender extends Character {
 
         lastShotTime = currentTime;
 
+        // Изчисляване на ъгъла към войника
+        double angleToTarget = Math.atan2(soldier.getY() - this.y, soldier.getX() - this.x);
+
         // Създаване на нов патрон към конкретния войник
         Projectile projectile = new Projectile(
-                this.x,
-                this.y,
-                soldier.getX(),
-                soldier.getY(),
-                30.0, // Скорост на патрона
-                400.0 // Обхват на патрона
+                this.x, // Начална X позиция
+                this.y, // Начална Y позиция
+                soldier.getX(), // Целева X позиция
+                soldier.getY(), // Целева Y позиция
+                40.0, // Скорост на патрона
+                500.0 // Максимален обхват на патрона
         );
         projectiles.add(projectile); // Добавяне на патрона в списъка за визуализация и движение
 
-        // Визуализация на изстрела - начална точка на патрона
+        // Визуализация на изстрела
         game.drawShot(
                 (int) this.x,
                 (int) this.y,
-                (int) (this.x + 10 * Math.cos(currentAngle)), // По-голяма видимост на посоката
-                (int) (this.y + 10 * Math.sin(currentAngle))
+                (int) (this.x + 15 * Math.cos(angleToTarget)), // По-добра видимост на изстрела
+                (int) (this.y + 15 * Math.sin(angleToTarget))
         );
-
-        // Проверка за попадение при директен изстрел
-        if (Math.hypot(soldier.getX() - this.x, soldier.getY() - this.y) <= SHOOT_RANGE) {
-            double hitChance = 0.7; // Вероятност за успешно попадение
-            if (Math.random() < hitChance) {
-                soldier.decreaseHealth(2); // Намаляване на здравето на войника
-                if (!soldier.isActive()) {
-                    // Логика за деактивиране на войника, ако е елиминиран
-                    // System.out.println("Soldier " + soldier.getId() + " is eliminated!");
-                }
-            }
-        }
     }
+
 
 
     public void drawDefenderWeaponDirection(Graphics g) {

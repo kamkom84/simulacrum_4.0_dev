@@ -151,17 +151,18 @@ public class ScoutGame extends JFrame {
 
                 for (Defender defender : blueDefenders) {
                     if (defender != null) {
-                        defender.drawProjectiles(g2d);
-                        defender.drawDefenderWeaponDirection(g2d);
+                        defender.drawProjectiles(g2d); // Рисуване на проектилите
+                        defender.drawDefenderWeaponDirection(g2d); // Рисуване на посоката на оръжието
                     }
                 }
 
                 for (Defender defender : redDefenders) {
                     if (defender != null) {
-                        defender.drawProjectiles(g2d);
-                        defender.drawDefenderWeaponDirection(g2d);
+                        defender.drawProjectiles(g2d); // Рисуване на проектилите
+                        defender.drawDefenderWeaponDirection(g2d); // Рисуване на посоката на оръжието
                     }
                 }
+
 
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
@@ -464,7 +465,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 25);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -567,32 +568,36 @@ public class ScoutGame extends JFrame {
 
         for (Defender defender : defenders) {
             if (defender != null) {
+                // Update defender patrolling around the base
                 defender.patrolAroundBase(baseX + baseWidth / 2, baseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
 
+                // Check and shoot at the enemy scout if in range
                 if (enemyScout != null && enemyScout.isActive()) {
                     defender.checkAndShootIfScoutInRange(enemyScout);
-                    defender.updateProjectiles(enemyScout);
+                    defender.updateProjectiles(enemyScout); // Update projectiles targeting the scout
                 }
 
+                // Check and shoot at active enemy soldiers if any are in range
                 if (enemySoldiers != null && enemySoldiers.length > 0) {
                     ArrayList<Soldier> activeSoldiers = new ArrayList<>();
 
+                    // Filter active enemy soldiers
                     for (Soldier soldier : enemySoldiers) {
                         if (soldier != null && soldier.isActive()) {
                             activeSoldiers.add(soldier);
                         }
                     }
 
+                    // If there are active enemy soldiers, handle shooting and projectile updates
                     if (!activeSoldiers.isEmpty()) {
                         defender.checkAndShootIfSoldiersInRange(activeSoldiers);
-                        for (Soldier soldier : activeSoldiers) {
-                            defender.updateProjectilesForSoldier(activeSoldiers);
-                        }
+                        defender.updateProjectilesForSoldier(activeSoldiers); // Update projectiles targeting soldiers
                     }
                 }
             }
         }
     }
+
 
     private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
         g2d.setColor(new Color(0, 100, 200));
@@ -611,14 +616,17 @@ public class ScoutGame extends JFrame {
         g2d.setColor(new Color(255, 0, 0, 100));
         g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
+
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(169, 169, 169) : new Color(180, 130, 10));
+            g2d.setColor(resource.getValue() <= 0 ? new Color(105, 105, 105) : new Color(150, 135, 10)); // Darker gray for empty resources
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setFont(new Font("Arial", Font.BOLD, 10));
             g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
         }
+
+
     }
 
     private void drawWorkers(Graphics2D g2d) {
