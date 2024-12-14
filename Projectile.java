@@ -10,6 +10,8 @@ public class Projectile {
     private final double maxDistance;
     private double traveledDistance;
     private final Color color;
+    private double directionAngle;
+
 
     public Projectile(double startX, double startY, double targetX, double targetY, double speed, double maxDistance) {
         this.x = startX;
@@ -20,43 +22,51 @@ public class Projectile {
         this.maxDistance = maxDistance;
         this.active = true;
         this.traveledDistance = 0;
-        this.color = Color.RED;
+        this.color = Color.GREEN;
+        this.directionAngle = Math.atan2(targetY - startY, targetX - startX);
     }
 
     public void updateProjectilePosition() {
         if (!active) return;
 
+        // Изчисляване на ъгъла към целта
         double angle = Math.atan2(targetY - y, targetX - x);
 
+        // Придвижване на патрона
         double deltaX = speed * Math.cos(angle);
         double deltaY = speed * Math.sin(angle);
 
         x += deltaX;
         y += deltaY;
 
+        // Актуализиране на изминатото разстояние
         traveledDistance += Math.hypot(deltaX, deltaY);
 
+        // Проверка за достигане на целта
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
-        if (distanceToTarget <= speed || traveledDistance >= maxDistance) {
-            active = false;
+        if (distanceToTarget <= speed) {
+            active = false; // Патронът достига целта и се деактивира
+            return;
+        }
+
+        // Проверка за преминаване на целта с повече от 5 пиксела
+        if (traveledDistance >= maxDistance || traveledDistance >= Math.hypot(targetX - x, targetY - y) + 5) {
+            active = false; // Патронът изчезва, ако премине целта с повече от 5 пиксела
         }
     }
+
 
     public void drawProjectile(Graphics g) {
         if (!active) return;
 
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(color);
 
-        g2d.setStroke(new BasicStroke(1.0f));
-
-        double angle = Math.atan2(targetY - y, targetX - x);
-
-        int endX = (int) (x + 10 * Math.cos(angle));
-        int endY = (int) (y + 10 * Math.sin(angle));
-
-        g2d.drawLine((int) x, (int) y, endX, endY);
+        // Рисуване на патрон (линия или точка)
+        g2d.setColor(Color.YELLOW);
+        g2d.setStroke(new BasicStroke(2.0f));
+        g2d.drawLine((int) x, (int) y, (int) (x + 5 * Math.cos(directionAngle)), (int) (y + 5 * Math.sin(directionAngle)));
     }
+
 
     public boolean hasProjectileHit(Character target) {
         double distanceToTarget = Math.hypot(x - target.getX(), y - target.getY());
