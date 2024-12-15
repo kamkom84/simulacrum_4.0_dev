@@ -113,11 +113,6 @@ public class Defender extends Character {
         }
     }
 
-
-
-
-
-
     public void drawProjectiles(Graphics g) {
         for (Projectile projectile : projectiles) {
             projectile.drawProjectile(g);
@@ -157,8 +152,6 @@ public class Defender extends Character {
         }
     }
 
-
-
     private void defenderShootAtSoldier(Soldier soldier) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastShotTime < SHOOT_INTERVAL) {
@@ -189,8 +182,6 @@ public class Defender extends Character {
                 (int) (this.y + 15 * Math.sin(angleToTarget))
         );
     }
-
-
 
     public void drawDefenderWeaponDirection(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;

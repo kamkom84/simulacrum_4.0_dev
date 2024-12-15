@@ -26,7 +26,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 1500;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -65,8 +65,6 @@ public class Soldier extends Character {
             currentProjectile.draw(g2d);
         }
     }
-
-
 
     public void soldierShoot(Character target) {
         if (target == null || !target.isActive()) return;
@@ -155,7 +153,7 @@ public class Soldier extends Character {
     }
 
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 1.0;
+        double speed = 0.8;/////////////////////////////////////////////////////////////////////////////////////////////
 
         // Център на картата
         double centerX = game.getWidth() / 2.0;
@@ -210,7 +208,6 @@ public class Soldier extends Character {
         }
     }
 
-
     @Override
     public String getType() {
         return "Soldier";
@@ -239,9 +236,8 @@ public class Soldier extends Character {
     public void moveBackFrom(int x, int y) {
         // Изчисляване на посоката за отместване
         double angle = Math.atan2(this.y - y, this.x - x);
-        int offset = 10; // Стойност за отместване назад
+        int offset = 10; ///////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Актуализиране на координатите
         this.x += offset * Math.cos(angle);
         this.y += offset * Math.sin(angle);
     }
@@ -262,8 +258,6 @@ public class Soldier extends Character {
             this.targetY = targetY;
             this.directionAngle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
         }
-
-
 
         private float alpha = 1.0f;
 
@@ -296,12 +290,6 @@ public class Soldier extends Character {
                 }
             }
         }
-
-
-
-
-
-
 
         public boolean checkCollision(Character target) {
             // Проверка за сблъсък с врага
