@@ -22,11 +22,16 @@ public class Soldier extends Character {
     private Projectile currentProjectile;
     private long lastShotTime = 0;
     private float alpha = 1.0f;
+    private Grenade grenade;
+    private boolean hasThrownGrenade = false; // Гаранция, че войникът хвърля само една граната
+    private Grenade currentGrenade = null; // Граната, хвърлена от войника
+
+
 
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 1500;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 10;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -38,12 +43,13 @@ public class Soldier extends Character {
     }
 
     public void drawSoldier(Graphics2D g2d) {
-
         int soldierBodyRadius = 5;
 
+        // Рисуване на тялото на войника
         g2d.setColor(teamColor);
         g2d.fillOval((int) (x - soldierBodyRadius), (int) (y - soldierBodyRadius), soldierBodyRadius * 2, soldierBodyRadius * 2);
 
+        // Рисуване на оръжието
         g2d.setColor(Color.YELLOW);
         int x1 = (int) x;
         int y1 = (int) y;
@@ -51,20 +57,32 @@ public class Soldier extends Character {
         int y2 = y1 + (int) (weaponLength * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
+        // Рисуване на ID
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 8));
         g2d.drawString("" + id, (int) x - 6, (int) y - soldierBodyRadius - 1);
 
+        // Рисуване на здравето
         if (showHealth) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("Arial", Font.BOLD, 10));
             g2d.drawString("" + healthPoints, (int) x - 8, (int) y - soldierBodyRadius - 9);
         }
 
+        // Рисуване на текущия патрон
         if (currentProjectile != null) {
             currentProjectile.draw(g2d);
         }
+
+        // Рисуване на гранатата, ако е хвърлена
+        if (currentGrenade != null) {
+            currentGrenade.draw(g2d);
+        }
     }
+
+
+
+
 
     public void soldierShoot(Character target) {
         if (target == null || !target.isActive()) return;
@@ -131,8 +149,18 @@ public class Soldier extends Character {
         } else {
             showHealthTemporarily();
             moveBack();
+
+            // Хвърляне на гранатата, ако здравето падне до 5 или по-малко
+            if (healthPoints <= 5 && currentGrenade == null) {
+                Character target = findTarget();
+                if (target != null) {
+                    currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
+                }
+            }
         }
     }
+
+
 
     public void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
@@ -199,14 +227,30 @@ public class Soldier extends Character {
         Character target = findTarget();
 
         if (target != null) {
-            // Ако има цел, стреля
-            soldierShoot(target);
-            updateProjectile(target);
+            // Ако здравето е 5 или по-малко и не е хвърлил граната, хвърля граната
+            if (healthPoints <= 5 && !hasThrownGrenade) {
+                currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
+                hasThrownGrenade = true; // Гарантира, че хвърля само една граната
+            }
+
+            // Ако здравето е над 5 или гранатата вече е хвърлена, стреля
+            if (healthPoints > 5 || hasThrownGrenade) {
+                soldierShoot(target);
+                updateProjectile(target);
+            }
         } else {
             // Ако няма цел, продължава движение към центъра
             soldierMoveTowardsCenter(teammates);
         }
+
+        // Обновяване на състоянието на гранатата
+        if (currentGrenade != null) {
+            currentGrenade.update();
+        }
     }
+
+
+
 
     @Override
     public String getType() {
@@ -325,5 +369,92 @@ public class Soldier extends Character {
             this.active = false;
         }
     }
+
+    private class Grenade {
+        private double x, y; // Текуща позиция
+        private final double targetX, targetY; // Целева позиция
+        private final double speed = 3.0; // Скорост на гранатата
+        private int countdown = 5; // Таймер за експлозия
+        private boolean exploded = false; // Статус на експлозията
+        private float alpha = 1.0f; // Прозрачност за избледняване
+
+        public Grenade(double startX, double startY, double targetX, double targetY) {
+            this.x = startX;
+            this.y = startY;
+            this.targetX = targetX;
+            this.targetY = targetY;
+        }
+
+        public void update() {
+            if (exploded) return;
+
+            // Движение на гранатата към целта
+            double angle = Math.atan2(targetY - y, targetX - x);
+            double dx = speed * Math.cos(angle);
+            double dy = speed * Math.sin(angle);
+
+            x += dx;
+            y += dy;
+
+            // Проверка дали гранатата е достигнала целта
+            if (Point2D.distance(x, y, targetX, targetY) < speed) {
+                countdown--;
+                if (countdown <= 0) {
+                    explode();
+                }
+            }
+        }
+
+        private void explode() {
+            exploded = true;
+
+            // Ефекти на експлозията
+            for (Character character : game.getCharacters()) {
+                if (!character.getTeam().equals(Soldier.this.team)) { // Само врагове
+                    double distance = Point2D.distance(x, y, character.getX(), character.getY());
+                    if (distance <= 50) { // Радиус на експлозията
+                        character.takeDamage(5);
+
+                        // Отместване на враговете
+                        double angle = Math.atan2(character.getY() - y, character.getX() - x);
+                        character.setX(character.getX() + 50 * Math.cos(angle));
+                        character.setY(character.getY() + 50 * Math.sin(angle));
+                    }
+                }
+            }
+        }
+
+        public void draw(Graphics2D g2d) {
+            if (alpha <= 0) return;
+
+            Composite originalComposite = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
+            if (!exploded) {
+                // Рисуване на гранатата
+                g2d.setColor(Color.RED);
+                g2d.fillOval((int) x - 5, (int) y - 5, 10, 10);
+
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, 10));
+                g2d.drawString("" + countdown, (int) x - 3, (int) y + 3);
+            } else {
+                // Рисуване на експлозията
+                g2d.setColor(new Color(255, 0, 0, (int) (alpha * 255)));
+                g2d.fillOval((int) x - 25, (int) y - 25, 50, 50);
+
+                // Постепенно избледняване
+                alpha -= 0.02f;
+            }
+
+            g2d.setComposite(originalComposite);
+        }
+
+        public boolean isExploded() {
+            return exploded && alpha <= 0;
+        }
+    }
+
+
 
 }
