@@ -31,7 +31,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 100;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 55;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -43,7 +43,7 @@ public class Soldier extends Character {
     }
 
     public void drawSoldier(Graphics2D g2d) {
-        int soldierBodyRadius = 5;
+        int soldierBodyRadius = 5;//////////////////////////////////////////////////////////////////////////////////////
 
         // Рисуване на тялото на войника
         g2d.setColor(teamColor);
@@ -79,9 +79,6 @@ public class Soldier extends Character {
             currentGrenade.draw(g2d);
         }
     }
-
-
-
 
 
     public void soldierShoot(Character target) {
@@ -149,6 +146,13 @@ public class Soldier extends Character {
         } else {
             showHealthTemporarily();
             moveBack();
+
+//            if (healthPoints > 3 && healthPoints <= 6) {
+//                Character target = findTarget();
+//                if (target != null) {
+//                    currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
+//                }
+//            }
 
             // Хвърляне на гранатата, ако здравето падне до 5 или по-малко
             if (healthPoints <= 5 && currentGrenade == null) {

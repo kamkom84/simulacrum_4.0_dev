@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 10; // Щит за червената база
-    private int baseShieldPointsBlue = 10; // Щит за синята база
+    private int baseShieldPointsRed = 100000; // Щит за червената база
+    private int baseShieldPointsBlue = 1000000; // Щит за синята база
 
 
 
@@ -434,7 +434,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[8];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -468,12 +468,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 25);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 4;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
