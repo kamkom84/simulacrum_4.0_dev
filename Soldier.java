@@ -31,7 +31,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 10;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -373,7 +373,7 @@ public class Soldier extends Character {
     private class Grenade {
         private double x, y; // Текуща позиция
         private final double targetX, targetY; // Целева позиция
-        private final double speed = 3.0; // Скорост на гранатата
+        private final double speed = 10.0; // Скорост на гранатата
         private int countdown = 5; // Таймер за експлозия
         private boolean exploded = false; // Статус на експлозията
         private float alpha = 1.0f; // Прозрачност за избледняване
@@ -433,15 +433,15 @@ public class Soldier extends Character {
             if (!exploded) {
                 // Рисуване на гранатата
                 g2d.setColor(Color.RED);
-                g2d.fillOval((int) x - 5, (int) y - 5, 10, 10);
+                g2d.fillOval((int) x - 5, (int) y - 5, 6, 6);
 
                 g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Arial", Font.BOLD, 10));
-                g2d.drawString("" + countdown, (int) x - 3, (int) y + 3);
+                g2d.setFont(new Font("Arial", Font.BOLD, 1));////////////////////////////////////////////////
+                //g2d.drawString("" + countdown, (int) x - 3, (int) y + 3);
             } else {
                 // Рисуване на експлозията
                 g2d.setColor(new Color(255, 0, 0, (int) (alpha * 255)));
-                g2d.fillOval((int) x - 25, (int) y - 25, 50, 50);
+                g2d.fillOval((int) x - 25, (int) y - 25, 30, 30);////////////////////////////////////////
 
                 // Постепенно избледняване
                 alpha -= 0.02f;

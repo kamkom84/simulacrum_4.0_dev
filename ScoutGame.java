@@ -39,6 +39,9 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
+    private int baseShieldPointsRed = 10; // Щит за червената база
+    private int baseShieldPointsBlue = 10; // Щит за синята база
+
 
 
     public ScoutGame() {
@@ -431,7 +434,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -461,16 +464,16 @@ public class ScoutGame extends JFrame {
             boolean positionIsValid;
             do {
                 x = (int) (Math.random() * (panelWidth - 2 * baseWidth)) + baseWidth;
-                y = (int) (Math.random() * (panelHeight - 2 * baseHeight)) + baseHeight;
+                y = (int) (Math.random() * (panelHeight -2  * baseHeight)) + baseHeight;
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -598,25 +601,42 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
     private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
+        // Рисуване на синята база
         g2d.setColor(new Color(0, 100, 200));
         g2d.fillRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
         g2d.setColor(Color.BLUE);
         g2d.drawRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
 
-        g2d.setColor(new Color(0, 0, 255, 200));
-        g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
+        // Рисуване на щита на синята база, ако има останали точки
+        if (baseShieldPointsBlue > 0) {
+            g2d.setColor(new Color(0, 0, 255, 200));
+            g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
+            // Показване на точките на щита на синята база
+            g2d.setColor(Color.BLUE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 12));
+            g2d.drawString("" + baseShieldPointsBlue, blueBaseX, blueBaseY - 25);
+        }
+
+        // Рисуване на червената база
         g2d.setColor(new Color(200, 50, 50));
         g2d.fillRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
         g2d.setColor(Color.RED);
         g2d.drawRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
 
-        g2d.setColor(new Color(255, 0, 0, 100));
-        g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
+        // Рисуване на щита на червената база, ако има останали точки
+        if (baseShieldPointsRed > 0) {
+            g2d.setColor(new Color(255, 0, 0, 100));
+            g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
+            // Показване на точките на щита на червената база
+            g2d.setColor(Color.RED);
+            g2d.setFont(new Font("Arial", Font.BOLD, 12));
+            g2d.drawString("" + baseShieldPointsRed, redBaseX, redBaseY - 25);
+        }
 
+        // Рисуване на ресурсите
         for (Resource resource : resources) {
             g2d.setColor(resource.getValue() <= 0 ? new Color(105, 105, 105) : new Color(150, 135, 10)); // Darker gray for empty resources
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
@@ -625,9 +645,38 @@ public class ScoutGame extends JFrame {
             g2d.setFont(new Font("Arial", Font.BOLD, 10));
             g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
         }
-
-
     }
+
+
+//    private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
+//        g2d.setColor(new Color(0, 100, 200));
+//        g2d.fillRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
+//        g2d.setColor(Color.BLUE);
+//        g2d.drawRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
+//
+//        g2d.setColor(new Color(0, 0, 255, 200));
+//        g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
+//
+//        g2d.setColor(new Color(200, 50, 50));
+//        g2d.fillRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
+//        g2d.setColor(Color.RED);
+//        g2d.drawRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
+//
+//        g2d.setColor(new Color(255, 0, 0, 100));
+//        g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
+//
+//
+//        for (Resource resource : resources) {
+//            g2d.setColor(resource.getValue() <= 0 ? new Color(105, 105, 105) : new Color(150, 135, 10)); // Darker gray for empty resources
+//            g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
+//            g2d.setColor(Color.BLACK);
+//            g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
+//            g2d.setFont(new Font("Arial", Font.BOLD, 10));
+//            g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
+//        }
+//
+//
+//    }
 
     private void drawWorkers(Graphics2D g2d) {
         drawWorkersWithLine(g2d, blueScout);
