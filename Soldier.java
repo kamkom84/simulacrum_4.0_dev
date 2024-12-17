@@ -25,13 +25,14 @@ public class Soldier extends Character {
     private Grenade grenade;
     private boolean hasThrownGrenade = false; // Гаранция, че войникът хвърля само една граната
     private Grenade currentGrenade = null; // Граната, хвърлена от войника
+    private int previousHealthPoints = 0;
 
 
 
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 55;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 50;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -147,20 +148,20 @@ public class Soldier extends Character {
             showHealthTemporarily();
             moveBack();
 
-//            if (healthPoints > 3 && healthPoints <= 6) {
-//                Character target = findTarget();
-//                if (target != null) {
-//                    currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
-//                }
-//            }
-
-            // Хвърляне на гранатата, ако здравето падне до 5 или по-малко
-            if (healthPoints <= 5 && currentGrenade == null) {
+            if (healthPoints > 1 && healthPoints <= 3) {
                 Character target = findTarget();
                 if (target != null) {
                     currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
                 }
             }
+
+            if (healthPoints <= 20 && currentGrenade == null) {
+                Character target = findTarget();
+                if (target != null) {
+                    currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
+                }
+            }
+
         }
     }
 
