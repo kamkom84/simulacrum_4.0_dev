@@ -434,7 +434,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[6];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -468,12 +468,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 60);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 3;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 1;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -646,37 +646,6 @@ public class ScoutGame extends JFrame {
             g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
         }
     }
-
-
-//    private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
-//        g2d.setColor(new Color(0, 100, 200));
-//        g2d.fillRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
-//        g2d.setColor(Color.BLUE);
-//        g2d.drawRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
-//
-//        g2d.setColor(new Color(0, 0, 255, 200));
-//        g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
-//
-//        g2d.setColor(new Color(200, 50, 50));
-//        g2d.fillRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
-//        g2d.setColor(Color.RED);
-//        g2d.drawRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
-//
-//        g2d.setColor(new Color(255, 0, 0, 100));
-//        g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
-//
-//
-//        for (Resource resource : resources) {
-//            g2d.setColor(resource.getValue() <= 0 ? new Color(105, 105, 105) : new Color(150, 135, 10)); // Darker gray for empty resources
-//            g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
-//            g2d.setColor(Color.BLACK);
-//            g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
-//            g2d.setFont(new Font("Arial", Font.BOLD, 10));
-//            g2d.drawString(String.valueOf(resource.getValue()), (int) resource.getX() - 10, (int) resource.getY() + 5);
-//        }
-//
-//
-//    }
 
     private void drawWorkers(Graphics2D g2d) {
         drawWorkersWithLine(g2d, blueScout);
