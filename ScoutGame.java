@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 100000; // Щит за червената база
-    private int baseShieldPointsBlue = 1000000; // Щит за синята база
+    private int baseShieldPointsRed = 0;
+    private int baseShieldPointsBlue = 0;
 
 
 

@@ -319,7 +319,7 @@ public class Scout extends Character {
             if (currentTime - pointReductionDisplayStartTime <= POINT_REDUCTION_DISPLAY_DURATION) {
                 g2d.setColor(Color.RED);
                 g2d.setFont(new Font("Consolas", Font.BOLD, 12));
-                g2d.drawString("Fuck", (int) x - 20, (int) y - bodyRadius - 15);
+                g2d.drawString(":(", (int) x - 20, (int) y - bodyRadius - 15);
             } else {
                 showPointReduction = false;
             }
