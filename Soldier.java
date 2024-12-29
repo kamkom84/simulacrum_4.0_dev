@@ -30,7 +30,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 5;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -415,9 +415,9 @@ public class Soldier extends Character {
                 g2d.setColor(Color.RED);
                 g2d.fillOval((int) x - 5, (int) y - 5, 6, 6);
 
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Arial", Font.BOLD, 3));////////////////////////////////////////////////
-                g2d.drawString("" + countdown, (int) x - 3, (int) y + 3);
+                //g2d.setColor(Color.WHITE);
+                //g2d.setFont(new Font("Arial", Font.BOLD, 3));////////////////////////////////////////////////
+                //g2d.drawString("" + countdown, (int) x - 3, (int) y + 3);
             } else {
                 // Рисуване на експлозията
                 g2d.setColor(new Color(255, 0, 0, (int) (alpha * 255)));
@@ -433,7 +433,5 @@ public class Soldier extends Character {
             return exploded && alpha <= 0;
         }
     }
-
-
 
 }

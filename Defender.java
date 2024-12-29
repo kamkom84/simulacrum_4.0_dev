@@ -8,7 +8,7 @@ public class Defender extends Character {
     private double speed = 0.03;
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
-    private static final int SHOOT_RANGE = 350;/////////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_RANGE = 400;/////////////////////////////////////////////////////////////////////////
     private static final int SHOOT_INTERVAL = 1000;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;
@@ -20,7 +20,7 @@ public class Defender extends Character {
         super(startX, startY, team, role);
         this.game = game;
         this.angleOffset = initialAngle;
-        this.healthPoints = 20;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 500;////////////////////////////////////////////////////////////////////////////////////////
 
         if ("red".equalsIgnoreCase(team)) {
             this.currentAngle = Math.toRadians(180);
@@ -211,8 +211,6 @@ public class Defender extends Character {
         drawDefenderWeaponDirection(g);
     }
 
-
-
     @Override
     public String getType() {
         return "defender";
@@ -225,7 +223,6 @@ public class Defender extends Character {
             this.setActive(false); // Деактивиране на защитника
         }
     }
-
 
     public int getRadius() {
         return 15; // Примерен радиус на защитника

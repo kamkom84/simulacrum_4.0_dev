@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 500;
-    private int baseShieldPointsBlue = 500;
+    private int baseShieldPointsRed = 1000;/////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsBlue = 1000;////////////////////////////////////////////////////////////////////////////
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
@@ -457,7 +457,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -491,12 +491,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 25);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
