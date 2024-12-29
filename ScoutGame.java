@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 100000;/////////////////////////////////////////////////////////////////////////////
-    private int baseShieldPointsBlue = 100000;////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsRed = 50000;/////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsBlue = 50000;////////////////////////////////////////////////////////////////////////////
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
