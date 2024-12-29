@@ -39,9 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 1;
-    private int baseShieldPointsBlue = 1;
-
+    private int baseShieldPointsRed = 100;
+    private int baseShieldPointsBlue = 100;
 
 
     public ScoutGame() {
@@ -434,7 +433,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[50];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[100];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -468,12 +467,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 200);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 1000);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 25;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -879,7 +878,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 50; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 2000; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;

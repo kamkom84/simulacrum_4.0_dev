@@ -30,7 +30,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 50;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 5000;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -75,7 +75,7 @@ public class Soldier extends Character {
 
         // Рисуване на гранатата, ако е хвърлена
         if (currentGrenade != null) {
-            currentGrenade.draw(g2d);
+            currentGrenade.drawGrenade(g2d);
         }
     }
 
@@ -84,7 +84,7 @@ public class Soldier extends Character {
         if (target == null || !target.isActive()) return;
 
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastShotTime < 2000) return;//////////////////////////////////////////////////////////////////
+        if (currentTime - lastShotTime < 1000) return;//////////////////////////////////////////////////////////////////
 
         double angleToTarget = calculateAngleTo(this.x, this.y, target.getX(), target.getY());
         double distanceToTarget = distance(this.x, this.y, target.getX(), target.getY());
@@ -164,7 +164,7 @@ public class Soldier extends Character {
 
     public void moveBack() {
         double moveAngle = Math.toRadians(currentAngle + 180);
-        final int MOVE_BACK_DISTANCE = 80;//////////////////////////////////////////////////////////////////////////////
+        final int MOVE_BACK_DISTANCE = 120;//////////////////////////////////////////////////////////////////////////////
         this.x += MOVE_BACK_DISTANCE * Math.cos(moveAngle);
         this.y += MOVE_BACK_DISTANCE * Math.sin(moveAngle);
     }
@@ -181,7 +181,7 @@ public class Soldier extends Character {
     }
 
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 0.8;/////////////////////////////////////////////////////////////////////////////////////////////
+        double speed = 1.0;/////////////////////////////////////////////////////////////////////////////////////////////
 
         double centerX = game.getWidth() / 2.0;
         double centerY = game.getHeight() / 2.0;
@@ -282,7 +282,7 @@ public class Soldier extends Character {
         private double x, y;
         private double targetX, targetY;
         private double directionAngle;
-        private double speed = 30.0; ///////////////////////////////////////////////////////////////////////////////////
+        private double speed = 35.0; ///////////////////////////////////////////////////////////////////////////////////
         private boolean active = true;
         private String team;
 
@@ -357,7 +357,7 @@ public class Soldier extends Character {
     private class Grenade {
         private double x, y;
         private final double targetX, targetY;
-        private final double speed = 10.0;
+        private final double speed = 12.0;//////////////////////////////////////////////////////////////////////////////
         private int countdown = 5;
         private boolean exploded = false;
         private float alpha = 1.0f;
@@ -404,7 +404,7 @@ public class Soldier extends Character {
             }
         }
 
-        public void draw(Graphics2D g2d) {
+        public void drawGrenade(Graphics2D g2d) {
             if (alpha <= 0) return;
 
             Composite originalComposite = g2d.getComposite();
