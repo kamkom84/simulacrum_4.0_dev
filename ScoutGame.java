@@ -1216,7 +1216,7 @@ public class ScoutGame extends JFrame {
         } else if ("red".equalsIgnoreCase(team)) {
             return baseShieldPointsRed;
         }
-        return 0; // По подразбиране
+        return 0;
     }
 
 }
