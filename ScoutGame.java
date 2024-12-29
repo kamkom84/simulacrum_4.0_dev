@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 1000;/////////////////////////////////////////////////////////////////////////////
-    private int baseShieldPointsBlue = 1000;////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsRed = 100000;/////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsBlue = 100000;////////////////////////////////////////////////////////////////////////////
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
@@ -491,7 +491,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 30);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
         }
     }
 
