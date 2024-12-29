@@ -1,7 +1,9 @@
 package classesSeparated;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Artillery extends Character {
@@ -65,18 +67,65 @@ public class Artillery extends Character {
 
         if (currentProjectile != null) {
             currentProjectile.updateArtilleryProjectile();
-            if (currentProjectile.hasReachedTarget()) {
-                createExplosion(currentProjectile.getTargetX(), currentProjectile.getTargetY());
+
+            // Проверка за удар в щита
+            double distanceToBase = Math.hypot(currentProjectile.getX() - enemyBaseX, currentProjectile.getY() - enemyBaseY);
+            if (distanceToBase <= game.getBaseShieldRadius()) {
+                // Намаляване на точките на щита с 5
+                game.reduceShieldPoints(this.getTeam().equals("red") ? "blue" : "red", 5);
+
+                // Създаване на експлозия
+                createExplosion(currentProjectile.getX(), currentProjectile.getY());
+
+                // Премахване на снаряда
                 currentProjectile = null;
+                return;
+            }
+
+            // Проверка за удар в защитник
+            for (Defender defender : game.getDefenders()) {
+                if (defender == null) continue;
+
+                double distanceToDefender = Math.hypot(currentProjectile.getX() - defender.getX(), currentProjectile.getY() - defender.getY());
+                if (defender.isActive() && distanceToDefender <= defender.getRadius()) {
+                    // Намаляване на здравето на защитника с 5
+                    defender.reduceHealthPoints(5);
+
+                    if (defender.getHealthPoints() <= 0) {
+                        defender.setActive(false); // Деактивиране на защитника
+                    }
+
+                    // Създаване на експлозия
+                    createExplosion(currentProjectile.getX(), currentProjectile.getY());
+
+                    // Премахване на снаряда
+                    currentProjectile = null;
+                    return;
+                }
             }
         }
 
+        // Премахване на изтеклите експлозии
         explosions.removeIf(ExplosionEffect::isExplosionExpired);
 
+        // Спиране на стрелбата, ако всички условия са изпълнени
+        boolean shieldActive = game.getBaseShieldPoints(this.getTeam().equals("red") ? "blue" : "red") > 0;
+        boolean defendersActive = Arrays.stream(game.getDefenders()).anyMatch(Defender::isActive);
+
+        if (!shieldActive && !defendersActive) {
+            setActive(false); // Артилерията спира да стреля
+            return;
+        }
+
+        // Стрелба, ако няма активен снаряд
         if (currentProjectile == null && canShoot()) {
             fireProjectile();
         }
     }
+
+
+
+
 
     private void fireProjectile() {
         if (currentProjectile == null) {
@@ -85,6 +134,7 @@ public class Artillery extends Character {
             currentProjectile = new ArtilleryProjectile(this.x, this.y, shieldEdge.getX(), shieldEdge.getY());
         }
     }
+
 
     private void createExplosion(double targetX, double targetY) {
         explosions.add(new ExplosionEffect(targetX, targetY, 15, Color.RED, 1500));
@@ -166,12 +216,12 @@ public class Artillery extends Character {
             g2d.drawLine((int) x, (int) y, endX, endY);
         }
 
-        public double getTargetX() {
-            return targetX;
+        public double getX() {
+            return this.x;
         }
 
-        public double getTargetY() {
-            return targetY;
+        public double getY() {
+            return this.y;
         }
 
     }

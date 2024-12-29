@@ -256,7 +256,7 @@ public class Worker extends Character {
         }
     }
 
-    public void draw(Graphics2D g2d) {
+    public void drawWorker(Graphics2D g2d) {
         int bodyRadius = 5;
         g2d.setColor(getCurrentColor());
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);

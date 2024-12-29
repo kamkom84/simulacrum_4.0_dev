@@ -1,13 +1,13 @@
 package classesSeparated;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
+
 import static java.awt.geom.Point2D.distance;
 
 public class ScoutGame extends JFrame {
@@ -39,8 +39,13 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 100;
-    private int baseShieldPointsBlue = 100;
+    private int baseShieldPointsRed = 500;
+    private int baseShieldPointsBlue = 500;
+    private boolean blueShieldBlinking = false;
+    private boolean redShieldBlinking = false;
+    private int blueShieldBlinkState = 0;
+    private int redShieldBlinkState = 0;
+
 
 
     public ScoutGame() {
@@ -141,27 +146,29 @@ public class ScoutGame extends JFrame {
 
                 for (Worker worker : blueWorkers) {
                     if (worker != null && worker.isActive()) {
-                        worker.draw(g2d);
+                        worker.drawWorker(g2d);
                     }
                 }
 
                 for (Worker worker : redWorkers) {
                     if (worker != null && worker.isActive()) {
-                        worker.draw(g2d);
+                        worker.drawWorker(g2d);
                     }
                 }
 
                 for (Defender defender : blueDefenders) {
-                    if (defender != null) {
-                        defender.drawProjectiles(g2d); // Рисуване на проектилите
-                        defender.drawDefenderWeaponDirection(g2d); // Рисуване на посоката на оръжието
+                    if (defender != null && defender.isActive()) {
+                        defender.drawDefender(g);
+                        defender.drawDefenderProjectiles(g2d);
+                        defender.drawDefenderWeaponDirection(g2d);
                     }
                 }
 
                 for (Defender defender : redDefenders) {
-                    if (defender != null) {
-                        defender.drawProjectiles(g2d); // Рисуване на проектилите
-                        defender.drawDefenderWeaponDirection(g2d); // Рисуване на посоката на оръжието
+                    if (defender != null && defender.isActive()) {
+                        defender.drawDefender(g);
+                        defender.drawDefenderProjectiles(g2d);
+                        defender.drawDefenderWeaponDirection(g2d);
                     }
                 }
 
@@ -283,6 +290,8 @@ public class ScoutGame extends JFrame {
 
             moveDefenders();
 
+            removeDeadDefenders();
+
             checkForAvailableResources();
 
             moveWorkers();
@@ -365,6 +374,21 @@ public class ScoutGame extends JFrame {
 
         setVisible(true);
     }
+
+    private void removeDeadDefenders() {
+        for (int i = 0; i < blueDefenders.length; i++) {
+            if (blueDefenders[i] != null && !blueDefenders[i].isActive()) {
+                blueDefenders[i] = null; // Премахване на мъртвия защитник
+            }
+        }
+
+        for (int i = 0; i < redDefenders.length; i++) {
+            if (redDefenders[i] != null && !redDefenders[i].isActive()) {
+                redDefenders[i] = null; // Премахване на мъртвия защитник
+            }
+        }
+    }
+
 
     private double calculateAngleTo(double x1, double y1, double x2, double y2) {
         return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
@@ -609,7 +633,11 @@ public class ScoutGame extends JFrame {
 
         // Рисуване на щита на синята база, ако има останали точки
         if (baseShieldPointsBlue > 0) {
-            g2d.setColor(new Color(0, 0, 255, 200));
+            if (blueShieldBlinking && blueShieldBlinkState % 2 == 0) {
+                g2d.setColor(new Color(0, 255, 255, 200)); // По-ярък цвят при премигване
+            } else {
+                g2d.setColor(new Color(0, 0, 255, 200));
+            }
             g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
             // Показване на точките на щита на синята база
@@ -619,14 +647,18 @@ public class ScoutGame extends JFrame {
         }
 
         // Рисуване на червената база
-        g2d.setColor(new Color(200, 50, 50));
+        g2d.setColor(new Color(236, 8, 8));
         g2d.fillRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
         g2d.setColor(Color.RED);
         g2d.drawRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
 
         // Рисуване на щита на червената база, ако има останали точки
         if (baseShieldPointsRed > 0) {
-            g2d.setColor(new Color(255, 0, 0, 100));
+            if (redShieldBlinking && redShieldBlinkState % 2 == 0) {
+                g2d.setColor(new Color(227, 35, 18, 200)); // По-ярък цвят при премигване
+            } else {
+                g2d.setColor(new Color(234, 5, 5, 229));
+            }
             g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
             // Показване на точките на щита на червената база
@@ -878,7 +910,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 2000; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -1122,5 +1154,69 @@ public class ScoutGame extends JFrame {
         return Math.max(baseWidth, baseHeight) * 1.5;
     }
 
+    public void reduceShieldPoints(String team, int points) {
+        if ("red".equalsIgnoreCase(team)) {
+            baseShieldPointsRed -= points;
+            if (baseShieldPointsRed < 0) baseShieldPointsRed = 0;
+
+            // Стартиране на премигване за червения щит
+            redShieldBlinking = true;
+            redShieldBlinkState = 0;
+
+            Timer redBlinkTimer = new Timer(200, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    redShieldBlinkState++;
+                    repaint(); // Задължително извикване за обновяване на екрана
+                    if (redShieldBlinkState >= 6) { // 3 премигвания (6 състояния)
+                        redShieldBlinking = false;
+                        ((Timer) e.getSource()).stop();
+                    }
+                }
+            });
+            redBlinkTimer.start();
+        } else if ("blue".equalsIgnoreCase(team)) {
+            baseShieldPointsBlue -= points;
+            if (baseShieldPointsBlue < 0) baseShieldPointsBlue = 0;
+
+            // Стартиране на премигване за синия щит
+            blueShieldBlinking = true;
+            blueShieldBlinkState = 0;
+
+            Timer blueBlinkTimer = new Timer(500, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    blueShieldBlinkState++;
+                    repaint(); // Задължително извикване за обновяване на екрана
+                    if (blueShieldBlinkState >= 6) { // 3 премигвания (6 състояния)
+                        blueShieldBlinking = false;
+                        ((Timer) e.getSource()).stop();
+                    }
+                }
+            });
+            blueBlinkTimer.start();
+        }
+    }
+
+    public Defender[] getDefenders() {
+        // Обединяване на двата масива
+        Defender[] allDefenders = new Defender[blueDefenders.length + redDefenders.length];
+        System.arraycopy(blueDefenders, 0, allDefenders, 0, blueDefenders.length);
+        System.arraycopy(redDefenders, 0, allDefenders, blueDefenders.length, redDefenders.length);
+
+        // Филтриране на null стойности
+        return Arrays.stream(allDefenders)
+                .filter(Objects::nonNull) // Премахване на null елементи
+                .toArray(Defender[]::new); // Преобразуване обратно към масив
+    }
+
+    public int getBaseShieldPoints(String team) {
+        if ("blue".equalsIgnoreCase(team)) {
+            return baseShieldPointsBlue;
+        } else if ("red".equalsIgnoreCase(team)) {
+            return baseShieldPointsRed;
+        }
+        return 0; // По подразбиране
+    }
 
 }

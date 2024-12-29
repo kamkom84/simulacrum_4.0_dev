@@ -14,11 +14,13 @@ public class Defender extends Character {
     private long lastShotTime = 0;
     private double currentAngle;
     private boolean scoutInSight = false;
+    private int healthPoints;
 
     public Defender(int startX, int startY, String team, String role, ScoutGame game, double initialAngle) {
         super(startX, startY, team, role);
         this.game = game;
         this.angleOffset = initialAngle;
+        this.healthPoints = 20;////////////////////////////////////////////////////////////////////////////////////////
 
         if ("red".equalsIgnoreCase(team)) {
             this.currentAngle = Math.toRadians(180);
@@ -113,7 +115,7 @@ public class Defender extends Character {
         }
     }
 
-    public void drawProjectiles(Graphics g) {
+    public void drawDefenderProjectiles(Graphics g) {
         for (Projectile projectile : projectiles) {
             projectile.drawProjectile(g);
         }
@@ -194,9 +196,43 @@ public class Defender extends Character {
         g2d.drawLine((int) this.x, (int) this.y, endX, endY);
     }
 
+    public void drawDefender(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+
+        int visualRadius = getRadius() / 2;
+
+        g2d.setColor("red".equalsIgnoreCase(team) ? Color.RED : Color.BLUE);
+        g2d.fillOval((int) (x - visualRadius), (int) (y - visualRadius), visualRadius * 2, visualRadius * 2);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 8));
+        g2d.drawString(String.valueOf(healthPoints), (int) x - 5, (int) y - visualRadius - 5);
+
+        drawDefenderWeaponDirection(g);
+    }
+
+
+
     @Override
     public String getType() {
         return "defender";
+    }
+
+    public void reduceHealthPoints(int points) {
+        this.healthPoints -= points;
+        if (this.healthPoints <= 0) {
+            this.healthPoints = 0;
+            this.setActive(false); // Деактивиране на защитника
+        }
+    }
+
+
+    public int getRadius() {
+        return 15; // Примерен радиус на защитника
+    }
+
+    public int getHealthPoints() {
+        return this.healthPoints;
     }
 
 }
