@@ -127,6 +127,7 @@ public class Artillery extends Character {
 
 
 
+
     private void fireProjectile() {
         if (currentProjectile == null) {
             double shieldRadius = game.getBaseShieldRadius();
