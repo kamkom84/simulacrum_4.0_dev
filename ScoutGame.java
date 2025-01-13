@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 50000;/////////////////////////////////////////////////////////////////////////////
-    private int baseShieldPointsBlue = 50000;////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsRed = 200;/////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsBlue = 200;////////////////////////////////////////////////////////////////////////////
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
@@ -189,9 +189,6 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
-
-
-
                 if (artillery != null && artillery.isActive()) {
                     artillery.
                             drawArtillery(g2d);
@@ -258,7 +255,7 @@ public class ScoutGame extends JFrame {
 
         add(mainPanel, BorderLayout.CENTER);
 
-        Timer timer = new Timer(150, e -> {
+        Timer timer = new Timer(150, e -> { //150
             if (blueScout != null && blueScout.isActive()) {
                 Point blueBaseCenter = new Point(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2);
                 blueScout.update(blueBaseCenter, resources);
@@ -389,7 +386,6 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
     private double calculateAngleTo(double x1, double y1, double x2, double y2) {
         return Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
     }
@@ -457,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[21];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[5];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -491,12 +487,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 2;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];

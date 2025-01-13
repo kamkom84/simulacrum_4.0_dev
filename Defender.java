@@ -20,7 +20,7 @@ public class Defender extends Character {
         super(startX, startY, team, role);
         this.game = game;
         this.angleOffset = initialAngle;
-        this.healthPoints = 500;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 25;////////////////////////////////////////////////////////////////////////////////////////
 
         if ("red".equalsIgnoreCase(team)) {
             this.currentAngle = Math.toRadians(180);
