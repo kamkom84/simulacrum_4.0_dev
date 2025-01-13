@@ -6,9 +6,9 @@ import java.util.List;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
-    private int points = 500;////////////////////////////////////////////////////////////////////
-    private static final int MAX_POINTS = 1500;///////////////////////////////////////////////////
-    private static final int MIN_POINTS = 30;///////////////////////////////////////////////////
+    private int points = 30;////////////////////////////////////////////////////////////////////
+    private static final int MAX_POINTS = 20;///////////////////////////////////////////////////
+    private static final int MIN_POINTS = 5;///////////////////////////////////////////////////
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
     private static final int POINT_REDUCTION_INTERVAL = 60 * 1000;
