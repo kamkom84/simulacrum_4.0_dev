@@ -487,7 +487,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 50);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
