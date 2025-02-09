@@ -43,7 +43,7 @@ public class Scout extends Character {
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
-        this.speed = 0.2;///////////////////////////////////////////////////////////////////////////
+        this.speed = 0.3;///////////////////////////////////////////////////////////////////////////
         this.id = id;
     }
 
