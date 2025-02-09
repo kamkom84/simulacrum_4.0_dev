@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[220];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -487,12 +487,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 500);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 70);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 100;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -665,7 +665,7 @@ public class ScoutGame extends JFrame {
 
         // Рисуване на ресурсите
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(105, 105, 105) : new Color(150, 135, 10)); // Darker gray for empty resources
+            g2d.setColor(resource.getValue() <= 0 ? new Color(43, 41, 41) : new Color(150, 135, 10)); // Darker gray for empty resources
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
@@ -906,7 +906,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 100; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
