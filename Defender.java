@@ -146,7 +146,6 @@ public class Defender extends Character {
             if (!soldier.getTeam().equalsIgnoreCase(this.team) && soldier.isActive()) {
                 double distanceToSoldier = Math.hypot(soldier.getX() - this.x, soldier.getY() - this.y);
                 if (distanceToSoldier <= SHOOT_RANGE) {
-                    // Стреля по всеки войник в обсега
                     this.currentAngle = Math.atan2(soldier.getY() - this.y, soldier.getX() - this.x);
                     defenderShootAtSoldier(soldier);
                 }
@@ -157,30 +156,27 @@ public class Defender extends Character {
     private void defenderShootAtSoldier(Soldier soldier) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastShotTime < SHOOT_INTERVAL) {
-            return; // Ограничение за стрелба през определен интервал
+            return;
         }
 
         lastShotTime = currentTime;
 
-        // Изчисляване на ъгъла към войника
         double angleToTarget = Math.atan2(soldier.getY() - this.y, soldier.getX() - this.x);
 
-        // Създаване на нов патрон към конкретния войник
         Projectile projectile = new Projectile(
                 this.x, // Начална X позиция
                 this.y, // Начална Y позиция
                 soldier.getX(), // Целева X позиция
-                soldier.getY(), // Целева Y позиция
+                soldier.getY(),
                 40.0, // Скорост на патрона
-                500.0 // Максимален обхват на патрона
+                400.0 // Максимален обхват на патрона//////////////////////////////////////////////////////////////////
         );
-        projectiles.add(projectile); // Добавяне на патрона в списъка за визуализация и движение
+        projectiles.add(projectile);
 
-        // Визуализация на изстрела
         game.drawShot(
                 (int) this.x,
                 (int) this.y,
-                (int) (this.x + 15 * Math.cos(angleToTarget)), // По-добра видимост на изстрела
+                (int) (this.x + 15 * Math.cos(angleToTarget)),
                 (int) (this.y + 15 * Math.sin(angleToTarget))
         );
     }

@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[10];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[11];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -487,7 +487,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 70);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
