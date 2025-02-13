@@ -22,9 +22,8 @@ public class Worker extends Character {
     private int baseHeight;
     private ScoutGame scoutGame;
     private Resource[] resources;
-    //private int workerId;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 5000;
+    private int health = 200;//////////////////////////////////////////////////////////////////////////////////
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;
@@ -116,7 +115,6 @@ public class Worker extends Character {
         if (closestResourceIndex != -1) {
             targetResourceIndex = closestResourceIndex;
             resourceOccupied[targetResourceIndex] = true;
-            //System.out.println("Worker " + id + " chose resource " + closestResourceIndex + " with " + nearest.getValue() + " points.");
         }
 
         return nearest;
@@ -167,7 +165,7 @@ public class Worker extends Character {
         int targetX = baseX + baseWidth / 2;
         int targetY = baseY + baseHeight / 2;
         double distance = distance(targetX, targetY, x, y);
-        double moveSpeed = 4.0;
+        double moveSpeed = 4.0;////////////////////////////////////////////////////////////////////////////
 
         if (distance > 5) {
             x += (targetX - x) / distance * moveSpeed;
@@ -191,7 +189,7 @@ public class Worker extends Character {
         int waitX = startPosition.x;
         int waitY = startPosition.y;
         double distance = distance(waitX, waitY, x, y);
-        double moveSpeed = 4.0;
+        double moveSpeed = 4.0;////////////////////////////////////////////////////////////////////////
 
         if (distance > 5) {
             x += (waitX - x) / distance * moveSpeed;
@@ -300,7 +298,6 @@ public class Worker extends Character {
 
         this.x = -1000;
         this.y = -1000;
-        //System.out.println("Worker " + id + " of team " + team + " is now inactive.");
     }
 
     public String getTeam() {
@@ -341,7 +338,6 @@ public class Worker extends Character {
     public void moveToBase(int baseX, int baseY) {
         this.x = baseX;
         this.y = baseY;
-        //System.out.println("Worker " + this.getId() + " moved to base (" + baseX + ", " + baseY + ").");
     }
 
     public boolean isAtStartPosition(int baseX, int baseY) {

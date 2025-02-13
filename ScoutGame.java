@@ -966,7 +966,6 @@ public class ScoutGame extends JFrame {
                 //System.out.println("Worker " + worker.getId() + " position: (" + worker.getX() + ", " + worker.getY() + ")");
                 //System.out.println("Checking if worker is at base (" + baseX + ", " + baseY + ")");
                 if (!worker.isAtBase(baseX, baseY)) {
-                    //System.out.println("Worker " + worker.getId() + " is NOT at base.");
                     return false;
                 }
             }
