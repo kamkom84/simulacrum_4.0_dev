@@ -23,7 +23,7 @@ public class Worker extends Character {
     private ScoutGame scoutGame;
     private Resource[] resources;
     private static final int RESOURCE_POINTS = 5;
-    private int health = 200;//////////////////////////////////////////////////////////////////////////////////
+    private int health = 2000;//////////////////////////////////////////////////////////////////////////////////
     private boolean underAttack = false;
     private long lastDamageTime = 0;
     private static final int ATTACK_DISPLAY_DURATION = 500;

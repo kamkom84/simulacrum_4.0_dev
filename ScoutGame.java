@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[11];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[1200];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -487,12 +487,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 5;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 60;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -599,18 +599,15 @@ public class ScoutGame extends JFrame {
                     defender.updateProjectiles(enemyScout); // Update projectiles targeting the scout
                 }
 
-                // Check and shoot at active enemy soldiers if any are in range
                 if (enemySoldiers != null && enemySoldiers.length > 0) {
                     ArrayList<Soldier> activeSoldiers = new ArrayList<>();
 
-                    // Filter active enemy soldiers
                     for (Soldier soldier : enemySoldiers) {
                         if (soldier != null && soldier.isActive()) {
                             activeSoldiers.add(soldier);
                         }
                     }
 
-                    // If there are active enemy soldiers, handle shooting and projectile updates
                     if (!activeSoldiers.isEmpty()) {
                         defender.checkAndShootIfSoldiersInRange(activeSoldiers);
                         defender.updateProjectilesForSoldier(activeSoldiers); // Update projectiles targeting soldiers
@@ -636,13 +633,11 @@ public class ScoutGame extends JFrame {
             }
             g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
 
-            // Показване на точките на щита на синята база
             g2d.setColor(Color.BLUE);
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
             g2d.drawString("" + baseShieldPointsBlue, blueBaseX, blueBaseY - 25);
         }
 
-        // Рисуване на червената база
         g2d.setColor(new Color(236, 8, 8));
         g2d.fillRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
         g2d.setColor(Color.RED);
@@ -663,9 +658,8 @@ public class ScoutGame extends JFrame {
             g2d.drawString("" + baseShieldPointsRed, redBaseX, redBaseY - 25);
         }
 
-        // Рисуване на ресурсите
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(43, 41, 41) : new Color(150, 135, 10)); // Darker gray for empty resources
+            g2d.setColor(resource.getValue() <= 0 ? new Color(35, 33, 33) : new Color(138, 127, 25));
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
@@ -906,7 +900,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 25; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
