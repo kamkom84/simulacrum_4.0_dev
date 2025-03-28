@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[1200];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[5000];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -487,12 +487,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 60;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 260;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -610,7 +610,7 @@ public class ScoutGame extends JFrame {
 
                     if (!activeSoldiers.isEmpty()) {
                         defender.checkAndShootIfSoldiersInRange(activeSoldiers);
-                        defender.updateProjectilesForSoldier(activeSoldiers); // Update projectiles targeting soldiers
+                        defender.updateProjectilesForSoldier(activeSoldiers);
                     }
                 }
             }
@@ -618,13 +618,11 @@ public class ScoutGame extends JFrame {
     }
 
     private void drawBasesAndResources(Graphics2D g2d, int shieldRadius) {
-        // Рисуване на синята база
         g2d.setColor(new Color(0, 100, 200));
         g2d.fillRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
         g2d.setColor(Color.BLUE);
         g2d.drawRoundRect(blueBaseX, blueBaseY, baseWidth, baseHeight, 20, 20);
 
-        // Рисуване на щита на синята база, ако има останали точки
         if (baseShieldPointsBlue > 0) {
             if (blueShieldBlinking && blueShieldBlinkState % 2 == 0) {
                 g2d.setColor(new Color(0, 255, 255, 200)); // По-ярък цвят при премигване
@@ -900,7 +898,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 25; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 200; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
