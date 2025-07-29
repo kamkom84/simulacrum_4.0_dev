@@ -8,7 +8,7 @@ public class Defender extends Character {
     private double speed = 0.03;
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
-    private static final int SHOOT_RANGE = 400;/////////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_RANGE = 450;/////////////////////////////////////////////////////////////////////////
     private static final int SHOOT_INTERVAL = 1000;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;
@@ -20,7 +20,7 @@ public class Defender extends Character {
         super(startX, startY, team, role);
         this.game = game;
         this.angleOffset = initialAngle;
-        this.healthPoints = 25;////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 100;////////////////////////////////////////////////////////////////////////////////////////
 
         if ("red".equalsIgnoreCase(team)) {
             this.currentAngle = Math.toRadians(180);
@@ -164,12 +164,12 @@ public class Defender extends Character {
         double angleToTarget = Math.atan2(soldier.getY() - this.y, soldier.getX() - this.x);
 
         Projectile projectile = new Projectile(
-                this.x, // Начална X позиция
-                this.y, // Начална Y позиция
-                soldier.getX(), // Целева X позиция
+                this.x,
+                this.y,
+                soldier.getX(),
                 soldier.getY(),
-                40.0, // Скорост на патрона
-                400.0 // Максимален обхват на патрона//////////////////////////////////////////////////////////////////
+                45.0, ///////////////////////////////////
+                450.0 // Максимален обхват на патрона//////////////////////////////////////////////////////////////////
         );
         projectiles.add(projectile);
 

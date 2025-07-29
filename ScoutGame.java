@@ -39,8 +39,8 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 2000;/////////////////////////////////////////////////////////////////////////////
-    private int baseShieldPointsBlue = 2000;////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsRed = 200;/////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsBlue = 200;////////////////////////////////////////////////////////////////////////////
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
@@ -232,7 +232,7 @@ public class ScoutGame extends JFrame {
 
         minimizeButton.addActionListener(e -> setState(JFrame.ICONIFIED));
 
-        controlPanel.add(minimizeButton);
+        //controlPanel.add(minimizeButton);
 
         JButton fullscreenButton = new JButton("□");
 
@@ -243,13 +243,13 @@ public class ScoutGame extends JFrame {
             gdDevice.setFullScreenWindow(isUndecorated() ? this : null);
         });
 
-        controlPanel.add(fullscreenButton);
+        //controlPanel.add(fullscreenButton);
 
         JButton closeButton = new JButton("X");
 
         closeButton.addActionListener(e -> System.exit(0));
 
-        controlPanel.add(closeButton);
+        //controlPanel.add(closeButton);
 
         add(controlPanel, BorderLayout.NORTH);
 
@@ -453,7 +453,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[5000];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[30];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -487,12 +487,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 260;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -559,7 +559,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeDefenders() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {/////////////////////////////////////////////////////////////
             blueDefenders[i] = new Defender(
                     blueBaseX + baseWidth / 2,
                     blueBaseY + baseHeight / 2,
@@ -898,7 +898,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 200; /////////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1; /////////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -1154,8 +1154,8 @@ public class ScoutGame extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     redShieldBlinkState++;
-                    repaint(); // Задължително извикване за обновяване на екрана
-                    if (redShieldBlinkState >= 6) { // 3 премигвания (6 състояния)
+                    repaint();
+                    if (redShieldBlinkState >= 6) {
                         redShieldBlinking = false;
                         ((Timer) e.getSource()).stop();
                     }

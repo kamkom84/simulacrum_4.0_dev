@@ -6,8 +6,8 @@ import java.util.List;
 import static java.awt.geom.Point2D.distance;
 
 public class Scout extends Character {
-    private int points = 10;////////////////////////////////////////////////////////////////////
-    private static final int MAX_POINTS = 10;///////////////////////////////////////////////////
+    private int points = 25;////////////////////////////////////////////////////////////////////
+    private static final int MAX_POINTS = 25;///////////////////////////////////////////////////
     private static final int MIN_POINTS = 5;///////////////////////////////////////////////////
     private long lastPointReductionTime = System.currentTimeMillis();
     private long lastShootTime = 0;
@@ -43,7 +43,7 @@ public class Scout extends Character {
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
-        this.speed = 0.2;///////////////////////////////////////////////////////////////////////////
+        this.speed = 0.7;///////////////////////////////////////////////////////////////////////////
         this.id = id;
     }
 

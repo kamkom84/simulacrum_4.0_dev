@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import static java.awt.geom.Point2D.distance;
 
 public class Soldier extends Character {
-    private final int weaponLength = 10;////////////////////////////////////////////////////////////////////////////////
+    private final int weaponLength = 15;////////////////////////////////////////////////////////////////////////////////
     private boolean showHealth = false;
     private Color teamColor;
     private ScoutGame game;
@@ -30,7 +30,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 2000;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 30;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
