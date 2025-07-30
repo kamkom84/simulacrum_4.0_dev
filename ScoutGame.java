@@ -83,8 +83,8 @@ public class ScoutGame extends JFrame {
         initializeWorkers();
         generateResources();
 
-        blueDefenders = new Defender[3];
-        redDefenders = new Defender[3];
+        blueDefenders = new Defender[5];//////////////////////////////////////////////////////////////////////////
+        redDefenders = new Defender[5];///////////////////////////////////////////////////////////////////////////
         initializeDefenders();
 
         initializeSoldiers("blue", blueBaseX, blueBaseY, blueBaseHealth);
@@ -171,7 +171,6 @@ public class ScoutGame extends JFrame {
                         defender.drawDefenderWeaponDirection(g2d);
                     }
                 }
-
 
                 if (blueSoldiers != null) {
                     for (Soldier soldier : blueSoldiers) {
@@ -283,7 +282,6 @@ public class ScoutGame extends JFrame {
                     }
                 }
             }
-
 
             moveDefenders();
 
@@ -487,7 +485,7 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 15);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
@@ -559,7 +557,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeDefenders() {
-        for (int i = 0; i < 3; i++) {/////////////////////////////////////////////////////////////
+        for (int i = 0; i < 5; i++) {/////////////////////////////////////////////////////////////
             blueDefenders[i] = new Defender(
                     blueBaseX + baseWidth / 2,
                     blueBaseY + baseHeight / 2,
@@ -657,7 +655,7 @@ public class ScoutGame extends JFrame {
         }
 
         for (Resource resource : resources) {
-            g2d.setColor(resource.getValue() <= 0 ? new Color(35, 33, 33) : new Color(138, 127, 25));
+            g2d.setColor(resource.getValue() <= 0 ? new Color(35, 33, 33) : new Color(82, 75, 7));
             g2d.fillOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
             g2d.setColor(Color.BLACK);
             g2d.drawOval((int) resource.getX() - 20, (int) resource.getY() - 20, 40, 40);
@@ -1186,7 +1184,6 @@ public class ScoutGame extends JFrame {
     }
 
     public Defender[] getDefenders() {
-        // Обединяване на двата масива
         Defender[] allDefenders = new Defender[blueDefenders.length + redDefenders.length];
         System.arraycopy(blueDefenders, 0, allDefenders, 0, blueDefenders.length);
         System.arraycopy(redDefenders, 0, allDefenders, blueDefenders.length, redDefenders.length);
