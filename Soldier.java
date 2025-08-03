@@ -26,11 +26,16 @@ public class Soldier extends Character {
     private boolean hasThrownGrenade = false;
     private Grenade currentGrenade = null;
     private int previousHealthPoints = 0;
+    private boolean isFlanking = false;
+    private boolean flanking = false;
+    private Soldier flankTarget;
+
+
 
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 30;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 20;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -180,19 +185,41 @@ public class Soldier extends Character {
         }, 1000);
     }
 
+
+
     public void soldierMoveTowardsCenter(Soldier[] teammates) {
-        double speed = 1.0;/////////////////////////////////////////////////////////////////////////////////////////////
+        double speed = 1.0;
 
-        double centerX = game.getWidth() / 2.0;
-        double centerY = game.getHeight() / 2.0;
+        // Център на екрана / бойното поле
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
 
+        double centerX = screenWidth / 2.0;
+        double centerY = screenHeight / 2.0;
+
+        // Ако е флангов войник, заобикаля центъра под ъгъл
         double angleToCenter = calculateAngleTo(this.x, this.y, centerX, centerY);
+        if (isFlanking) {
+            angleToCenter += 40; // или друг ъгъл
+        }
 
         this.x += speed * Math.cos(Math.toRadians(angleToCenter));
         this.y += speed * Math.sin(Math.toRadians(angleToCenter));
 
         maintainDistanceFromTeammates(teammates);
     }
+
+
+
+    public void setFlanking(boolean flanking) {
+        this.isFlanking = flanking;
+    }
+
+    public boolean isFlanking() {
+        return flanking;
+    }
+
+
 
     public Character findTarget() {
         Character closestTarget = null;
@@ -212,37 +239,72 @@ public class Soldier extends Character {
         return closestTarget;
     }
 
-    public void updateSoldier(Soldier[] teammates) {
-        if (waiting) {
+    public void updateSoldier(Soldier[] teammates, Soldier[] enemyArmy) {
+        if (waiting || !isActive()) return;
+
+        // 🔁 Флангови маневри (ако сме флангови)
+        if (flanking) {
+            Soldier flankTarget = getFlankTarget();
+            if (flankTarget != null && flankTarget.isActive()) {
+                moveToFlank(flankTarget);
+            } else {
+                // Целта е мъртва или липсва — връщаме войника към нормално поведение
+                setFlanking(false);
+                setFlankTarget(null);
+            }
             return;
         }
 
-        if (!isActive()) return;
-
+        // 🔫 Нормално поведение
         Character target = findTarget();
 
         if (target != null) {
-            // Ако здравето е 5 или по-малко и не е хвърлил граната, хвърля граната
             if (healthPoints <= 5 && !hasThrownGrenade) {
                 currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
-                hasThrownGrenade = true; // Гарантира, че хвърля само една граната
+                hasThrownGrenade = true;
             }
 
-            // Ако здравето е над 5 или гранатата вече е хвърлена, стреля
             if (healthPoints > 5 || hasThrownGrenade) {
                 soldierShoot(target);
                 updateProjectile(target);
             }
         } else {
-            // Ако няма цел, продължава движение към центъра
             soldierMoveTowardsCenter(teammates);
         }
 
-        // Обновяване на състоянието на гранатата
         if (currentGrenade != null) {
             currentGrenade.update();
         }
     }
+
+
+
+
+    public Soldier findEnemyRearTarget(Soldier[] enemyArmy) {
+        // За "blue" вземи най-задния (най-малък Y), за "red" най-голям Y
+        Soldier rear = null;
+        for (Soldier s : enemyArmy) {
+            if (s != null && s.isActive()) {
+                if (rear == null ||
+                        (team.equals("blue") && s.getY() < rear.getY()) ||
+                        (team.equals("red") && s.getY() > rear.getY())) {
+                    rear = s;
+                }
+            }
+        }
+        return rear;
+    }
+
+    public void moveToFlank(Soldier target) {
+        double speed = 1.5;
+        double angle = Math.atan2(target.getY() - y, target.getX() - x);
+        x += speed * Math.cos(angle);
+        y += speed * Math.sin(angle);
+    }
+
+
+
+
 
     @Override
     public String getType() {
@@ -275,6 +337,14 @@ public class Soldier extends Character {
 
         this.x += offset * Math.cos(angle);
         this.y += offset * Math.sin(angle);
+    }
+
+    public void setFlankTarget(Soldier target) {
+        this.flankTarget = target;
+    }
+
+    public Soldier getFlankTarget() {
+        return this.flankTarget;
     }
 
 

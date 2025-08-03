@@ -311,31 +311,51 @@ public class Scout extends Character {
     public void draw(Graphics2D g2d) {
         int bodyRadius = getBodyRadius();
 
+        // Основен цвят на тялото
         g2d.setColor(team.equals("blue") ? Color.BLUE : Color.RED);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
+        // 🔴 Показване на загуба на точки
         if (showPointReduction) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - pointReductionDisplayStartTime <= POINT_REDUCTION_DISPLAY_DURATION) {
                 g2d.setColor(Color.RED);
                 g2d.setFont(new Font("Consolas", Font.BOLD, 12));
-                g2d.drawString("@ # $ % & !", (int) x - 20, (int) y - bodyRadius - 15);
+                g2d.drawString("@#$%&!", (int) x - 20, (int) y - bodyRadius - 15);
             } else {
                 showPointReduction = false;
             }
         }
 
-        //g2d.setColor(Color.BLACK);
-        //g2d.setFont(new Font("Consolas", Font.BOLD, 8));
-        //g2d.drawString("" + id, (int) x - 4, (int) y - bodyRadius - 2);
-
+        // 🟢 Стрелка за посока
         double arrowLength = bodyRadius * 2;
         int arrowX = (int) (x + arrowLength * Math.cos(Math.toRadians(currentAngle)));
         int arrowY = (int) (y + arrowLength * Math.sin(Math.toRadians(currentAngle)));
 
         g2d.setColor(Color.GREEN);
         g2d.drawLine((int) x, (int) y, arrowX, arrowY);
+
+        // ⚪ По-ясен бял ореол около тялото
+        Composite originalComposite = g2d.getComposite();
+
+        // 70% непрозрачен (по-видим ореол)
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+        g2d.setColor(Color.WHITE);
+
+        // По-дебела линия
+        Stroke originalStroke = g2d.getStroke();
+        g2d.setStroke(new BasicStroke(1f));
+
+        // Може леко да се увеличи радиусът на ореола за ефект
+        int auraRadius = bodyRadius + 1;
+        g2d.drawOval((int)(x - auraRadius), (int)(y - auraRadius), auraRadius * 2, auraRadius * 2);
+
+        // Възстановяване на старите настройки
+        g2d.setStroke(originalStroke);
+        g2d.setComposite(originalComposite);
+
     }
+
 
     public void decreasePoints(int amount) {
         points -= amount;
