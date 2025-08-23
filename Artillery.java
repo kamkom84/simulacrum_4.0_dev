@@ -205,12 +205,13 @@ public class Artillery extends Character {
             }
 
             // 2) щит или база?
+            // щит или база?
             String enemyTeam = this.getTeam().equals("red") ? "blue" : "red";
             double dBase = Math.hypot(currentProjectile.getX() - enemyBaseX,
                     currentProjectile.getY() - enemyBaseY);
 
             if (game.getBaseShieldPoints(enemyTeam) > 0) {
-                // още има щит → чукaме щита
+                // още има щит → удряме щита
                 if (dBase <= game.getBaseShieldRadius() + 2.0) {
                     game.reduceShieldPoints(enemyTeam, 5);
                     spawnFragmentExplosion(currentProjectile.getX(), currentProjectile.getY());
@@ -218,10 +219,20 @@ public class Artillery extends Character {
                     return;
                 }
             } else {
-                // щитът е паднал → 1 попадение в базата = разрушение
-                if (dBase <= 40.0) {
-                    destroyEnemyBase();
+                // щитът е паднал → 1 попадение в базата = край на играта
+                final double BASE_HIT_RADIUS = 28.0;
+                if (dBase <= BASE_HIT_RADIUS) {
+                    // ефекти върху базата
+                    game.addExplosionEffect(enemyBaseX, enemyBaseY, 140, new Color(255,110,40), 1200);
+                    for (int i = 0; i < 5; i++) {
+                        game.addExplosionEffect(enemyBaseX, enemyBaseY, 80 - i * 12, new Color(255,180,80), 900);
+                    }
+                    spawnFragmentExplosion(enemyBaseX, enemyBaseY);
+
                     currentProjectile = null;
+
+                    // >>> ТОВА Е ВАЖНОТО: извикай края на играта
+                    game.onBaseDestroyed(enemyTeam);
                     return;
                 }
             }

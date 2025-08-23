@@ -23,10 +23,9 @@ public class Soldier extends Character {
 
     // фланг – геометрия (ново: фиксирана дълбочина 250 px под врага)
     private static final double FLANK_DEPTH_BELOW_ENEMY = 250.0;
-    private static final double FLANK_SAFE_MARGIN = 40.0; // оставена за евентуални проверки
 
     // граната – шрапнели
-    private static final int    GRENADE_SHRAPNELS = 12;
+    private static final int    GRENADE_SHRAPNELS = 15;
     private static final double SHRAPNEL_SPEED    = 2.4;
     private static final float  SHRAPNEL_FADE     = 0.12f;
     private static final int    SHRAPNEL_SIZE     = 3;
@@ -79,7 +78,7 @@ public class Soldier extends Character {
                    int baseX, int baseY, int enemyBaseX, int enemyBaseY,
                    ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 20;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 2000;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.game = game;
         this.id = id;
