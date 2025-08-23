@@ -39,14 +39,12 @@ public class ScoutGame extends JFrame {
     private Soldier[] redSoldiers;
     private boolean artilleryCalled = false;
     private Artillery artillery;
-    private int baseShieldPointsRed = 200;/////////////////////////////////////////////////////////////////////////////
-    private int baseShieldPointsBlue = 200;////////////////////////////////////////////////////////////////////////////
+    private int baseShieldPointsRed = 200;
+    private int baseShieldPointsBlue = 200;
     private boolean blueShieldBlinking = false;
     private boolean redShieldBlinking = false;
     private int blueShieldBlinkState = 0;
     private int redShieldBlinkState = 0;
-
-
 
     public ScoutGame() {
         allWorkers = new ArrayList<>();
@@ -54,7 +52,7 @@ public class ScoutGame extends JFrame {
         redSoldiers = new Soldier[0];
         blueSoldiers = new Soldier[0];
 
-        setTitle("simulacrum");
+        setTitle("simulacrum_3.9_dev");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -79,12 +77,17 @@ public class ScoutGame extends JFrame {
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this, 1);
         redScout.activate();
 
+        // <<< централна настройка на скоростта на скаута за тази игра/карта
+        Scout.SPEED = 2.0;///////////////////////////////////////////////////////////////////
+        blueScout.applyGlobalSpeed();
+        redScout.applyGlobalSpeed();
+
         initializeResources();
         initializeWorkers();
         generateResources();
 
-        blueDefenders = new Defender[5];//////////////////////////////////////////////////////////////////////////
-        redDefenders = new Defender[5];///////////////////////////////////////////////////////////////////////////
+        blueDefenders = new Defender[5];////////////////////////////////////////////////////////////////////////////////
+        redDefenders = new Defender[5];/////////////////////////////////////////////////////////////////////////////////
         initializeDefenders();
 
         initializeSoldiers("blue", blueBaseX, blueBaseY, blueBaseHealth);
@@ -189,8 +192,7 @@ public class ScoutGame extends JFrame {
                 }
 
                 if (artillery != null && artillery.isActive()) {
-                    artillery.
-                            drawArtillery(g2d);
+                    artillery.drawArtillery(g2d);
                 }
 
                 if (bulletStartX != -1 && bulletStartY != -1) {
@@ -218,23 +220,16 @@ public class ScoutGame extends JFrame {
         };
 
         mainPanel.setLayout(new BorderLayout());
-
         mainPanel.setBackground(Color.BLACK);
 
         JPanel controlPanel = new JPanel();
-
         controlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
         controlPanel.setBackground(Color.DARK_GRAY);
 
         JButton minimizeButton = new JButton("-");
-
         minimizeButton.addActionListener(e -> setState(JFrame.ICONIFIED));
 
-        //controlPanel.add(minimizeButton);
-
         JButton fullscreenButton = new JButton("□");
-
         fullscreenButton.addActionListener(e -> {
             setUndecorated(!isUndecorated());
             setVisible(true);
@@ -243,32 +238,26 @@ public class ScoutGame extends JFrame {
         });
 
         JButton closeButton = new JButton("X");
-
         closeButton.addActionListener(e -> System.exit(0));
 
-
         add(controlPanel, BorderLayout.NORTH);
-
         add(mainPanel, BorderLayout.CENTER);
 
-        Timer timer = new Timer(150, e -> { //150
+        Timer timer = new Timer(150, e -> {
             if (blueScout != null && blueScout.isActive()) {
                 Point blueBaseCenter = new Point(blueBaseX + baseWidth / 2, blueBaseY + baseHeight / 2);
                 blueScout.update(blueBaseCenter, resources);
-                blueScout.updatePosition();
             }
 
             if (redScout != null && redScout.isActive()) {
                 Point redBaseCenter = new Point(redBaseX + baseWidth / 2, redBaseY + baseHeight / 2);
                 redScout.update(redBaseCenter, resources);
-                redScout.updatePosition();
             }
 
             if (blueSoldiers != null) {
                 for (Soldier soldier : blueSoldiers) {
                     if (soldier != null) {
                         updateSoldier(soldier, redWorkers, redScout, redDefenders, blueSoldiers, redSoldiers);
-
                     }
                 }
                 assignFlankingSoldiersIfNeeded(blueSoldiers, redSoldiers, "blue");
@@ -278,22 +267,15 @@ public class ScoutGame extends JFrame {
                 for (Soldier soldier : redSoldiers) {
                     if (soldier != null) {
                         updateSoldier(soldier, blueWorkers, blueScout, blueDefenders, redSoldiers, blueSoldiers);
-
                     }
                 }
                 assignFlankingSoldiersIfNeeded(redSoldiers, blueSoldiers, "red");
             }
 
-
-
             moveDefenders();
-
             removeDeadDefenders();
-
             checkForAvailableResources();
-
             moveWorkers();
-
             removeDeadSoldiers();
 
             if (artillery != null && artillery.isActive()) {
@@ -304,6 +286,7 @@ public class ScoutGame extends JFrame {
             boolean blueHasSoldiers = areSoldiersLeft("blue");
 
             if (!artilleryCalled) {
+                // ---- артилерия за СИНИТЕ ----
                 if (!redHasSoldiers && blueHasSoldiers) {
                     Artillery art = new Artillery(
                             blueBaseX + baseWidth / 2,
@@ -319,20 +302,41 @@ public class ScoutGame extends JFrame {
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    double spacing = 20.0;
-                    for (int i = 0; i < blueSoldiers.length; i++) {
-                        if (blueSoldiers[i] != null && blueSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing;
-                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase));
-                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase));
+                    // --- формация: 100px зад оръдието, колони по 5, spacing 20px ---
+                    final double BEHIND = 100.0;
+                    final double SP = 20.0;
+                    final int COL_SIZE = 5;
 
-                            blueSoldiers[i].setX(soldierX);
-                            blueSoldiers[i].setY(soldierY);
-                            blueSoldiers[i].setCurrentAngle(angleToEnemyBase);
-                            blueSoldiers[i].setWaiting(true);
-                        }
+                    double th = Math.toRadians(angleToEnemyBase);
+                    double cos = Math.cos(th), sin = Math.sin(th);
+
+                    // котва: точно зад оръдието
+                    double bx = artX - BEHIND * cos;
+                    double by = artY - BEHIND * sin;
+
+                    // вектори: наляво (перпендикулар) и назад (по посока от цевта към опашката)
+                    double lx = -sin, ly = cos;
+                    double dx = -cos, dy = -sin;
+
+                    java.util.List<Soldier> alive = new java.util.ArrayList<>();
+                    for (Soldier s : blueSoldiers) if (s != null && s.isActive()) alive.add(s);
+
+                    for (int k = 0; k < alive.size(); k++) {
+                        Soldier s = alive.get(k);
+                        int col = k / COL_SIZE;  // кой стълб
+                        int row = k % COL_SIZE;  // позиция в колоната (0..4)
+
+                        double sx = bx + col * SP * lx + row * SP * dx;
+                        double sy = by + col * SP * ly + row * SP * dy;
+
+                        s.setX(sx);
+                        s.setY(sy);
+                        s.setCurrentAngle(angleToEnemyBase);
+                        s.setWaiting(true);
+                        s.setAnchorY(sy);
                     }
 
+                    // ---- артилерия за ЧЕРВЕНИТЕ ----
                 } else if (!blueHasSoldiers && redHasSoldiers) {
                     Artillery art = new Artillery(
                             redBaseX + baseWidth / 2,
@@ -348,60 +352,58 @@ public class ScoutGame extends JFrame {
                     double artX = artillery.getX();
                     double artY = artillery.getY();
 
-                    double spacing = 20.0;
-                    for (int i = 0; i < redSoldiers.length; i++) {
-                        if (redSoldiers[i] != null && redSoldiers[i].isActive()) {
-                            double offset = (i + 1) * spacing;
-                            double soldierX = artX - offset * Math.cos(Math.toRadians(angleToEnemyBase));
-                            double soldierY = artY - offset * Math.sin(Math.toRadians(angleToEnemyBase));
+                    // --- формация: 100px зад оръдието, колони по 5, spacing 20px ---
+                    final double BEHIND = 100.0;
+                    final double SP = 20.0;
+                    final int COL_SIZE = 5;
 
-                            redSoldiers[i].setX(soldierX);
-                            redSoldiers[i].setY(soldierY);
-                            redSoldiers[i].setCurrentAngle(angleToEnemyBase);
-                            redSoldiers[i].setWaiting(true);
-                        }
+                    double th = Math.toRadians(angleToEnemyBase);
+                    double cos = Math.cos(th), sin = Math.sin(th);
+
+                    double bx = artX - BEHIND * cos;
+                    double by = artY - BEHIND * sin;
+
+                    double lx = -sin, ly = cos;
+                    double dx = -cos, dy = -sin;
+
+                    java.util.List<Soldier> alive = new java.util.ArrayList<>();
+                    for (Soldier s : redSoldiers) if (s != null && s.isActive()) alive.add(s);
+
+                    for (int k = 0; k < alive.size(); k++) {
+                        Soldier s = alive.get(k);
+                        int col = k / COL_SIZE;
+                        int row = k % COL_SIZE;
+
+                        double sx = bx + col * SP * lx + row * SP * dx;
+                        double sy = by + col * SP * ly + row * SP * dy;
+
+                        s.setX(sx);
+                        s.setY(sy);
+                        s.setCurrentAngle(angleToEnemyBase);
+                        s.setWaiting(true);
+                        s.setAnchorY(sy);
                     }
                 }
             }
 
-            // 💥 Активиране на фланг при спад под 50%
-            if (blueSoldiers != null && getAliveSoldiers(blueSoldiers) <= blueSoldiers.length * 0.9) {
-                assignFlankingSoldiersIfNeeded(blueSoldiers, redSoldiers, "blue");
-            }
-
-            if (redSoldiers != null && getAliveSoldiers(redSoldiers) <= redSoldiers.length * 0.9) {
-                assignFlankingSoldiersIfNeeded(redSoldiers, blueSoldiers, "red");
-            }
-
-
-
             mainPanel.repaint();
-
         });
 
-        timer.start();
 
+        timer.start();
         setVisible(true);
     }
 
-    private int getAliveSoldiers(Soldier[] soldiers) {
-        int count = 0;
-        for (Soldier s : soldiers) {
-            if (s != null && s.isActive()) count++;
-        }
-        return count;
-    }
 
     private void removeDeadDefenders() {
         for (int i = 0; i < blueDefenders.length; i++) {
             if (blueDefenders[i] != null && !blueDefenders[i].isActive()) {
-                blueDefenders[i] = null; // Премахване на мъртвия защитник
+                blueDefenders[i] = null;
             }
         }
-
         for (int i = 0; i < redDefenders.length; i++) {
             if (redDefenders[i] != null && !redDefenders[i].isActive()) {
-                redDefenders[i] = null; // Премахване на мъртвия защитник
+                redDefenders[i] = null;
             }
         }
     }
@@ -419,47 +421,12 @@ public class ScoutGame extends JFrame {
         return false;
     }
 
-    private void updateSoldier(Soldier soldier, Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders, Soldier[] teammates, Soldier[] enemyArmy) {
+    private void updateSoldier(Soldier soldier,
+                               Worker[] enemyWorkers, Scout enemyScout, Defender[] enemyDefenders,
+                               Soldier[] teammates, Soldier[] enemyArmy) {
         if (soldier.isWaiting()) return;
-
         soldier.updateSoldier(teammates, enemyArmy);
-
-        boolean targetFound = false;
-
-        for (Worker enemy : enemyWorkers) {
-            if (enemy != null && enemy.isActive() &&
-                    distance(soldier.getX(), soldier.getY(), enemy.getX(), enemy.getY()) <= soldier.getWeaponLength()) {
-                soldier.soldierShoot(enemy);
-                targetFound = true;
-                break;
-            }
-        }
-
-        if (!targetFound && enemyScout != null && enemyScout.isActive() &&
-                distance(soldier.getX(), soldier.getY(), enemyScout.getX(), enemyScout.getY()) <= soldier.getWeaponLength()) {
-            soldier.soldierShoot(enemyScout);
-            targetFound = true;
-        }
-
-        if (!targetFound && enemyDefenders != null) {
-            for (Defender defender : enemyDefenders) {
-                if (defender != null && defender.isActive() &&
-                        distance(soldier.getX(), soldier.getY(), defender.getX(), defender.getY()) <= soldier.getWeaponLength()) {
-                    soldier.soldierShoot(defender);
-                    targetFound = true;
-                    break;
-                }
-            }
-        }
-
-        if (!targetFound) if (!targetFound) {
-            // ако НЕ е във флангов режим – стандартно поведение
-            if (!soldier.getFlankingMode()) {
-                soldier.soldierMoveTowardsCenter(teammates);
-            }
-        }
     }
-
 
     private void checkForAvailableResources() {
         for (Worker worker : allWorkers) {
@@ -470,7 +437,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[4];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[4];
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -490,7 +457,6 @@ public class ScoutGame extends JFrame {
         for (Worker worker : blueWorkers) {
             workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
-
         for (Worker worker : redWorkers) {
             workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
@@ -500,16 +466,16 @@ public class ScoutGame extends JFrame {
             boolean positionIsValid;
             do {
                 x = (int) (Math.random() * (panelWidth - 2 * baseWidth)) + baseWidth;
-                y = (int) (Math.random() * (panelHeight -2  * baseHeight)) + baseHeight;
+                y = (int) (Math.random() * (panelHeight - 2 * baseHeight)) + baseHeight;
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 2;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 2;//////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -576,7 +542,8 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeDefenders() {
-        for (int i = 0; i < 5; i++) {/////////////////////////////////////////////////////////////
+        for (int i = 0; i < 5; i++) {///////////////////////////////////////////////////////////////////////////////////
+
             blueDefenders[i] = new Defender(
                     blueBaseX + baseWidth / 2,
                     blueBaseY + baseHeight / 2,
@@ -607,29 +574,42 @@ public class ScoutGame extends JFrame {
 
         for (Defender defender : defenders) {
             if (defender != null) {
-                // Update defender patrolling around the base
                 defender.patrolAroundBase(baseX + baseWidth / 2, baseY + baseHeight / 2, DEFENDER_SHIELD_RADIUS);
 
-                // Check and shoot at the enemy scout if in range
                 if (enemyScout != null && enemyScout.isActive()) {
                     defender.checkAndShootIfScoutInRange(enemyScout);
-                    defender.updateProjectiles(enemyScout); // Update projectiles targeting the scout
+                    defender.updateProjectiles(enemyScout);
                 }
 
                 if (enemySoldiers != null && enemySoldiers.length > 0) {
                     ArrayList<Soldier> activeSoldiers = new ArrayList<>();
-
                     for (Soldier soldier : enemySoldiers) {
-                        if (soldier != null && soldier.isActive()) {
-                            activeSoldiers.add(soldier);
-                        }
+                        if (soldier != null && soldier.isActive()) activeSoldiers.add(soldier);
                     }
-
                     if (!activeSoldiers.isEmpty()) {
                         defender.checkAndShootIfSoldiersInRange(activeSoldiers);
                         defender.updateProjectilesForSoldier(activeSoldiers);
                     }
                 }
+
+                // NEW: опит да свалим артилерийския снаряд на противника
+                if (artillery != null && artillery.isActive()
+                        && !defender.getTeam().equalsIgnoreCase(artillery.getTeam())) {
+                    defender.checkAndShootIfArtilleryProjectileInRange(artillery);
+                    defender.updateProjectilesForArtillery(artillery);
+                }
+
+
+                // NEW: защитникът стреля по снаряда на противниковата артилерия (ако има такъв)
+                if (artillery != null && artillery.isActive()
+                        && !defender.getTeam().equalsIgnoreCase(artillery.getTeam())
+                        && artillery.hasActiveProjectile()) {
+
+                    defender.checkAndShootIfArtilleryProjectileInRange(artillery);
+                    defender.updateProjectilesForArtillery(artillery);
+                }
+
+
             }
         }
     }
@@ -642,12 +622,11 @@ public class ScoutGame extends JFrame {
 
         if (baseShieldPointsBlue > 0) {
             if (blueShieldBlinking && blueShieldBlinkState % 2 == 0) {
-                g2d.setColor(new Color(0, 255, 255, 200)); // По-ярък цвят при премигване
+                g2d.setColor(new Color(0, 255, 255, 200));
             } else {
                 g2d.setColor(new Color(0, 0, 255, 200));
             }
             g2d.drawOval(blueBaseX - (shieldRadius - baseWidth) / 2, blueBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
-
             g2d.setColor(Color.BLUE);
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
             g2d.drawString("" + baseShieldPointsBlue, blueBaseX, blueBaseY - 25);
@@ -658,16 +637,13 @@ public class ScoutGame extends JFrame {
         g2d.setColor(Color.RED);
         g2d.drawRoundRect(redBaseX, redBaseY, baseWidth, baseHeight, 20, 20);
 
-        // Рисуване на щита на червената база, ако има останали точки
         if (baseShieldPointsRed > 0) {
             if (redShieldBlinking && redShieldBlinkState % 2 == 0) {
-                g2d.setColor(new Color(227, 35, 18, 200)); // По-ярък цвят при премигване
+                g2d.setColor(new Color(227, 35, 18, 200));
             } else {
                 g2d.setColor(new Color(234, 5, 5, 229));
             }
             g2d.drawOval(redBaseX - (shieldRadius - baseWidth) / 2, redBaseY - (shieldRadius - baseHeight) / 2, shieldRadius, shieldRadius);
-
-            // Показване на точките на щита на червената база
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
             g2d.drawString("" + baseShieldPointsRed, redBaseX, redBaseY - 25);
@@ -713,11 +689,8 @@ public class ScoutGame extends JFrame {
         } else if (ant instanceof Worker) {
             lineLength = bodyRadius;
 
-            if (ant.team.equals("blue")) {
-                g2d.setColor(Color.BLUE);
-            } else {
-                g2d.setColor(Color.RED);
-            }
+            if (ant.team.equals("blue")) g2d.setColor(Color.BLUE);
+            else g2d.setColor(Color.RED);
 
             g2d.fillOval((int) (ant.getX() - bodyRadius), (int) (ant.getY() - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
@@ -726,15 +699,12 @@ public class ScoutGame extends JFrame {
             g2d.setColor(Color.WHITE);
             g2d.drawString(String.valueOf(worker.getId()), (int) worker.getX() - 5, (int) worker.getY() - 10);
 
-            if (ant.team.equals("blue")) {
-                g2d.setColor(Color.BLUE);
-            } else {
-                g2d.setColor(Color.RED);
-            }
+            if (ant.team.equals("blue")) g2d.setColor(Color.BLUE);
+            else g2d.setColor(Color.RED);
         } else if (ant instanceof Defender) {
             bodyRadius *= 1.5;
             lineLength = bodyRadius;
-            g2d.setColor(ant.team.equals("blue") ? new Color(0, 0, 180) : new Color(180, 0, 0)); // По-тъмен син за "blue" защитници, по-тъмен червен за "red"
+            g2d.setColor(ant.team.equals("blue") ? new Color(0, 0, 180) : new Color(180, 0, 0));
         } else {
             return;
         }
@@ -751,11 +721,8 @@ public class ScoutGame extends JFrame {
         int x2 = x1 + (int) (lineLength * Math.cos(Math.toRadians(angle)));
         int y2 = y1 + (int) (lineLength * Math.sin(Math.toRadians(angle)));
 
-        if (ant instanceof Scout) {
-            g2d.setColor(Color.GREEN);
-        } else if (ant instanceof Worker || ant instanceof Defender) {
-            g2d.setColor(Color.YELLOW);
-        }
+        if (ant instanceof Scout) g2d.setColor(Color.GREEN);
+        else if (ant instanceof Worker || ant instanceof Defender) g2d.setColor(Color.YELLOW);
 
         g2d.drawLine(x1, y1, x2, y2);
     }
@@ -772,13 +739,10 @@ public class ScoutGame extends JFrame {
                 if (index < blueWorkers.length && blueWorkers[index] != null) {
                     blueWorkers[index].activate();
                 }
-
                 if (index < redWorkers.length && redWorkers[index] != null) {
                     redWorkers[index].activate();
                 }
-
                 index++;
-
                 if (index >= Math.max(blueWorkers.length, redWorkers.length)) {
                     ((Timer) e.getSource()).stop();
                 }
@@ -802,9 +766,7 @@ public class ScoutGame extends JFrame {
                     worker.moveToStartPosition(blueBaseX, blueBaseY);
                 }
                 worker.updateWorkerCycle(resources, blueBaseX, blueBaseY, redScout);
-                if (worker.isActive()) {
-                    anyActiveWorkers = true;
-                }
+                if (worker.isActive()) anyActiveWorkers = true;
             }
         }
 
@@ -814,35 +776,21 @@ public class ScoutGame extends JFrame {
                     worker.moveToStartPosition(redBaseX, redBaseY);
                 }
                 worker.updateWorkerCycle(resources, redBaseX, redBaseY, blueScout);
-                if (worker.isActive()) {
-                    anyActiveWorkers = true;
-                }
+                if (worker.isActive()) anyActiveWorkers = true;
             }
         }
 
-        if (!anyActiveWorkers) {
-            //System.out.println("No active workers remaining.");
-        }
-
         if (resourcesDepleted && allBlueWorkersAtStart && allRedWorkersAtStart) {
-            //System.out.println("Resources depleted and workers returned. Creating soldiers...");
-
             boolean soldiersCreated = false;
 
             if (blueBaseHealth >= 5) {
                 startSoldierCreation("blue", blueBaseX, blueBaseY);
                 soldiersCreated = true;
-            } else {
-                //System.out.println("Not enough points to create soldiers for team blue.");
             }
-
             if (redBaseHealth >= 5) {
                 startSoldierCreation("red", redBaseX, redBaseY);
                 soldiersCreated = true;
-            } else {
-                //System.out.println("Not enough points to create soldiers for team red.");
             }
-
             if (soldiersCreated) {
                 removeWorkers(blueWorkers);
                 removeWorkers(redWorkers);
@@ -860,9 +808,7 @@ public class ScoutGame extends JFrame {
     }
 
     private Soldier[] addSoldierToArray(Soldier[] array, Soldier soldier) {
-        if (array == null) {
-            array = new Soldier[0];
-        }
+        if (array == null) array = new Soldier[0];
         Soldier[] newArray = new Soldier[array.length + 1];
         System.arraycopy(array, 0, newArray, 0, array.length);
         newArray[array.length] = soldier;
@@ -877,9 +823,7 @@ public class ScoutGame extends JFrame {
         final int targetY = baseY - 200;
 
         int maxSoldiers = baseHealth / soldierHealthCost;
-        if (maxSoldiers <= 0) {
-            return;
-        }
+        if (maxSoldiers <= 0) return;
 
         Soldier[] soldiers = new Soldier[maxSoldiers];
 
@@ -890,17 +834,13 @@ public class ScoutGame extends JFrame {
             int y = targetY + rowIndex * rowSpacing;
 
             soldiers[i] = new Soldier(
-                    x,
-                    y,
-                    team,
-                    baseX,
-                    baseY,
+                    x, y, team,
+                    baseX, baseY,
                     team.equals("blue") ? redBaseX : blueBaseX,
                     team.equals("blue") ? redBaseY : blueBaseY,
-                    this,
-                    i + 1
+                    this, i + 1
             );
-
+            soldiers[i].setAnchorY(y);
         }
 
         int pointsUsed = maxSoldiers * soldierHealthCost;
@@ -911,7 +851,6 @@ public class ScoutGame extends JFrame {
             redSoldiers = soldiers;
             redBaseHealth -= pointsUsed;
         }
-
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
@@ -923,9 +862,7 @@ public class ScoutGame extends JFrame {
         int baseHealth = team.equals("blue") ? blueBaseHealth : redBaseHealth;
         int maxSoldiers = baseHealth / soldierCost;
 
-        if (maxSoldiers <= 0) {
-            return;
-        }
+        if (maxSoldiers <= 0) return;
 
         for (int soldiersCreated = 0; soldiersCreated < maxSoldiers; soldiersCreated++) {
             int columnIndex = soldiersCreated / maxRowsPerColumn;
@@ -938,18 +875,12 @@ public class ScoutGame extends JFrame {
             int enemyBaseY = team.equals("blue") ? redBaseY : blueBaseY;
 
             Soldier soldier = new Soldier(
-                    x,
-                    y,
-                    team,
-                    baseX,
-                    baseY,
-                    enemyBaseX,
-                    enemyBaseY,
-                    ScoutGame.this,
-                    soldiersCreated + 1
+                    x, y, team,
+                    baseX, baseY,
+                    enemyBaseX, enemyBaseY,
+                    this, soldiersCreated + 1
             );
-
-
+            soldier.setAnchorY(y);
 
             if (team.equals("blue")) {
                 blueSoldiers = addSoldierToArray(blueSoldiers, soldier);
@@ -961,12 +892,9 @@ public class ScoutGame extends JFrame {
         }
     }
 
-
     public boolean allResourcesDepleted() {
         for (Resource resource : resources) {
-            if (resource.getValue() > 0) {
-                return false;
-            }
+            if (resource.getValue() > 0) return false;
         }
         return true;
     }
@@ -974,12 +902,9 @@ public class ScoutGame extends JFrame {
     public boolean allWorkersAtBase(Worker[] workers, int baseX, int baseY) {
         for (Worker worker : workers) {
             if (worker != null) {
-                if (!worker.isAtBase(baseX, baseY)) {
-                    return false;
-                }
+                if (!worker.isAtBase(baseX, baseY)) return false;
             }
         }
-
         return true;
     }
 
@@ -987,7 +912,6 @@ public class ScoutGame extends JFrame {
         blueSoldiers = Arrays.stream(blueSoldiers)
                 .filter(soldier -> soldier != null && soldier.isActive())
                 .toArray(Soldier[]::new);
-
         redSoldiers = Arrays.stream(redSoldiers)
                 .filter(soldier -> soldier != null && soldier.isActive())
                 .toArray(Soldier[]::new);
@@ -1018,11 +942,8 @@ public class ScoutGame extends JFrame {
     }
 
     public void addPointsToScoutBase(String team, int points) {
-        if (team.equals("blue")) {
-            blueBaseHealth += points;
-        } else if (team.equals("red")) {
-            redBaseHealth += points;
-        }
+        if (team.equals("blue")) blueBaseHealth += points;
+        else if (team.equals("red")) redBaseHealth += points;
     }
 
     public Worker findClosestEnemyWorkerWithinRange(Scout scout, String scoutTeam, double maxRange) {
@@ -1030,15 +951,10 @@ public class ScoutGame extends JFrame {
         Worker closestWorker = null;
         double closestDistance = maxRange;
 
-        if (enemyWorkers == null) {
-            return null;
-        }
+        if (enemyWorkers == null) return null;
 
         for (Worker worker : enemyWorkers) {
-            if (worker == null || !worker.isActive()) {
-                continue;
-            }
-
+            if (worker == null || !worker.isActive()) continue;
             double distance = scout.distanceTo(worker);
             if (distance < closestDistance) {
                 closestDistance = distance;
@@ -1051,18 +967,11 @@ public class ScoutGame extends JFrame {
     public List<Worker> getEnemyWorkersInRange(Scout scout, String scoutTeam, double range) {
         Worker[] enemyWorkers = scoutTeam.equals("blue") ? redWorkers : blueWorkers;
         List<Worker> nearbyWorkers = new ArrayList<>();
-
-        if (enemyWorkers == null) {
-            return nearbyWorkers;
-        }
+        if (enemyWorkers == null) return nearbyWorkers;
 
         for (Worker worker : enemyWorkers) {
-            if (worker == null || !worker.isActive()) {
-                continue;
-            }
-            if (scout.distanceTo(worker) <= range) {
-                nearbyWorkers.add(worker);
-            }
+            if (worker == null || !worker.isActive()) continue;
+            if (scout.distanceTo(worker) <= range) nearbyWorkers.add(worker);
         }
         return nearbyWorkers;
     }
@@ -1088,16 +997,10 @@ public class ScoutGame extends JFrame {
     }
 
     private void removeWorkers(Worker[] workers) {
-        for (int i = 0; i < workers.length; i++) {
-            workers[i] = null;
-        }
+        for (int i = 0; i < workers.length; i++) workers[i] = null;
 
-        if (redScout != null) {
-            redScout = null;
-        }
-        if (blueScout != null) {
-            blueScout = null;
-        }
+        if (redScout != null) redScout = null;
+        if (blueScout != null) blueScout = null;
     }
 
     public List<Character> getCharacters() {
@@ -1105,51 +1008,22 @@ public class ScoutGame extends JFrame {
 
         if (blueSoldiers != null) {
             for (Soldier soldier : blueSoldiers) {
-                if (soldier != null && soldier.isActive()) {
-                    characters.add(soldier);
-                }
+                if (soldier != null && soldier.isActive()) characters.add(soldier);
             }
         }
 
         if (redSoldiers != null) {
             for (Soldier soldier : redSoldiers) {
-                if (soldier != null && soldier.isActive()) {
-                    characters.add(soldier);
-                }
+                if (soldier != null && soldier.isActive()) characters.add(soldier);
             }
         }
 
-        for (Worker worker : blueWorkers) {
-            if (worker != null) {
-                characters.add(worker);
-            }
-        }
-
-        for (Worker worker : redWorkers) {
-            if (worker != null) {
-                characters.add(worker);
-            }
-        }
-
-        for (Defender defender : blueDefenders) {
-            if (defender != null) {
-                characters.add(defender);
-            }
-        }
-
-        for (Defender defender : redDefenders) {
-            if (defender != null) {
-                characters.add(defender);
-            }
-        }
-
-        if (blueScout != null) {
-            characters.add(blueScout);
-        }
-
-        if (redScout != null) {
-            characters.add(redScout);
-        }
+        for (Worker worker : blueWorkers) if (worker != null) characters.add(worker);
+        for (Worker worker : redWorkers) if (worker != null) characters.add(worker);
+        for (Defender defender : blueDefenders) if (defender != null) characters.add(defender);
+        for (Defender defender : redDefenders) if (defender != null) characters.add(defender);
+        if (blueScout != null) characters.add(blueScout);
+        if (redScout != null) characters.add(redScout);
 
         return characters;
     }
@@ -1163,7 +1037,6 @@ public class ScoutGame extends JFrame {
             baseShieldPointsRed -= points;
             if (baseShieldPointsRed < 0) baseShieldPointsRed = 0;
 
-            // Стартиране на премигване за червения щит
             redShieldBlinking = true;
             redShieldBlinkState = 0;
 
@@ -1183,7 +1056,6 @@ public class ScoutGame extends JFrame {
             baseShieldPointsBlue -= points;
             if (baseShieldPointsBlue < 0) baseShieldPointsBlue = 0;
 
-            // Стартиране на премигване за синия щит
             blueShieldBlinking = true;
             blueShieldBlinkState = 0;
 
@@ -1191,8 +1063,8 @@ public class ScoutGame extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     blueShieldBlinkState++;
-                    repaint(); // Задължително извикване за обновяване на екрана
-                    if (blueShieldBlinkState >= 6) { // 3 премигвания (6 състояния)
+                    repaint();
+                    if (blueShieldBlinkState >= 6) {
                         blueShieldBlinking = false;
                         ((Timer) e.getSource()).stop();
                     }
@@ -1213,61 +1085,87 @@ public class ScoutGame extends JFrame {
     }
 
     public int getBaseShieldPoints(String team) {
-        if ("blue".equalsIgnoreCase(team)) {
-            return baseShieldPointsBlue;
-        } else if ("red".equalsIgnoreCase(team)) {
-            return baseShieldPointsRed;
-        }
+        if ("blue".equalsIgnoreCase(team)) return baseShieldPointsBlue;
+        else if ("red".equalsIgnoreCase(team)) return baseShieldPointsRed;
         return 0;
     }
 
     private void assignFlankingSoldiersIfNeeded(Soldier[] soldiers, Soldier[] enemyArmy, String team) {
-        int totalSoldiers = soldiers.length;
+        if (soldiers == null || soldiers.length == 0) return;
 
-        int aliveCount = 0;
+        int alive = 0;
+        for (Soldier s : soldiers) if (s != null && s.isActive()) alive++;
+        int total = soldiers.length;
+        int dead = total - alive;
+        if (alive == 0) return;
+
+        int threshold = Math.max(1, (int) Math.floor(total * 0.10));
+        if (dead < threshold) return;
+
+        if (isAnyFlankRunning(soldiers)) return;
+
+        Soldier leader = pickBacklineLeader(soldiers);
+        if (leader == null) return;
+
+        Soldier rearTarget = findRearEnemy(enemyArmy);
+        if (rearTarget == null) return;
+
+        java.util.List<Soldier> candidates = new ArrayList<>();
         for (Soldier s : soldiers) {
-            if (s != null && s.isActive()) aliveCount++;
-        }
-        if (aliveCount == 0) return;
-
-        int deadCount = totalSoldiers - aliveCount;
-
-        // Праг: 10% загуби (както си го задал)
-        if (deadCount >= totalSoldiers * 0.1) {
-            // 1) избери лидер (активен, не-чакащ, не е вече във фланг режим)
-            Soldier leader = null;
-            for (Soldier s : soldiers) {
-                if (s != null && s.isActive() && !s.getFlankingMode() && !s.isWaiting()) {
-                    leader = s;
-                    break;
-                }
+            if (s != null && s.isActive() && !s.isWaiting() && !s.getFlankingMode()) {
+                candidates.add(s);
             }
-            if (leader == null) return;
-
-            // 2) цел за фланг – „заден“ враг
-            Soldier rear = findRearEnemy(enemyArmy);
-            if (rear == null) return;
-
-            // 3) включи РЕАЛНИЯ фланг
-            leader.setFlankLeader(true);
-            leader.setFlankTarget(rear);
-            leader.setFlankingMode(true);
-
-            // (по желание) включи и стария флаг за „завъртане“, ако го ползваш другаде
-            leader.setFlanking(true);
-
-            leader.say("Flank attack!", 2000);
-            System.out.println("[" + team + "] Фланг лидер #" + leader.getId() + " → цел #" + rear.getId());
         }
+        candidates.sort(Comparator.comparingDouble(Soldier::getY).reversed());
+        candidates.remove(leader);
+
+        java.util.List<Soldier> wing = new ArrayList<>();
+        wing.add(leader);
+        for (Soldier s : candidates) {
+            wing.add(s);
+            if (wing.size() >= 3) break;
+        }
+
+        for (Soldier s : wing) {
+            s.setFlankLeader(s == leader);
+            s.setFlankLeaderRef(leader);
+            s.setFlankTarget(rearTarget);
+            s.setFlankingMode(true);
+            s.setFlanking(true);
+        }
+        leader.say("Flank!", 1500);
+
+        System.out.println("[" + team + "] Фланг: лидер #" + leader.getId() +
+                " + " + (wing.size() - 1) + " последователи → цел #" + rearTarget.getId());
     }
 
+    private Soldier pickBacklineLeader(Soldier[] soldiers) {
+        Soldier best = null;
+        double bestY = Double.NEGATIVE_INFINITY;
+        for (Soldier s : soldiers) {
+            if (s == null) continue;
+            if (!s.isActive()) continue;
+            if (s.isWaiting()) continue;
+            if (s.getFlankingMode()) continue;
+            if (s.getY() > bestY) {
+                bestY = s.getY();
+                best = s;
+            }
+        }
+        return best;
+    }
 
-
+    private boolean isAnyFlankRunning(Soldier[] soldiers) {
+        for (Soldier s : soldiers) {
+            if (s != null && s.isActive() && s.getFlankingMode()) return true;
+        }
+        return false;
+    }
 
     public Soldier findRearEnemy(Soldier[] enemyArmy) {
         Soldier farthest = null;
         double maxDist = -1;
-
+        if (enemyArmy == null) return null;
         for (Soldier s : enemyArmy) {
             if (s != null && s.isActive()) {
                 double dist = s.getY();
@@ -1277,10 +1175,26 @@ public class ScoutGame extends JFrame {
                 }
             }
         }
-
         return farthest;
     }
 
+    // извиква се от Artillery, когато базата бъде ударена без щит
+    public void onBaseDestroyed(String destroyedTeam) {
+        // кой печели?
+        this.gameOver = true;
+        if ("blue".equalsIgnoreCase(destroyedTeam)) {
+            this.winner = "RED WINS!";
+        } else {
+            this.winner = "BLUE WINS!";
+        }
 
+        // визуално: още малко експлозии в центъра на базата
+        int cx = "blue".equalsIgnoreCase(destroyedTeam) ? blueBaseX + baseWidth / 2 : redBaseX + baseWidth / 2;
+        int cy = "blue".equalsIgnoreCase(destroyedTeam) ? blueBaseY + baseHeight / 2 : redBaseY + baseHeight / 2;
+
+        for (int i = 0; i < 6; i++) {
+            addExplosionEffect(cx, cy, 160 - i * 20, new Color(255, 120, 60), 1200);
+        }
+    }
 
 }

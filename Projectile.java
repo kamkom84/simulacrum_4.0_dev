@@ -12,8 +12,8 @@ public class Projectile {
     private final Color color;
     private double directionAngle;
 
-
-    public Projectile(double startX, double startY, double targetX, double targetY, double speed, double maxDistance) {
+    public Projectile(double startX, double startY, double targetX, double targetY,
+                      double speed, double maxDistance) {
         this.x = startX;
         this.y = startY;
         this.targetX = targetX;
@@ -39,34 +39,31 @@ public class Projectile {
         // Актуализиране на изминатото разстояние
         traveledDistance += Math.hypot(deltaX, deltaY);
 
-        // Проверка за достигане на целта
+        // Проверка за достигане на целта (лек толеранс)
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
-        if (distanceToTarget <= 5) { // Ако е близо до целта
-            active = false; // Патронът достига целта и се деактивира
+        if (distanceToTarget <= 5) {
+            active = false;
             return;
         }
 
         // Проверка за максимално разстояние
         if (traveledDistance >= maxDistance) {
-            active = false; // Патронът се деактивира, ако е изминал максималното разстояние
+            active = false;
         }
     }
-
-
-
 
     public void drawProjectile(Graphics g) {
         if (!active) return;
 
         Graphics2D g2d = (Graphics2D) g;
-
-        // Рисуване на патрон (линия)
-        g2d.setColor(Color.GREEN);
+        g2d.setColor(color);
         g2d.setStroke(new BasicStroke(1.0f));
-        g2d.drawLine((int) x, (int) y, (int) (x + 5 * Math.cos(directionAngle)), (int) (y + 5 * Math.sin(directionAngle)));
+        g2d.drawLine(
+                (int) x, (int) y,
+                (int) (x + 5 * Math.cos(directionAngle)),
+                (int) (y + 5 * Math.sin(directionAngle))
+        );
     }
-
-
 
     public boolean hasProjectileHit(Character target) {
         double distanceToTarget = Math.hypot(x - target.getX(), y - target.getY());
@@ -81,8 +78,11 @@ public class Projectile {
         return false;
     }
 
-    public boolean isProjectileActive() {
-        return active;
-    }
+    public boolean isProjectileActive() { return active; }
 
+    // --- NEW: нужни за защитниците/AA логика ---
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getDirectionAngle() { return directionAngle; }
+    public void deactivate() { active = false; }
 }
