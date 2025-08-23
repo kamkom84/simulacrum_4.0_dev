@@ -392,7 +392,6 @@ public class ScoutGame extends JFrame {
         return count;
     }
 
-
     private void removeDeadDefenders() {
         for (int i = 0; i < blueDefenders.length; i++) {
             if (blueDefenders[i] != null && !blueDefenders[i].isActive()) {
@@ -975,8 +974,6 @@ public class ScoutGame extends JFrame {
     public boolean allWorkersAtBase(Worker[] workers, int baseX, int baseY) {
         for (Worker worker : workers) {
             if (worker != null) {
-                //System.out.println("Worker " + worker.getId() + " position: (" + worker.getX() + ", " + worker.getY() + ")");
-                //System.out.println("Checking if worker is at base (" + baseX + ", " + baseY + ")");
                 if (!worker.isAtBase(baseX, baseY)) {
                     return false;
                 }
@@ -1210,10 +1207,9 @@ public class ScoutGame extends JFrame {
         System.arraycopy(blueDefenders, 0, allDefenders, 0, blueDefenders.length);
         System.arraycopy(redDefenders, 0, allDefenders, blueDefenders.length, redDefenders.length);
 
-        // Филтриране на null стойности
         return Arrays.stream(allDefenders)
-                .filter(Objects::nonNull) // Премахване на null елементи
-                .toArray(Defender[]::new); // Преобразуване обратно към масив
+                .filter(Objects::nonNull)
+                .toArray(Defender[]::new);
     }
 
     public int getBaseShieldPoints(String team) {

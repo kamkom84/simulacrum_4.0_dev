@@ -46,7 +46,7 @@ public class Soldier extends Character {
 
     public Soldier(int x, int y, String team, int baseX, int baseY, int enemyBaseX, int enemyBaseY, ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 20;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 10;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2 - y, game.getWidth() / 2 - x));
         this.game = game;
@@ -236,9 +236,6 @@ public class Soldier extends Character {
         this.isFlanking = flanking;
     }
 
-    public boolean isFlanking() {
-        return isFlanking;
-    }
 
     // ➕ Реален режим фланг (клона в updateSoldier)
     public void setFlankingMode(boolean v) { this.flanking = v; }
@@ -246,9 +243,7 @@ public class Soldier extends Character {
 
     // ➕ Лидер на фланга
     public void setFlankLeader(boolean isLeader) { this.flankLeader = isLeader; }
-    public boolean isFlankLeader() { return this.flankLeader; }
 
-    public int getFlankSquadSize() { return flankSquad.size(); }
 
     public Character findTarget() {
         Character closestTarget = null;
@@ -401,7 +396,6 @@ public class Soldier extends Character {
     }
 
     public Soldier findEnemyRearTarget(Soldier[] enemyArmy) {
-        // За "blue" вземи най-задния (най-малък Y), за "red" най-голям Y
         Soldier rear = null;
         for (Soldier s : enemyArmy) {
             if (s != null && s.isActive()) {
