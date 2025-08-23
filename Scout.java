@@ -43,7 +43,7 @@ public class Scout extends Character {
         this.scoutGame = game;
         this.currentAngle = Math.random() * 360;
         this.game = game;
-        this.speed = 0.7;///////////////////////////////////////////////////////////////////////////
+        this.speed = 0.9;///////////////////////////////////////////////////////////////////////////
         this.id = id;
     }
 
@@ -59,7 +59,7 @@ public class Scout extends Character {
 
         List<Worker> nearbyWorkers = scoutGame.getEnemyWorkersInRange(this, team, EXPLOSION_RADIUS);
         if (nearbyWorkers.size() >= 3 && !isExploding) {
-            triggerExplosion(nearbyWorkers);
+            //triggerExplosion(nearbyWorkers);
         }
 
         if (points <= MIN_POINTS && !returningToBase && !recharging) {
@@ -311,11 +311,9 @@ public class Scout extends Character {
     public void draw(Graphics2D g2d) {
         int bodyRadius = getBodyRadius();
 
-        // Основен цвят на тялото
         g2d.setColor(team.equals("blue") ? Color.BLUE : Color.RED);
         g2d.fillOval((int) (x - bodyRadius), (int) (y - bodyRadius), bodyRadius * 2, bodyRadius * 2);
 
-        // 🔴 Показване на загуба на точки
         if (showPointReduction) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - pointReductionDisplayStartTime <= POINT_REDUCTION_DISPLAY_DURATION) {
@@ -327,7 +325,6 @@ public class Scout extends Character {
             }
         }
 
-        // 🟢 Стрелка за посока
         double arrowLength = bodyRadius * 2;
         int arrowX = (int) (x + arrowLength * Math.cos(Math.toRadians(currentAngle)));
         int arrowY = (int) (y + arrowLength * Math.sin(Math.toRadians(currentAngle)));
@@ -335,27 +332,21 @@ public class Scout extends Character {
         g2d.setColor(Color.GREEN);
         g2d.drawLine((int) x, (int) y, arrowX, arrowY);
 
-        // ⚪ По-ясен бял ореол около тялото
         Composite originalComposite = g2d.getComposite();
 
-        // 70% непрозрачен (по-видим ореол)
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
         g2d.setColor(Color.WHITE);
 
-        // По-дебела линия
         Stroke originalStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(1f));
 
-        // Може леко да се увеличи радиусът на ореола за ефект
         int auraRadius = bodyRadius + 1;
         g2d.drawOval((int)(x - auraRadius), (int)(y - auraRadius), auraRadius * 2, auraRadius * 2);
 
-        // Възстановяване на старите настройки
         g2d.setStroke(originalStroke);
         g2d.setComposite(originalComposite);
 
     }
-
 
     public void decreasePoints(int amount) {
         points -= amount;
