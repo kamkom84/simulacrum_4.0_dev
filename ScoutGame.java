@@ -180,9 +180,6 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
-
-
-
                 if (redSoldiers != null) {
                     for (Soldier soldier : redSoldiers) {
                         if (soldier != null && soldier.isActive()) {
@@ -245,13 +242,10 @@ public class ScoutGame extends JFrame {
             gdDevice.setFullScreenWindow(isUndecorated() ? this : null);
         });
 
-        //controlPanel.add(fullscreenButton);
-
         JButton closeButton = new JButton("X");
 
         closeButton.addActionListener(e -> System.exit(0));
 
-        //controlPanel.add(closeButton);
 
         add(controlPanel, BorderLayout.NORTH);
 
@@ -279,9 +273,6 @@ public class ScoutGame extends JFrame {
                 }
                 assignFlankingSoldiersIfNeeded(blueSoldiers, redSoldiers, "blue");
             }
-
-
-
 
             if (redSoldiers != null) {
                 for (Soldier soldier : redSoldiers) {
@@ -462,15 +453,9 @@ public class ScoutGame extends JFrame {
             }
         }
 
-        if (!targetFound) {
-            if (soldier.isFlanking()) {
-                Soldier flankTarget = soldier.findEnemyRearTarget(enemyArmy);
-                if (flankTarget != null) {
-                    soldier.moveToFlank(flankTarget);
-                } else {
-                    soldier.soldierMoveTowardsCenter(teammates);
-                }
-            } else {
+        if (!targetFound) if (!targetFound) {
+            // ако НЕ е във флангов режим – стандартно поведение
+            if (!soldier.getFlankingMode()) {
                 soldier.soldierMoveTowardsCenter(teammates);
             }
         }
@@ -486,7 +471,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[1211];//////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[4];//////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -520,12 +505,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 100);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 5);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 50;///////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 2;///////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -931,7 +916,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 100;
+        final int soldierCost = 1;
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -1247,30 +1232,40 @@ public class ScoutGame extends JFrame {
         for (Soldier s : soldiers) {
             if (s != null && s.isActive()) aliveCount++;
         }
-
         if (aliveCount == 0) return;
 
         int deadCount = totalSoldiers - aliveCount;
 
+        // Праг: 10% загуби (както си го задал)
         if (deadCount >= totalSoldiers * 0.1) {
-            int flankCount = Math.max(1, (int) (aliveCount * 0.1));
-            int assigned = 0;
-
+            // 1) избери лидер (активен, не-чакащ, не е вече във фланг режим)
+            Soldier leader = null;
             for (Soldier s : soldiers) {
-                if (s != null && s.isActive() && !s.isFlanking()) {
-                    Soldier flankTarget = findRearEnemy(enemyArmy);
-                    if (flankTarget != null) {
-                        s.setFlanking(true);
-                        s.setFlankTarget(flankTarget);
-                        assigned++;
-                    }
-                    if (assigned >= flankCount) break;
+                if (s != null && s.isActive() && !s.getFlankingMode() && !s.isWaiting()) {
+                    leader = s;
+                    break;
                 }
             }
+            if (leader == null) return;
 
-            System.out.println("[" + team + "] Фланг активиран с " + assigned + " войници.");
+            // 2) цел за фланг – „заден“ враг
+            Soldier rear = findRearEnemy(enemyArmy);
+            if (rear == null) return;
+
+            // 3) включи РЕАЛНИЯ фланг
+            leader.setFlankLeader(true);
+            leader.setFlankTarget(rear);
+            leader.setFlankingMode(true);
+
+            // (по желание) включи и стария флаг за „завъртане“, ако го ползваш другаде
+            leader.setFlanking(true);
+
+            leader.say("Flank attack!", 2000);
+            System.out.println("[" + team + "] Фланг лидер #" + leader.getId() + " → цел #" + rear.getId());
         }
     }
+
+
 
 
     public Soldier findRearEnemy(Soldier[] enemyArmy) {
