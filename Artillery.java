@@ -246,15 +246,12 @@ public class Artillery extends Character {
 
         explosions.removeIf(ExplosionEffect::isExplosionExpired);
 
-        // авто-изключване: гледаме само ВРАЖЕСКИ защитници
-        String enemyTeam = this.getTeam().equalsIgnoreCase("red") ? "blue" : "red";
-        boolean enemyShieldActive = game.getBaseShieldPoints(enemyTeam) > 0;
-        boolean enemyDefendersActive = Arrays.stream(game.getDefenders())
-                .anyMatch(d -> d != null && d.isActive() && enemyTeam.equalsIgnoreCase(d.getTeam()));
-        if (!enemyShieldActive && !enemyDefendersActive) { setActive(false); return; }
+        // ВАЖНО: НЕ изключваме артилерията автоматично при "няма щит + няма защитници".
+        // Тя трябва да остане активна и да довърши базата (или играта да свърши чрез onBaseDestroyed()).
 
         if (currentProjectile == null && canShoot()) fireProjectile();
     }
+
 
     private void fireProjectile() {
         if (currentProjectile != null) return;
@@ -457,4 +454,5 @@ public class Artillery extends Character {
         double py = y1 + t * vy;
         return Math.hypot(px - cx, py - cy) <= r;
     }
+
 }

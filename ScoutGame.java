@@ -62,7 +62,7 @@ public class ScoutGame extends JFrame {
         redSoldiers = new Soldier[0];
         blueSoldiers = new Soldier[0];
 
-        setTitle("simulacrum_3.9_dev");
+        setTitle("simulacrum_4.0_dev");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -96,8 +96,8 @@ public class ScoutGame extends JFrame {
         initializeWorkers();
         generateResources();
 
-        blueDefenders = new Defender[3];////////////////////////////////////////////////////////////////////////////////
-        redDefenders = new Defender[3];/////////////////////////////////////////////////////////////////////////////////
+        blueDefenders = new Defender[4];////////////////////////////////////////////////////////////////////////////////
+        redDefenders = new Defender[4];/////////////////////////////////////////////////////////////////////////////////
         initializeDefenders();
 
         initializeSoldiers("blue", blueBaseX, blueBaseY, blueBaseHealth);
@@ -415,7 +415,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[2];////////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[20];////////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -438,7 +438,6 @@ public class ScoutGame extends JFrame {
         for (Worker worker : redWorkers) {
             workerPositions.add(new Point2D.Double(worker.getX(), worker.getY()));
         }
-
         for (int i = 0; i < resources.length; i++) {
             int x, y;
             boolean positionIsValid;
@@ -448,12 +447,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 30);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 1;//////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 20;//////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -499,7 +498,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeSoldiers(String team, int baseX, int baseY, int baseHealth) {
-        final int soldierHealthCost = 1;////////////////////////////////////////////////////////////////////////////////
+        final int soldierHealthCost = 10;////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -538,7 +537,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 1;//////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 10;//////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -577,7 +576,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeDefenders() {
-        for (int i = 0; i < 3; i++) {///////////////////////////////////////////////////////////////////////////////////
+        for (int i = 0; i < 4; i++) {///////////////////////////////////////////////////////////////////////////////////
 
             blueDefenders[i] = new Defender(
                     blueBaseX + baseWidth / 2,
