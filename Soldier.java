@@ -78,7 +78,7 @@ public class Soldier extends Character {
                    int baseX, int baseY, int enemyBaseX, int enemyBaseY,
                    ScoutGame game, int id) {
         super(x, y, team, "soldier");
-        this.healthPoints = 2000;/////////////////////////////////////////////////////////////////////////////////////////
+        this.healthPoints = 25;/////////////////////////////////////////////////////////////////////////////////////////
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.game = game;
         this.id = id;
@@ -326,7 +326,7 @@ public class Soldier extends Character {
         if (nextGrenadeThreshold < 5) return;
         if (healthPoints <= nextGrenadeThreshold) {
             currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
-            nextGrenadeThreshold -= 5; // 20→15→10→5
+            nextGrenadeThreshold -= 15; // 20→15→10→5////////////////5дефолт стойност////////////////
         }
     }
 

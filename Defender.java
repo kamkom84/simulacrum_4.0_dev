@@ -10,7 +10,7 @@ public class Defender extends Character {
     private double angleOffset;
     private ArrayList<Projectile> projectiles = new ArrayList<>();
     private static final int SHOOT_RANGE = 450;/////////////////////////////////////////////////////////////////////////
-    private static final int SHOOT_INTERVAL = 1000;//////////////////////////////////////////////////////////////////////
+    private static final int SHOOT_INTERVAL = 900;//////////////////////////////////////////////////////////////////////
     private final ScoutGame game;
     private long lastShotTime = 0;
     private double currentAngle;

@@ -35,17 +35,15 @@ public class Artillery extends Character {
     private static final double BARREL_RADIUS  = 6.0;
 
     // стабилен откат без „пълзене“
-    private double recoil = 0.0;                 // текущо изтегляне на цевта назад (px)
-    private static final double RECOIL_KICK    = 8.0;   // импулс при изстрел
-    private static final double RECOIL_RECOVER = 1.2;   // връщане към 0 на тик (~150ms)
+    private double recoil = 0.0;
+    private static final double RECOIL_KICK    = 8.0;
+    private static final double RECOIL_RECOVER = 1.2;
     private long muzzleFlashUntil = 0;
     private double wheelAngle = 0;
 
     private final List<Smoke> smoke = new ArrayList<>();
 
-    // нови константи
-    private static final double DIRECT_HIT_RADIUS = 6.0;   // малък хитбокс за защитник
-    private static final int    BASE_BOOM_RADIUS  = 140;   // визуален радиус на големия взрив
+    private static final int    BASE_BOOM_RADIUS  = 140;
 
     public Artillery(int baseX, int baseY, int enemyBaseX, int enemyBaseY, String team, ScoutGame game) {
         super(baseX, baseY, team, "artillery");
@@ -75,7 +73,7 @@ public class Artillery extends Character {
         g.drawOval((int)(x - range), (int)(y - range), (int)(range*2), (int)(range*2));
         g.setComposite(AlphaComposite.SrcOver);
 
-        // локална трансформация за тяло + дуло (винаги на едно място)
+        // локална трансформация за тяло + дуло
         double angRad = Math.toRadians(currentAngle);
         AffineTransform old = g.getTransform();
         g.translate(x, y);
@@ -167,51 +165,52 @@ public class Artillery extends Character {
         gg.dispose();
     }
 
-    // -------- ъпдейт --------
+
     public void updateArtillery() {
         if (!isActive()) return;
 
-        // плавно връщане на отката към 0 (без натрупване)
+        // плавно връщане на отката към 0
         double prev = recoil;
         if (recoil > 0) recoil = Math.max(0, recoil - RECOIL_RECOVER);
-        wheelAngle += (prev - recoil) * 0.12; // въртене според промяната (малко)
+        wheelAngle += (prev - recoil) * 0.12;
 
         smoke.removeIf(Smoke::dead);
         for (Smoke s: smoke) s.update();
 
-        // шрапнели
-        for (int i = frags.size()-1; i>=0; i--) {
+        for (int i = frags.size() - 1; i >= 0; i--) {
             Frag f = frags.get(i);
             f.update();
             if (f.dead()) frags.remove(i);
         }
 
-        // снаряд
         if (currentProjectile != null) {
             currentProjectile.updateArtilleryProjectile();
 
-            // 1) директен удар в защитник (първо!)
+            String enemyTeam = this.getTeam().equalsIgnoreCase("red") ? "blue" : "red";
+
+            // 1) удар по ВРАЖЕСКИ защитник (swept-колизия + толеранс)
             for (Defender defender : game.getDefenders()) {
-                if (defender == null) continue;
-                double d = Math.hypot(currentProjectile.getX() - defender.getX(),
-                        currentProjectile.getY() - defender.getY());
-                if (defender.isActive() && d <= DIRECT_HIT_RADIUS) {
+                if (defender == null || !defender.isActive()) continue;
+                if (!defender.getTeam().equalsIgnoreCase(enemyTeam)) continue;
+
+                double hitR = defender.getRadius() + 3;
+                if (segmentCircleHit(
+                        currentProjectile.getPrevX(), currentProjectile.getPrevY(),
+                        currentProjectile.getX(),    currentProjectile.getY(),
+                        defender.getX(), defender.getY(), hitR)) {
+
                     defender.reduceHealthPoints(5);
-                    if (defender.getHealthPoints() <= 0) defender.setActive(false);
                     spawnFragmentExplosion(currentProjectile.getX(), currentProjectile.getY());
                     currentProjectile = null;
                     return;
                 }
             }
 
-            // 2) щит или база?
-            // щит или база?
-            String enemyTeam = this.getTeam().equals("red") ? "blue" : "red";
+            // 2) щит или база
             double dBase = Math.hypot(currentProjectile.getX() - enemyBaseX,
                     currentProjectile.getY() - enemyBaseY);
 
             if (game.getBaseShieldPoints(enemyTeam) > 0) {
-                // още има щит → удряме щита
                 if (dBase <= game.getBaseShieldRadius() + 2.0) {
                     game.reduceShieldPoints(enemyTeam, 5);
                     spawnFragmentExplosion(currentProjectile.getX(), currentProjectile.getY());
@@ -219,31 +218,26 @@ public class Artillery extends Character {
                     return;
                 }
             } else {
-                // щитът е паднал → 1 попадение в базата = край на играта
                 final double BASE_HIT_RADIUS = 28.0;
                 if (dBase <= BASE_HIT_RADIUS) {
-                    // ефекти върху базата
                     game.addExplosionEffect(enemyBaseX, enemyBaseY, 140, new Color(255,110,40), 1200);
                     for (int i = 0; i < 5; i++) {
                         game.addExplosionEffect(enemyBaseX, enemyBaseY, 80 - i * 12, new Color(255,180,80), 900);
                     }
                     spawnFragmentExplosion(enemyBaseX, enemyBaseY);
-
                     currentProjectile = null;
-
-                    // >>> ТОВА Е ВАЖНОТО: извикай края на играта
                     game.onBaseDestroyed(enemyTeam);
                     return;
                 }
             }
 
-            // 3) стигнал е целта
+            // 3) стигнал е целта (сейфти)
             if (currentProjectile.reachedTarget()) {
-                boolean enemyShieldUp2 = game.getBaseShieldPoints(enemyTeam) > 0;
-                if (enemyShieldUp2) {
+                if (game.getBaseShieldPoints(enemyTeam) > 0) {
                     spawnFragmentExplosion(currentProjectile.getX(), currentProjectile.getY());
                 } else {
-                    destroyEnemyBase();
+                    game.addExplosionEffect(enemyBaseX, enemyBaseY, 120, new Color(255,110,40), 1000);
+                    game.onBaseDestroyed(enemyTeam);
                 }
                 currentProjectile = null;
                 return;
@@ -252,9 +246,12 @@ public class Artillery extends Character {
 
         explosions.removeIf(ExplosionEffect::isExplosionExpired);
 
-        boolean enemyShieldActive = game.getBaseShieldPoints(this.getTeam().equals("red") ? "blue" : "red") > 0;
-        boolean defendersActive = Arrays.stream(game.getDefenders()).anyMatch(Defender::isActive);
-        if (!enemyShieldActive && !defendersActive) { setActive(false); return; }
+        // авто-изключване: гледаме само ВРАЖЕСКИ защитници
+        String enemyTeam = this.getTeam().equalsIgnoreCase("red") ? "blue" : "red";
+        boolean enemyShieldActive = game.getBaseShieldPoints(enemyTeam) > 0;
+        boolean enemyDefendersActive = Arrays.stream(game.getDefenders())
+                .anyMatch(d -> d != null && d.isActive() && enemyTeam.equalsIgnoreCase(d.getTeam()));
+        if (!enemyShieldActive && !enemyDefendersActive) { setActive(false); return; }
 
         if (currentProjectile == null && canShoot()) fireProjectile();
     }
@@ -262,12 +259,10 @@ public class Artillery extends Character {
     private void fireProjectile() {
         if (currentProjectile != null) return;
 
-        // муцуна в глобални координати (с текущ откат)
         double ang = Math.toRadians(currentAngle);
         double sx = (x - recoil * Math.cos(ang)) + BARREL_LENGTH * Math.cos(ang);
         double sy = (y - recoil * Math.sin(ang)) + BARREL_LENGTH * Math.sin(ang);
 
-        // ако щитът е паднал → целим центъра на базата, иначе ръба на щита
         String enemyTeam = this.getTeam().equals("red") ? "blue" : "red";
         if (game.getBaseShieldPoints(enemyTeam) <= 0) {
             currentProjectile = new ArtilleryProjectile(sx, sy, enemyBaseX, enemyBaseY);
@@ -277,8 +272,7 @@ public class Artillery extends Character {
             currentProjectile = new ArtilleryProjectile(sx, sy, edge.x, edge.y);
         }
 
-        // импулс, пламък, дим
-        recoil = RECOIL_KICK;                         // задаваме откат, не скорост
+        recoil = RECOIL_KICK;
         muzzleFlashUntil = System.currentTimeMillis() + 120;
         spawnSmokeBurst(sx, sy, ang);
     }
@@ -314,7 +308,6 @@ public class Artillery extends Character {
                 d.setActive(false);
             }
         }
-        // Артилерията ще се самоизключи при следващия тик, когато няма нито щит, нито активни защитници.
     }
 
     private boolean canShoot() {
@@ -330,12 +323,8 @@ public class Artillery extends Character {
 
     @Override public String getType() { return "artillery"; }
 
-
-
     // --- PUBLIC API за защитниците да виждат/удрят снаряда ---
-    public boolean hasActiveProjectile() {
-        return currentProjectile != null;
-    }
+    public boolean hasActiveProjectile() { return currentProjectile != null; }
 
     public Point2D.Double getProjectilePosition() {
         if (currentProjectile == null) return null;
@@ -350,24 +339,25 @@ public class Artillery extends Character {
         }
     }
 
-
-
-
     // -------- снаряд --------
     private class ArtilleryProjectile {
-        private double x, y;
+        private double x, y;        // текуща позиция
+        private double px, py;      // предишна позиция (за swept-колизия)
         private final double tx, ty;
         private final double speed = 30.0;
 
         ArtilleryProjectile(double sx, double sy, double tx, double ty) {
-            this.x=sx; this.y=sy; this.tx=tx; this.ty=ty;
+            this.x = sx; this.y = sy;
+            this.px = sx; this.py = sy;
+            this.tx = tx; this.ty = ty;
         }
 
         void updateArtilleryProjectile() {
+            px = x; py = y;
             double dx = tx - x, dy = ty - y;
-            double d = Math.sqrt(dx*dx + dy*dy);
+            double d  = Math.sqrt(dx*dx + dy*dy);
             if (d <= speed) { x = tx; y = ty; }
-            else { x += (dx/d)*speed; y += (dy/d)*speed; }
+            else { x += (dx / d) * speed; y += (dy / d) * speed; }
         }
 
         boolean reachedTarget() {
@@ -378,15 +368,17 @@ public class Artillery extends Character {
             g.setStroke(new BasicStroke(2f));
             g.setColor(new Color(255, 200, 80));
             double a = Math.atan2(ty - y, tx - x);
-            g.drawLine((int)x, (int)y,
-                    (int)(x - 10*Math.cos(a)),
-                    (int)(y - 10*Math.sin(a)));
+            g.drawLine((int) x, (int) y,
+                    (int) (x - 10 * Math.cos(a)),
+                    (int) (y - 10 * Math.sin(a)));
             g.setColor(new Color(255, 255, 255, 180));
-            g.fillOval((int)x-2, (int)y-2, 4, 4);
+            g.fillOval((int) x - 2, (int) y - 2, 4, 4);
         }
 
-        double getX(){ return x; }
-        double getY(){ return y; }
+        double getX()     { return x;  }
+        double getY()     { return y;  }
+        double getPrevX() { return px; }
+        double getPrevY() { return py; }
     }
 
     // -------- експлозия „пух“ --------
@@ -449,5 +441,20 @@ public class Artillery extends Character {
         double edgeX = baseX - radius * Math.cos(angle);
         double edgeY = baseY - radius * Math.sin(angle);
         return new Point2D.Double(edgeX, edgeY);
+    }
+
+    // --- swept колизия сегмент–окръжност (за бързия снаряд) ---
+    private static boolean segmentCircleHit(
+            double x1, double y1, double x2, double y2,
+            double cx, double cy, double r) {
+
+        double vx = x2 - x1, vy = y2 - y1;      // вектор на сегмента
+        double wx = cx - x1, wy = cy - y1;      // вектор от начало към центъра
+        double vv = vx*vx + vy*vy;
+        double t  = (vv == 0) ? 0 : (wx*vx + wy*vy) / vv;  // параметър на проекцията
+        if (t < 0) t = 0; else if (t > 1) t = 1;           // clamp [0..1]
+        double px = x1 + t * vx;
+        double py = y1 + t * vy;
+        return Math.hypot(px - cx, py - cy) <= r;
     }
 }
