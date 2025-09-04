@@ -87,7 +87,7 @@ public class ScoutGame extends JFrame {
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this, 1);
         redScout.activate();
 
-        Scout.SPEED = 2.0;/////////////////////////////////////////////////////////////////////////////////////////////
+        Scout.SPEED = 2.4;/////////////////////////////////////////////////////////////////////////////////////////////
         blueScout.applyGlobalSpeed();
         redScout.applyGlobalSpeed();
 
