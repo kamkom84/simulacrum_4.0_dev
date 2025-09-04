@@ -87,8 +87,7 @@ public class ScoutGame extends JFrame {
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this, 1);
         redScout.activate();
 
-        // <<< централна настройка на скоростта на скаута за тази игра/карта
-        Scout.SPEED = 2.0;///////////////////////////////////////////////////////////////////
+        Scout.SPEED = 2.0;/////////////////////////////////////////////////////////////////////////////////////////////
         blueScout.applyGlobalSpeed();
         redScout.applyGlobalSpeed();
 
@@ -284,7 +283,6 @@ public class ScoutGame extends JFrame {
             boolean redHasSoldiers = areSoldiersLeft("red");
             boolean blueHasSoldiers = areSoldiersLeft("blue");
 
-            // ако артилерията е активна, но противникът вече има войници → пускаме нашите
             if (artillery != null) {
                 if (!artillery.isActive()) {
                     if ("blue".equalsIgnoreCase(artillery.getTeam())) releaseWaiting(blueSoldiers);
@@ -415,7 +413,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeResources() {
-        resources = new Resource[20];////////////////////////////////////////////////////////////////////////////////////
+        resources = new Resource[21];////////////////////////////////////////////////////////////////////////////////////
         resourceValues = new int[resources.length];
         resourceOccupied = new boolean[resources.length];
 
@@ -452,7 +450,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 20;//////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 10;//////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -498,7 +496,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeSoldiers(String team, int baseX, int baseY, int baseHealth) {
-        final int soldierHealthCost = 10;////////////////////////////////////////////////////////////////////////////////
+        final int soldierHealthCost = 1;////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 10;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -537,7 +535,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void startSoldierCreation(String team, int baseX, int baseY) {
-        final int soldierCost = 10;//////////////////////////////////////////////////////////////////////////////////
+        final int soldierCost = 1;//////////////////////////////////////////////////////////////////////////////////
         final int maxRowsPerColumn = 12;
         final int columnSpacing = 30;
         final int rowSpacing = 30;
@@ -681,7 +679,6 @@ public class ScoutGame extends JFrame {
                     }
                 }
 
-                // Защитникът стреля по снаряда на противниковата артилерия (ако има такъв)
                 if (artillery != null && artillery.isActive()
                         && !defender.getTeam().equalsIgnoreCase(artillery.getTeam())) {
                     defender.checkAndShootIfArtilleryProjectileInRange(artillery);
