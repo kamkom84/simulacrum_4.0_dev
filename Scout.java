@@ -87,7 +87,7 @@ public class Scout extends Character {
         } else if (recharging) {
             handleRecharging(currentTime);
         } else if (!isExploding) {
-            Worker targetWorker = scoutGame.findClosestEnemyWorkerWithinRange(this, team, 100);
+            Worker targetWorker = scoutGame.findClosestEnemyWorkerWithinRange(this, team, 150);
             if (targetWorker != null) {
                 handleTargetWorker(targetWorker, currentTime, resources);
             } else {
@@ -134,7 +134,7 @@ public class Scout extends Character {
         double adjusted = intended;
 
         double scoutRadius = getBodyRadius();
-        double minimumDistance = 40;////////////////////////////////////////////////////////////////////////////////////
+        double minimumDistance = 45;////////////////////////////////////////////////////////////////////////////////////
         for (Resource r : resources) {
             double dRes = distance(r.getX(), r.getY(), x, y);
             double required = r.getRadius() + scoutRadius + minimumDistance;

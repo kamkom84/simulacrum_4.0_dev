@@ -87,7 +87,7 @@ public class ScoutGame extends JFrame {
         redScout = new Scout(redBaseX + baseWidth - 2 * bodyRadius, redBaseY, "red", this, 1);
         redScout.activate();
 
-        Scout.SPEED = 2.4;/////////////////////////////////////////////////////////////////////////////////////////////
+        Scout.SPEED = 2.5;/////////////////////////////////////////////////////////////////////////////////////////////
         blueScout.applyGlobalSpeed();
         redScout.applyGlobalSpeed();
 
@@ -95,8 +95,8 @@ public class ScoutGame extends JFrame {
         initializeWorkers();
         generateResources();
 
-        blueDefenders = new Defender[4];////////////////////////////////////////////////////////////////////////////////
-        redDefenders = new Defender[4];/////////////////////////////////////////////////////////////////////////////////
+        blueDefenders = new Defender[5];////////////////////////////////////////////////////////////////////////////////
+        redDefenders = new Defender[5];/////////////////////////////////////////////////////////////////////////////////
         initializeDefenders();
 
         initializeSoldiers("blue", blueBaseX, blueBaseY, blueBaseHealth);
@@ -445,12 +445,12 @@ public class ScoutGame extends JFrame {
                 positionIsValid = !isNearBase(x, y) && !isNearWorkers(x, y, workerPositions);
             } while (!positionIsValid);
 
-            resources[i] = new Resource(x, y, 10);////////////////////////////////////////////////////////////////
+            resources[i] = new Resource(x, y, 20);////////////////////////////////////////////////////////////////
         }
     }
 
     private void initializeWorkers() {
-        int totalWorkers = 10;//////////////////////////////////////////////////////////////////////////////////////////
+        int totalWorkers = 5;//////////////////////////////////////////////////////////////////////////////////////////
         int workersPerColumn = 10;
 
         blueWorkers = new Worker[totalWorkers];
@@ -574,7 +574,7 @@ public class ScoutGame extends JFrame {
     }
 
     private void initializeDefenders() {
-        for (int i = 0; i < 4; i++) {///////////////////////////////////////////////////////////////////////////////////
+        for (int i = 0; i < 5; i++) {///////////////////////////////////////////////////////////////////////////////////
 
             blueDefenders[i] = new Defender(
                     blueBaseX + baseWidth / 2,
