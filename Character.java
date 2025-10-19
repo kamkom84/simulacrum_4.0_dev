@@ -29,10 +29,6 @@ public abstract class Character {
         return y;
     }
 
-    public double getAngle() {
-        return angle;
-    }
-
     public double getCurrentAngle() {
         return currentAngle;
     }
@@ -83,11 +79,6 @@ public abstract class Character {
     }
 
     public void setY(double y) {
-        this.y = y;
-    }
-
-    public void setPosition(double x, double y) {
-        this.x = x;
         this.y = y;
     }
 

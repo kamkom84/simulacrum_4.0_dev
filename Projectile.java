@@ -29,24 +29,20 @@ public class Projectile {
     public void updateProjectilePosition() {
         if (!active) return;
 
-        // Придвижване на патрона
         double deltaX = speed * Math.cos(directionAngle);
         double deltaY = speed * Math.sin(directionAngle);
 
         x += deltaX;
         y += deltaY;
 
-        // Актуализиране на изминатото разстояние
         traveledDistance += Math.hypot(deltaX, deltaY);
 
-        // Проверка за достигане на целта (лек толеранс)
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
         if (distanceToTarget <= 5) {
             active = false;
             return;
         }
 
-        // Проверка за максимално разстояние
         if (traveledDistance >= maxDistance) {
             active = false;
         }
@@ -80,7 +76,6 @@ public class Projectile {
 
     public boolean isProjectileActive() { return active; }
 
-    // --- NEW: нужни за защитниците/AA логика ---
     public double getX() { return x; }
     public double getY() { return y; }
     public double getDirectionAngle() { return directionAngle; }

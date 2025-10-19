@@ -5,73 +5,46 @@ import java.awt.geom.Point2D;
 import java.util.*;
 
 public class Soldier extends Character {
-    // ---------- настройки ----------
-    private static final int    BODY_RADIUS       = 5;
-    private static final int    WEAPON_LENGTH     = 15;
-
-    private static final double VISUAL_RANGE      = 250.0;  // „виждам“ и преследвам
-    private static final double SHOOT_RANGE       = 120.0;  // стрелям
-    private static final double MOVE_SPEED        = 1.8;
-
-    private static final long   COOLDOWN_BASE_MS  = 900;
-    private static final long   COOLDOWN_JITTER_MS= 350;
-
-    // куршум – права линия, видим до 150px
-    private static final double BULLET_SPEED      = 35.0;
+    private static final int BODY_RADIUS = 5;
+    private static final int WEAPON_LENGTH = 15;
+    private static final double VISUAL_RANGE = 200.0;
+    private static final double SHOOT_RANGE = 120.0;
+    private static final double MOVE_SPEED = 1.8;
+    private static final long COOLDOWN_BASE_MS = 900;
+    private static final long COOLDOWN_JITTER_MS = 350;
+    private static final double BULLET_SPEED = 35.0;
     private static final double BULLET_MAX_TRAVEL = 150.0;
     private static final double BULLET_HIT_RADIUS = 6.0;
-
-    // фланг – геометрия (ново: фиксирана дълбочина 250 px под врага)
-    private static final double FLANK_DEPTH_BELOW_ENEMY = 250.0;
-
-    // граната – шрапнели
-    private static final int    GRENADE_SHRAPNELS = 15;
-    private static final double SHRAPNEL_SPEED    = 2.4;
-    private static final float  SHRAPNEL_FADE     = 0.12f;
-    private static final int    SHRAPNEL_SIZE     = 3;
-
-    // граници на екрана
+    private static final double FLANK_DEPTH_BELOW_ENEMY = 200.0;
+    private static final int GRENADE_SHRAPNELS = 15;
+    private static final double SHRAPNEL_SPEED = 2.4;
+    private static final float SHRAPNEL_FADE = 0.12f;
+    private static final int SHRAPNEL_SIZE = 3;
     private static final double SCREEN_MARGIN = BODY_RADIUS + 2;
-
-    // бойна лента по Y (армията не се разтяга нагоре/надолу)
     private static final double LEASH_Y = 90.0;
-    private double anchorY; // редът на войника (може да се префиксира след подреждане)
-
-    // ---------- състояние ----------
+    private double anchorY;
     private final Color teamColor;
     private final ScoutGame game;
     private final int id;
     private int healthPoints;
-
     private final int enemyBaseX, enemyBaseY;
     private final int baseX, baseY;
-
     private boolean waiting = false;
-
     private Projectile currentProjectile;
     private long lastShotTime = 0;
     private final long shootCooldownMs;
-
     private boolean showHealth = false;
     private String speech = null;
     private long speechEndTime = 0;
-
-    // гранати по прагове 20→15→10→5
     private Grenade currentGrenade = null;
     private int nextGrenadeThreshold = 20;
-
-    // (стар флаг)
     private boolean isFlanking = false;
-
-    // --------- СЪВМЕСТИМОСТ + реален фланг ----------
-    private boolean compatFlankingMode = false; // включено от играта
-    private boolean compatFlankLeader  = false;
-    private Soldier compatFlankTarget  = null;
-    private Soldier flankLeaderRef     = null;  // съвместимост
-
-    // маршрут за фланга (видимо движение)
+    private boolean compatFlankingMode = false;
+    private boolean compatFlankLeader = false;
+    private Soldier compatFlankTarget = null;
+    private Soldier flankLeaderRef = null;
     private final java.util.List<Point2D.Double> flankPath = new ArrayList<>();
-    private int   flankIdx = 0;
+    private int flankIdx = 0;
     private boolean flankAttacking = false; // преминали етапа „под тях“
 
     public Soldier(int x, int y, String team,
@@ -82,52 +55,51 @@ public class Soldier extends Character {
         this.teamColor = team.equals("blue") ? Color.BLUE : Color.RED;
         this.game = game;
         this.id = id;
-        this.baseX = baseX;  this.baseY = baseY;
-        this.enemyBaseX = enemyBaseX; this.enemyBaseY = enemyBaseY;
+        this.baseX = baseX;
+        this.baseY = baseY;
+        this.enemyBaseX = enemyBaseX;
+        this.enemyBaseY = enemyBaseY;
 
-        this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight()/2.0 - y, game.getWidth()/2.0 - x));
+        this.currentAngle = Math.toDegrees(Math.atan2(game.getHeight() / 2.0 - y, game.getWidth() / 2.0 - x));
 
-        this.shootCooldownMs = COOLDOWN_BASE_MS + (long)(Math.random() * COOLDOWN_JITTER_MS);
-        this.lastShotTime = System.currentTimeMillis() - (long)(Math.random() * shootCooldownMs);
+        this.shootCooldownMs = COOLDOWN_BASE_MS + (long) (Math.random() * COOLDOWN_JITTER_MS);
+        this.lastShotTime = System.currentTimeMillis() - (long) (Math.random() * shootCooldownMs);
 
-        // фиксирай реда на войника – ако по-късно го подредиш наново, извикай setAnchorY(...)
         this.anchorY = y;
     }
 
-    // ---------- рисуване ----------
     public void drawSoldier(Graphics2D g2d) {
         g2d.setColor(teamColor);
-        g2d.fillOval((int)(x - BODY_RADIUS), (int)(y - BODY_RADIUS), BODY_RADIUS * 2, BODY_RADIUS * 2);
+        g2d.fillOval((int) (x - BODY_RADIUS), (int) (y - BODY_RADIUS), BODY_RADIUS * 2, BODY_RADIUS * 2);
 
         g2d.setColor(Color.YELLOW);
-        int x1 = (int)x, y1 = (int)y;
-        int x2 = x1 + (int)(WEAPON_LENGTH * Math.cos(Math.toRadians(currentAngle)));
-        int y2 = y1 + (int)(WEAPON_LENGTH * Math.sin(Math.toRadians(currentAngle)));
+        int x1 = (int) x, y1 = (int) y;
+        int x2 = x1 + (int) (WEAPON_LENGTH * Math.cos(Math.toRadians(currentAngle)));
+        int y2 = y1 + (int) (WEAPON_LENGTH * Math.sin(Math.toRadians(currentAngle)));
         g2d.drawLine(x1, y1, x2, y2);
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 8));
-        g2d.drawString(String.valueOf(id), (int)x - 6, (int)y - BODY_RADIUS - 1);
+        g2d.drawString(String.valueOf(id), (int) x - 6, (int) y - BODY_RADIUS - 1);
 
         if (showHealth) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("Arial", Font.BOLD, 10));
-            g2d.drawString(String.valueOf(healthPoints), (int)x - 8, (int)y - BODY_RADIUS - 9);
+            g2d.drawString(String.valueOf(healthPoints), (int) x - 8, (int) y - BODY_RADIUS - 9);
         }
 
         if (currentProjectile != null) currentProjectile.draw(g2d);
-        if (currentGrenade != null)   currentGrenade.drawGrenade(g2d);
+        if (currentGrenade != null) currentGrenade.drawGrenade(g2d);
 
         if (speech != null && System.currentTimeMillis() < speechEndTime) {
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("Arial", Font.BOLD, 12));
-            g2d.drawString(speech, (int)x - 18, (int)y - 20);
+            g2d.drawString(speech, (int) x - 18, (int) y - 20);
         } else {
             speech = null;
         }
     }
 
-    // ---------- основна логика ----------
     public void updateSoldier(Soldier[] teammates, Soldier[] enemyArmy) {
         if (waiting || !isActive()) return;
 
@@ -160,41 +132,50 @@ public class Soldier extends Character {
         }
     }
 
-    // ---------- реален фланг ----------
     private static class BBox {
-        double minX =  1e9, minY =  1e9, maxX = -1e9, maxY = -1e9; boolean any=false;
-        void add(Soldier s){ any=true;
-            double X=s.getX(),Y=s.getY();
-            if(X<minX)minX=X; if(X>maxX)maxX=X; if(Y<minY)minY=Y; if(Y>maxY)maxY=Y; }
-        double centerX(){return (minX+maxX)/2.0;}
+        double minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+        boolean any = false;
+
+        void add(Soldier s) {
+            any = true;
+            double X = s.getX(), Y = s.getY();
+            if (X < minX) minX = X;
+            if (X > maxX) maxX = X;
+            if (Y < minY) minY = Y;
+            if (Y > maxY) maxY = Y;
+        }
+
+        double centerX() {
+            return (minX + maxX) / 2.0;
+        }
     }
-    private BBox calcEnemyBox(Soldier[] enemyArmy){
-        BBox b=new BBox(); if(enemyArmy!=null)
-            for(Soldier s:enemyArmy) if(s!=null&&s.isActive()) b.add(s);
+
+    private BBox calcEnemyBox(Soldier[] enemyArmy) {
+        BBox b = new BBox();
+        if (enemyArmy != null)
+            for (Soldier s : enemyArmy) if (s != null && s.isActive()) b.add(s);
         return b;
     }
 
-    private void planFlankPathIfNeeded(Soldier[] enemyArmy){
+    private void planFlankPathIfNeeded(Soldier[] enemyArmy) {
         if (!flankPath.isEmpty() || flankAttacking) return;
         BBox b = calcEnemyBox(enemyArmy);
         if (!b.any) return;
 
-        // Ново: винаги слизаме на линия 250 px под най-долния враг,
-        // но никога под долния ръб на екрана.
         double safeY = Math.min(game.getHeight() - SCREEN_MARGIN,
                 b.maxY + FLANK_DEPTH_BELOW_ENEMY);
 
         flankPath.clear();
-        flankPath.add(clampPointToArena(this.x, safeY));          // 1) надолу
-        flankPath.add(clampPointToArena(b.centerX(), safeY));     // 2) хоризонтално под тях
+        flankPath.add(clampPointToArena(this.x, safeY));
+        flankPath.add(clampPointToArena(b.centerX(), safeY));
         flankIdx = 0;
         flankAttacking = false;
     }
 
-    private void runFlank(Soldier[] teammates, Soldier[] enemyArmy){
+    private void runFlank(Soldier[] teammates, Soldier[] enemyArmy) {
         planFlankPathIfNeeded(enemyArmy);
 
-        if (!flankAttacking && flankIdx < flankPath.size()){
+        if (!flankAttacking && flankIdx < flankPath.size()) {
             Point2D.Double wp = flankPath.get(flankIdx);
             moveTowards(wp.x, wp.y, MOVE_SPEED);
             if (Point2D.distance(this.x, this.y, wp.x, wp.y) < 10) flankIdx++;
@@ -216,21 +197,23 @@ public class Soldier extends Character {
             }
         } else {
             compatFlankingMode = false;
-            flankPath.clear(); flankIdx = 0; flankAttacking = false;
+            flankPath.clear();
+            flankIdx = 0;
+            flankAttacking = false;
         }
     }
 
-    private Soldier findBottomEnemy(Soldier[] enemyArmy){
-        Soldier bot=null; if(enemyArmy==null) return null;
-        for(Soldier s:enemyArmy){
-            if(s!=null && s.isActive()){
-                if(bot==null || s.getY()>bot.getY()) bot=s;
+    private Soldier findBottomEnemy(Soldier[] enemyArmy) {
+        Soldier bot = null;
+        if (enemyArmy == null) return null;
+        for (Soldier s : enemyArmy) {
+            if (s != null && s.isActive()) {
+                if (bot == null || s.getY() > bot.getY()) bot = s;
             }
         }
         return bot;
     }
 
-    // ---------- стрелба ----------
     public void soldierShoot(Character target) {
         if (target == null || !target.isActive()) return;
         long now = System.currentTimeMillis();
@@ -249,25 +232,16 @@ public class Soldier extends Character {
         }
     }
 
-    // (съвместимост със ScoutGame – няма нужда от target)
-    public void updateProjectile(Character ignored) {
-        if (currentProjectile != null && currentProjectile.isActive()) {
-            currentProjectile.updateSoldierProjectilePosition();
-        }
-    }
-
-    // ---------- помощници ----------
     private void moveTowards(double tx, double ty, double speed) {
         double ang = Math.atan2(ty - this.y, tx - this.x);
         this.currentAngle = Math.toDegrees(ang);
         this.x += speed * Math.cos(ang);
         this.y += speed * Math.sin(ang);
         clampToArena();
-        applyLeashY(); // държи „стената“ по Y
+        applyLeashY();
     }
 
     private void soldierAdvance(Soldier[] teammates) {
-        // настъпване основно по Х към врага; по Y стоим на собствения ред
         double tx = enemyBaseX;
         double ty = this.anchorY;
         moveTowards(tx, ty, MOVE_SPEED);
@@ -290,7 +264,7 @@ public class Soldier extends Character {
     }
 
     private void applyLeashY() {
-        if (compatFlankingMode) return; // при фланг няма ограничение
+        if (compatFlankingMode) return;
         double minY = anchorY - LEASH_Y;
         double maxY = anchorY + LEASH_Y;
         if (y < minY) y = minY;
@@ -304,19 +278,10 @@ public class Soldier extends Character {
             if (c == null || !c.isActive()) continue;
             if (this.team.equals(c.getTeam())) continue;
             double d = Point2D.distance(this.x, this.y, c.getX(), c.getY());
-            if (d <= bestDist) { bestDist = d; best = c; }
-        }
-        return best;
-    }
-
-    private Character findClosestEnemyAnywhere() {
-        Character best = null;
-        double bestDist = Double.POSITIVE_INFINITY;
-        for (Character c : game.getCharacters()) {
-            if (c == null || !c.isActive()) continue;
-            if (this.team.equals(c.getTeam())) continue;
-            double d = Point2D.distance(this.x, this.y, c.getX(), c.getY());
-            if (d < bestDist) { bestDist = d; best = c; }
+            if (d <= bestDist) {
+                bestDist = d;
+                best = c;
+            }
         }
         return best;
     }
@@ -326,7 +291,7 @@ public class Soldier extends Character {
         if (nextGrenadeThreshold < 5) return;
         if (healthPoints <= nextGrenadeThreshold) {
             currentGrenade = new Grenade(this.x, this.y, target.getX(), target.getY());
-            nextGrenadeThreshold -= 15; // 20→15→10→5////////////////5дефолт стойност////////////////
+            nextGrenadeThreshold -= 15;
         }
     }
 
@@ -353,7 +318,10 @@ public class Soldier extends Character {
     private void showHealthTemporarily() {
         showHealth = true;
         new java.util.Timer().schedule(new java.util.TimerTask() {
-            @Override public void run() { showHealth = false; }
+            @Override
+            public void run() {
+                showHealth = false;
+            }
         }, 1000);
     }
 
@@ -375,30 +343,75 @@ public class Soldier extends Character {
         applyLeashY();
     }
 
-    // ---------- публични дреболии ----------
-    @Override public String getType() { return "Soldier"; }
-    public int  getId() { return id; }
-    public int  getHealthPoints() { return healthPoints; }
-    public void setWaiting(boolean waiting) { this.waiting = waiting; }
-    public boolean isWaiting() { return waiting; }
-    public int  getWeaponLength() { return WEAPON_LENGTH; }
-    public void setFlanking(boolean v) { this.isFlanking = v; }
+    @Override
+    public String getType() {
+        return "Soldier";
+    }
 
-    // --- СЪВМЕСТИМОСТ със старите извиквания от ScoutGame ---
-    public boolean getFlankingMode() { return compatFlankingMode; }
+    public int getId() {
+        return id;
+    }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public void setWaiting(boolean waiting) {
+        this.waiting = waiting;
+    }
+
+    public boolean isWaiting() {
+        return waiting;
+    }
+
+    public int getWeaponLength() {
+        return WEAPON_LENGTH;
+    }
+
+    public void setFlanking(boolean v) {
+        this.isFlanking = v;
+    }
+
+    public boolean getFlankingMode() {
+        return compatFlankingMode;
+    }
+
     public void setFlankingMode(boolean v) {
         compatFlankingMode = v;
-        if (!v) { flankPath.clear(); flankIdx = 0; flankAttacking = false; }
+        if (!v) {
+            flankPath.clear();
+            flankIdx = 0;
+            flankAttacking = false;
+        }
     }
-    public void setFlankLeader(boolean v) { compatFlankLeader = v; }
-    public void setFlankTarget(Soldier s) { compatFlankTarget = s; }
-    public Soldier getFlankTarget() { return compatFlankTarget; }
-    public void setFlankLeaderRef(Soldier leader) { this.flankLeaderRef = leader; }
-    public int getFlankPhase() { return flankAttacking ? 3 : (flankPath.isEmpty() ? 0 : 1); }
 
-    // Позволява ти да заключиш реда повторно, ако подреждаш след конструктора
-    public void setAnchorY(double newY) { this.anchorY = newY; }
-    public double getAnchorY() { return this.anchorY; }
+    public void setFlankLeader(boolean v) {
+        compatFlankLeader = v;
+    }
+
+    public void setFlankTarget(Soldier s) {
+        compatFlankTarget = s;
+    }
+
+    public Soldier getFlankTarget() {
+        return compatFlankTarget;
+    }
+
+    public void setFlankLeaderRef(Soldier leader) {
+        this.flankLeaderRef = leader;
+    }
+
+    public int getFlankPhase() {
+        return flankAttacking ? 3 : (flankPath.isEmpty() ? 0 : 1);
+    }
+
+    public void setAnchorY(double newY) {
+        this.anchorY = newY;
+    }
+
+    public double getAnchorY() {
+        return this.anchorY;
+    }
 
     public void moveBackFrom(int x, int y) {
         double ang = Math.atan2(this.y - y, this.x - x);
@@ -409,7 +422,6 @@ public class Soldier extends Character {
         applyLeashY();
     }
 
-    // ---------- вътрешни класове ----------
     private class Projectile {
         private double x, y;
         private final double dirDeg;
@@ -417,7 +429,9 @@ public class Soldier extends Character {
         private double traveled = 0.0;
 
         Projectile(double startX, double startY, double directionDeg) {
-            this.x = startX; this.y = startY; this.dirDeg = directionDeg;
+            this.x = startX;
+            this.y = startY;
+            this.dirDeg = directionDeg;
         }
 
         void updateSoldierProjectilePosition() {
@@ -427,11 +441,13 @@ public class Soldier extends Character {
             double dx = BULLET_SPEED * Math.cos(rad);
             double dy = BULLET_SPEED * Math.sin(rad);
 
-            x += dx; y += dy;
+            x += dx;
+            y += dy;
             traveled += Math.hypot(dx, dy);
 
             if (x < 0 || x > game.getWidth() || y < 0 || y > game.getHeight()) {
-                active = false; return;
+                active = false;
+                return;
             }
 
             for (Character c : game.getCharacters()) {
@@ -445,7 +461,9 @@ public class Soldier extends Character {
             if (traveled >= BULLET_MAX_TRAVEL) active = false;
         }
 
-        boolean isActive() { return active; }
+        boolean isActive() {
+            return active;
+        }
 
         void draw(Graphics2D g2d) {
             if (!active) return;
@@ -456,7 +474,7 @@ public class Soldier extends Character {
             double ey = y + 3 * Math.sin(rad);
             g2d.setColor(Color.YELLOW);
             g2d.setStroke(new BasicStroke(1.0f));
-            g2d.drawLine((int)sx, (int)sy, (int)ex, (int)ey);
+            g2d.drawLine((int) sx, (int) sy, (int) ex, (int) ey);
         }
     }
 
@@ -468,27 +486,48 @@ public class Soldier extends Character {
         private boolean exploded = false;
 
         private class Shard {
-            double x, y, dx, dy; float alpha = 1.0f;
-            Shard(double x,double y,double dx,double dy){this.x=x;this.y=y;this.dx=dx;this.dy=dy;}
-            void update(){
-                x+=dx; y+=dy;
-                if (x < 0 || x > game.getWidth() || y < 0 || y > game.getHeight()) { alpha = 0; return; }
-                alpha-=SHRAPNEL_FADE; if(alpha<0) alpha=0;
+            double x, y, dx, dy;
+            float alpha = 1.0f;
+
+            Shard(double x, double y, double dx, double dy) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx;
+                this.dy = dy;
             }
-            void draw(Graphics2D g2d){
-                if(alpha<=0) return;
+
+            void update() {
+                x += dx;
+                y += dy;
+                if (x < 0 || x > game.getWidth() || y < 0 || y > game.getHeight()) {
+                    alpha = 0;
+                    return;
+                }
+                alpha -= SHRAPNEL_FADE;
+                if (alpha < 0) alpha = 0;
+            }
+
+            void draw(Graphics2D g2d) {
+                if (alpha <= 0) return;
                 Composite oc = g2d.getComposite();
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
                 g2d.setColor(Color.RED);
-                g2d.fillOval((int)x,(int)y,SHRAPNEL_SIZE,SHRAPNEL_SIZE);
+                g2d.fillOval((int) x, (int) y, SHRAPNEL_SIZE, SHRAPNEL_SIZE);
                 g2d.setComposite(oc);
             }
-            boolean dead(){ return alpha<=0; }
+
+            boolean dead() {
+                return alpha <= 0;
+            }
         }
+
         private final java.util.List<Shard> shards = new ArrayList<>();
 
         Grenade(double sx, double sy, double tx, double ty) {
-            this.x=sx; this.y=sy; this.targetX=tx; this.targetY=ty;
+            this.x = sx;
+            this.y = sy;
+            this.targetX = tx;
+            this.targetY = ty;
         }
 
         void update() {
@@ -503,7 +542,8 @@ public class Soldier extends Character {
             y += speed * Math.sin(ang);
 
             Point2D.Double p = clampPointToArena(x, y);
-            x = p.x; y = p.y;
+            x = p.x;
+            y = p.y;
 
             if (Point2D.distance(x, y, targetX, targetY) < speed) {
                 countdown--;
@@ -536,13 +576,15 @@ public class Soldier extends Character {
         void drawGrenade(Graphics2D g2d) {
             if (!exploded) {
                 g2d.setColor(Color.RED);
-                g2d.fillOval((int)x - 4, (int)y - 4, 5, 5);
+                g2d.fillOval((int) x - 4, (int) y - 4, 5, 5);
             } else {
                 for (Shard s : shards) s.draw(g2d);
             }
         }
 
-        boolean isExploded() { return exploded && shards.isEmpty(); }
+        boolean isExploded() {
+            return exploded && shards.isEmpty();
+        }
 
     }
 }

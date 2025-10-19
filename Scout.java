@@ -42,10 +42,7 @@ public class Scout extends Character {
     private long pointReductionDisplayStartTime = 0;
     private static final int POINT_REDUCTION_DISPLAY_DURATION = 1000;
     private int id;
-
     public static double SPEED = 2.0;//////////////////////////////////////////////////////////////////////////////////
-    public static void setSpeed(double v) { SPEED = v; }
-    public static double getSpeed() { return SPEED; }
 
     public Scout(double startX, double startY, String team, ScoutGame game, int id) {
         super(startX, startY, team, "scout");
@@ -56,8 +53,9 @@ public class Scout extends Character {
         this.id = id;
     }
 
-    // извикай това, ако промениш Scout.SPEED след създаване
-    public void applyGlobalSpeed() { this.speed = SPEED; }
+    public void applyGlobalSpeed() {
+        this.speed = SPEED;
+    }
 
     public void update(Point baseCenter, Resource[] resources) {
         if (!isActive) return;
@@ -159,23 +157,10 @@ public class Scout extends Character {
         y += step * Math.sin(ang);
     }
 
-    private static double normalizeAngleDeg(double a){
+    private static double normalizeAngleDeg(double a) {
         while (a <= -180) a += 360;
-        while (a >   180) a -= 360;
+        while (a > 180) a -= 360;
         return a;
-    }
-
-    private void triggerExplosion(List<Worker> workers) {
-        isExploding = true;
-        explosionStartTime = System.currentTimeMillis();
-
-        for (Worker worker : workers) {
-            worker.setInactive();
-            worker.setColor(Color.GRAY);
-            incrementKills();
-        }
-
-        scoutGame.addExplosionEffect(this.x, this.y, EXPLOSION_RADIUS, Color.RED, EXPLOSION_DURATION);
     }
 
     public void moveBackFrom(int defenderX, int defenderY) {
@@ -265,8 +250,13 @@ public class Scout extends Character {
         }
     }
 
-    public int getKills() { return kills; }
-    public void incrementKills() { kills++; }
+    public int getKills() {
+        return kills;
+    }
+
+    public void incrementKills() {
+        kills++;
+    }
 
     private void handleShooting(Worker targetWorker, long currentTime) {
         if (currentTime - lastShootTime >= SHOOT_INTERVAL) {
@@ -308,13 +298,6 @@ public class Scout extends Character {
         }
     }
 
-    public void drawKills(Graphics2D g2d, int xPosition, int yPosition) {
-        g2d.setFont(new Font("Arial", Font.BOLD, 12));
-        g2d.setColor(team.equals("blue") ? Color.RED : Color.BLUE);
-        String scoreText = points + " - " + kills;
-        g2d.drawString(scoreText, xPosition, yPosition);
-    }
-
     private void keepWithinBounds(int panelWidth, int panelHeight) {
         if (x < 0) x = 0;
         if (y < 0) y = 0;
@@ -322,11 +305,25 @@ public class Scout extends Character {
         if (y > panelHeight - 10) y = panelHeight - 10;
     }
 
-    public boolean isActive() { return isActive; }
-    public void activate() { this.isActive = true; }
-    public int getPoints() { return points; }
-    public double getCurrentAngle() { return currentAngle; }
-    public int getBodyRadius() { return 5; }
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public double getCurrentAngle() {
+        return currentAngle;
+    }
+
+    public int getBodyRadius() {
+        return 5;
+    }
 
     public void reverseDirection() {
         currentAngle += 180;
@@ -363,7 +360,7 @@ public class Scout extends Character {
         Stroke originalStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(1f));
         int auraRadius = bodyRadius + 1;
-        g2d.drawOval((int)(x - auraRadius), (int)(y - auraRadius), auraRadius * 2, auraRadius * 2);
+        g2d.drawOval((int) (x - auraRadius), (int) (y - auraRadius), auraRadius * 2, auraRadius * 2);
         g2d.setStroke(originalStroke);
         g2d.setComposite(originalComposite);
     }
@@ -384,11 +381,21 @@ public class Scout extends Character {
         x += deltaX * speed;
         y += deltaY * speed;
 
-        if (x < 0) { x = 0; reverseDirection(); }
-        else if (x > scoutGame.getWidth()) { x = scoutGame.getWidth(); reverseDirection(); }
+        if (x < 0) {
+            x = 0;
+            reverseDirection();
+        } else if (x > scoutGame.getWidth()) {
+            x = scoutGame.getWidth();
+            reverseDirection();
+        }
 
-        if (y < 0) { y = 0; reverseDirection(); }
-        else if (y > scoutGame.getHeight()) { y = scoutGame.getHeight(); reverseDirection(); }
+        if (y < 0) {
+            y = 0;
+            reverseDirection();
+        } else if (y > scoutGame.getHeight()) {
+            y = scoutGame.getHeight();
+            reverseDirection();
+        }
     }
 
     private void moveRandomly() {
@@ -404,15 +411,33 @@ public class Scout extends Character {
 
     public void decreaseHealth(int amount) {
         health -= amount;
-        if (health < 0) { health = 0; }
+        if (health < 0) {
+            health = 0;
+        }
     }
 
-    public int getHealth() { return health; }
-    public ScoutGame getGame() { return game; }
+    public int getHealth() {
+        return health;
+    }
 
-    @Override public String getType() { return "Scout"; }
+    public ScoutGame getGame() {
+        return game;
+    }
 
-    public void setX(int x) { this.x = x; }
-    public void setY(int y) { this.y = y; }
-    public void setCurrentAngle(double angle) { this.currentAngle = angle; }
+    @Override
+    public String getType() {
+        return "Scout";
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void setCurrentAngle(double angle) {
+        this.currentAngle = angle;
+    }
 }

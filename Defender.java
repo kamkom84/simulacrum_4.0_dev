@@ -165,7 +165,7 @@ public class Defender extends Character {
                 soldier.getX(),
                 soldier.getY(),
                 45.0, ///////////////////////////////////
-                450.0 // Максимален обхват на патрона//////////////////////////////////////////////////////////////////
+                450.0 /////////////////////////////////////////
         );
         projectiles.add(projectile);
 
@@ -212,16 +212,12 @@ public class Defender extends Character {
         this.healthPoints -= points;
         if (this.healthPoints <= 0) {
             this.healthPoints = 0;
-            this.setActive(false); // Деактивиране на защитника
+            this.setActive(false);
         }
     }
 
     public int getRadius() {
         return 15;
-    }
-
-    public int getHealthPoints() {
-        return this.healthPoints;
     }
 
     public void checkAndShootIfArtilleryProjectileInRange(Artillery artillery) {
@@ -234,7 +230,6 @@ public class Defender extends Character {
         double dist = Point2D.distance(this.x, this.y, p.x, p.y);
         if (dist > SHOOT_RANGE) return;
 
-        // насочи оръжието и пусни куршум към точката
         double ang = Math.atan2(p.y - this.y, p.x - this.x);
         currentAngle = ang;
 
@@ -262,7 +257,6 @@ public class Defender extends Character {
 
     public void updateProjectilesForArtillery(Artillery artillery) {
         if (artillery == null || !artillery.isActive() || !artillery.hasActiveProjectile()) {
-            // все пак местим куршумите и ги чистим ако са извън обхват
             Iterator<Projectile> it = projectiles.iterator();
             while (it.hasNext()) {
                 Projectile b = it.next();
@@ -275,24 +269,20 @@ public class Defender extends Character {
         Point2D.Double ap = artillery.getProjectilePosition();
         if (ap == null) return;
 
-        final double HIT_RADIUS = 8.0; // колко близо куршумът трябва да мине до снаряда
+        final double HIT_RADIUS = 8.0;
 
         Iterator<Projectile> it = projectiles.iterator();
         while (it.hasNext()) {
             Projectile b = it.next();
             b.updateProjectilePosition();
 
-            // ако имаш getters getX()/getY() – ползвай ги; иначе адаптирай според твоя клас Projectile
             double bx = b.getX();
             double by = b.getY();
 
             if (Point2D.distance(bx, by, ap.x, ap.y) <= HIT_RADIUS) {
-                // унищожи снаряда + ефект
                 artillery.destroyProjectileWithPop();
                 game.addExplosionEffect(ap.x, ap.y, 22, new Color(255, 160, 60), 400);
-                // премахни и нашия куршум
                 it.remove();
-                // няма повече какво да уцелим този тик
                 break;
             }
 
