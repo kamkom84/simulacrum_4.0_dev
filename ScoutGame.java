@@ -30,7 +30,6 @@ public class ScoutGame extends JFrame {
     private long startTime;
     private final int DEFENDER_SHIELD_RADIUS = (int) (baseWidth * 1.5);
 
-    // Край на играта
     private boolean gameOver = false;
     private String winner = "";
 
